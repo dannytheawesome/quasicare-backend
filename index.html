@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>QuasiCare</title>
   <style>
     body {
@@ -13,7 +13,7 @@
       padding: 0;
       text-align: center;
     }
-    h1, h2, h3 {
+    h1, h2 {
       margin-top: 1em;
     }
     button {
@@ -29,7 +29,7 @@
     button:hover {
       background-color: #444;
     }
-    textarea, input[type="text"] {
+    textarea {
       width: 80%;
       max-width: 500px;
       padding: 10px;
@@ -51,15 +51,6 @@
     .hidden {
       display: none;
     }
-    .vent-box {
-      background-color: #1a1a1a;
-      margin: 10px auto;
-      padding: 10px;
-      border-radius: 8px;
-      width: 90%;
-      max-width: 600px;
-      text-align: left;
-    }
     #disclaimerModal {
       position: fixed;
       top: 0;
@@ -78,17 +69,20 @@
   </style>
 </head>
 <body>
+
+  <!-- Disclaimer Modal -->
   <div id="disclaimerModal">
     <h2>Disclaimer</h2>
-<p>
-  QuasiCare is an anonymous support tool. Do not submit harmful, illegal, or confidential information. 
-  By continuing, you agree to our 
-  <a href="terms.html" target="_blank">Terms of Use</a> and 
-  <a href="privacy.html" target="_blank">Privacy Policy</a>.
-</p>
+    <p>
+      QuasiCare is an anonymous support tool. Do not submit harmful, illegal, or confidential information.
+      By continuing, you agree to our
+      <a href="terms.html" target="_blank">Terms of Use</a> and
+      <a href="privacy.html" target="_blank">Privacy Policy</a>.
+    </p>
     <button onclick="enterApp()">I Agree & Enter</button>
   </div>
 
+  <!-- Home -->
   <div id="homeScreen" class="hidden">
     <h1>QuasiCare</h1>
     <button onclick="showSection('talkScreen')">Talk</button>
@@ -96,71 +90,39 @@
     <button onclick="showSection('lookupScreen')">Check Replies</button>
   </div>
 
+  <!-- Talk -->
   <div id="talkScreen" class="hidden">
     <h2>Vent Anonymously</h2>
     <textarea id="ventInput" placeholder="Type your message..."></textarea><br>
     <button onclick="submitVent()">Submit</button>
     <button onclick="showSection('homeScreen')">Exit</button>
-    <div id="codeDisplay"></div>
+    <div id="codeDisplay" style="margin-top: 10px;"></div>
     <div class="footer">
-      <a href="#">Terms</a> | <a href="#">Privacy</a> | <a href="#">Disclaimer</a>
+      <a href="terms.html" target="_blank">Terms</a> |
+      <a href="privacy.html" target="_blank">Privacy</a> |
+      <a href="#">Disclaimer</a>
     </div>
   </div>
 
+  <!-- Future Screens -->
   <div id="listenScreen" class="hidden">
     <h2>Support Someone</h2>
-    <div id="ventFeed">Loading...</div>
+    <div id="ventFeed">Coming soon</div>
     <button onclick="showSection('homeScreen')">Exit</button>
-    <div class="footer">
-      <a href="#">Terms</a> | <a href="#">Privacy</a> | <a href="#">Disclaimer</a>
-    </div>
   </div>
 
   <div id="lookupScreen" class="hidden">
     <h2>Check for Replies</h2>
     <input id="lookupCode" placeholder="Enter your code..."><br>
-    <button onclick="lookupReplies()">Search</button>
+    <div id="repliesOutput" style="margin-top: 20px;"></div>
     <button onclick="showSection('homeScreen')">Back</button>
-    <div id="repliesOutput" style="margin-top:20px;"></div>
   </div>
 
-  <!-- Firebase -->
+  <!-- Script logic -->
   <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyDeHTQr0thvi-fBqIEZELFDI0VL70erlCE",
-    authDomain: "quasicare.firebaseapp.com",
-    databaseURL: "https://quasicare-default-rtdb.firebaseio.com",
-    projectId: "quasicare",
-    storageBucket: "quasicare.appspot.com",
-    messagingSenderId: "197366070004",
-    appId: "1:197366070004:web:2972eb9297102b6183bca1"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
-
-  window.submitVent = async function () {
-    const input = document.getElementById("ventInput");
-    const message = input.value.trim();
-    if (!message) return alert("Please write something.");
-
-    const code = Math.random().toString(36).substring(2, 8).toUpperCase();
-    await set(ref(db, `vents/${code}`), {
-      message,
-      reply: null,
-      timestamp: Date.now()
-    });
-
-    document.getElementById("codeDisplay").innerText = `Your code: ${code}. Save it to check replies.`;
-    input.value = "";
-  };
-
-  // Optional: listener logic, reply, lookupReplies can be moved here if needed
-</script>
-  <script>
     const firebaseConfig = {
       apiKey: "AIzaSyDeHTQr0thvi-fBqIEZELFDI0VL70erlCE",
       authDomain: "quasicare.firebaseapp.com",
@@ -171,68 +133,37 @@
       appId: "1:197366070004:web:2972eb9297102b6183bca1"
     };
 
-    const app = firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
 
-    function enterApp() {
+    window.enterApp = function () {
       document.getElementById('disclaimerModal').style.display = 'none';
       showSection('homeScreen');
-    }
+    };
 
-    function showSection(id) {
-      ['homeScreen', 'talkScreen', 'listenScreen', 'lookupScreen'].forEach(s => document.getElementById(s).classList.add('hidden'));
+    window.showSection = function (id) {
+      ['homeScreen', 'talkScreen', 'listenScreen', 'lookupScreen'].forEach(section => {
+        document.getElementById(section).classList.add('hidden');
+      });
       document.getElementById(id).classList.remove('hidden');
-    }
+    };
 
-    function generateCode() {
-      return Math.random().toString(36).substring(2, 8).toUpperCase();
-    }
+    window.submitVent = async function () {
+      const input = document.getElementById("ventInput");
+      const message = input.value.trim();
+      if (!message) return alert("Please write something.");
 
-    function submitVent() {
-      const text = document.getElementById("ventInput").value.trim();
-      if (!text) return alert("Please type something.");
-      const code = generateCode();
-      db.ref('vents/' + code).set({ message: text, reply: null, timestamp: Date.now() });
-      document.getElementById("codeDisplay").innerText = "Your code: " + code + ". Save it to check replies.";
-      document.getElementById("ventInput").value = "";
-    }
-
-    function loadVents() {
-      const container = document.getElementById("ventFeed");
-      db.ref('vents').on('value', snapshot => {
-        container.innerHTML = "";
-        const data = snapshot.val();
-        for (let code in data) {
-          const vent = data[code];
-          const box = document.createElement('div');
-          box.className = 'vent-box';
-          box.innerHTML = `<strong>${code}</strong><br>${vent.message}<br><br><textarea placeholder='Reply...'></textarea><br><button onclick="sendReply('${code}', this.previousElementSibling.value)">Send</button>`;
-          container.appendChild(box);
-        }
+      const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+      await set(ref(db, `vents/${code}`), {
+        message,
+        reply: null,
+        timestamp: Date.now()
       });
-    }
 
-    function sendReply(code, reply) {
-      if (!reply) return alert("Reply cannot be empty.");
-      db.ref('vents/' + code + '/reply').set(reply).then(() => alert("Reply sent."));
-    }
-
-    function lookupReplies() {
-      const code = document.getElementById("lookupCode").value.trim().toUpperCase();
-      const out = document.getElementById("repliesOutput");
-      db.ref('vents/' + code).once('value').then(snapshot => {
-        const data = snapshot.val();
-        if (!data) out.innerText = "Code not found.";
-        else if (data.reply) out.innerHTML = `<strong>Reply:</strong><br>${data.reply}`;
-        else out.innerText = "No reply yet.";
-      });
-    }
-
-    setInterval(() => {
-      if (!document.getElementById("listenScreen").classList.contains("hidden")) {
-        loadVents();
-      }
-    }, 4000);
+      document.getElementById("codeDisplay").innerText =
+        `Your anonymous code: ${code}. Save this to check replies later.`;
+      input.value = "";
+    };
   </script>
 </body>
 </html>
