@@ -70,7 +70,6 @@
 </head>
 <body>
 
-  <!-- Disclaimer Modal -->
   <div id="disclaimerModal">
     <h2>Disclaimer</h2>
     <p>
@@ -82,7 +81,6 @@
     <button onclick="enterApp()">I Agree & Enter</button>
   </div>
 
-  <!-- Home -->
   <div id="homeScreen" class="hidden">
     <h1>QuasiCare</h1>
     <button onclick="showSection('talkScreen')">Talk</button>
@@ -90,7 +88,6 @@
     <button onclick="showSection('lookupScreen')">Check Replies</button>
   </div>
 
-  <!-- Talk -->
   <div id="talkScreen" class="hidden">
     <h2>Vent Anonymously</h2>
     <textarea id="ventInput" placeholder="Type your message..."></textarea><br>
@@ -104,7 +101,6 @@
     </div>
   </div>
 
-  <!-- Listen -->
   <div id="listenScreen" class="hidden">
     <h2>Support Someone</h2>
     <div id="ventFeed">Loading...</div>
@@ -116,7 +112,6 @@
     </div>
   </div>
 
-  <!-- Check Replies -->
   <div id="lookupScreen" class="hidden">
     <h2>Check for Replies</h2>
     <input id="lookupCode" placeholder="Enter your code..."><br>
@@ -124,10 +119,9 @@
     <button onclick="showSection('homeScreen')">Back</button>
   </div>
 
-  <!-- Firebase SDK + Logic -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getDatabase, ref, set, onValue, update, get, child } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    import { getDatabase, ref, set, onValue, update, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDeHTQr0thvi-fBqIEZELFDI0VL70erlCE",
@@ -152,6 +146,8 @@
         document.getElementById(section).classList.add('hidden');
       });
       document.getElementById(id).classList.remove('hidden');
+
+      if (id === 'listenScreen') loadVents();
     };
 
     window.submitVent = async function () {
@@ -173,10 +169,8 @@
           timestamp: Date.now()
         });
 
-        console.log("Vent submitted:", code);
         codeDisplay.innerHTML = `<strong>Your anonymous code:</strong> <code>${code}</code><br>Save this to check replies.`;
         input.value = "";
-
       } catch (err) {
         console.error("Firebase submission error:", err);
         codeDisplay.innerHTML = `<span style="color:red;">Error submitting vent. Try again.</span>`;
@@ -198,6 +192,8 @@
         }
 
         Object.entries(data).reverse().forEach(([code, entry]) => {
+          if (entry.reply) return; // Hide already replied
+
           const box = document.createElement("div");
           box.style.background = "#1a1a1a";
           box.style.margin = "10px auto";
@@ -208,12 +204,9 @@
           box.style.textAlign = "left";
 
           box.innerHTML = `
-            <strong>Code:</strong> ${code}<br>
-            <strong>Message:</strong> ${entry.message}<br><br>
-            ${entry.reply ? 
-              `<strong>Already Replied:</strong><br>${entry.reply}` : 
-              `<textarea id="reply-${code}" placeholder="Write your reply..."></textarea>
-               <br><button onclick="sendReply('${code}')">Send Reply</button>`}
+            <strong>Message:</strong><br>${entry.message}<br><br>
+            <textarea id="reply-${code}" placeholder="Write your reply..."></textarea><br>
+            <button onclick="sendReply('${code}')">Send Reply</button>
           `;
 
           feed.appendChild(box);
@@ -221,27 +214,45 @@
       });
     }
 
-    window.sendReply = async function(code) {
-      const textarea = document.getElementById(`reply-${code}`);
-      const reply = textarea.value.trim();
-      if (!reply) return alert("Reply cannot be empty.");
+    window.sendReply = async function (code) {
+      const text = document.getElementById("reply-" + code).value.trim();
+      if (!text) return alert("Please write something.");
 
       try {
-        await update(ref(db, `vents/${code}`), { reply });
+        await update(ref(db, `vents/${code}`), {
+          reply: text
+        });
         alert("Reply sent.");
-        loadVents(); // Refresh the feed
       } catch (err) {
-        console.error("Error sending reply:", err);
+        console.error("Reply error:", err);
         alert("Failed to send reply.");
       }
     };
 
-    setInterval(() => {
-      const listenScreen = document.getElementById("listenScreen");
-      if (!listenScreen.classList.contains("hidden")) {
-        loadVents();
+    window.lookupReplies = async function () {
+      const code = document.getElementById("lookupCode").value.trim().toUpperCase();
+      const output = document.getElementById("repliesOutput");
+
+      if (!code) {
+        output.innerHTML = "Please enter a code.";
+        return;
       }
-    }, 5000);
+
+      try {
+        const snapshot = await get(ref(db, `vents/${code}`));
+        const data = snapshot.val();
+
+        if (!data) {
+          output.innerHTML = "Code not found.";
+        } else if (data.reply) {
+          output.innerHTML = `<strong>Reply:</strong><br>${data.reply}`;
+        } else {
+          output.innerHTML = "No reply yet.";
+        }
+      } catch (err) {
+        output.innerHTML = "Error fetching reply.";
+      }
+    };
   </script>
 </body>
 </html>
