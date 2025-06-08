@@ -2,21 +2,24 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import re
 
-banned_keywords = [
-    "kill", "hate", "die", "suicide", "bomb", "shoot", "stab", "rape", "murder",
-    "abuse", "terrorist", "attack", "self-harm", "explosive", "harm", "threat",
-    "cut", "burn", "gun", "violence", "slaughter", "blood", "death", "hurt", "hurt someone"
-]
-
 app = Flask(__name__)
 CORS(app)
+
+# Expanded keyword list with phrases
+banned_patterns = [
+    r"\bhate\b", r"\bkill\b", r"\bdie\b", r"\bpunch\b", r"\bhurt\b",
+    r"\bsuicide\b", r"\bshoot\b", r"\bstab\b", r"\battack\b", r"\bexplode\b",
+    r"\bi want to (hurt|kill|punch|hit|stab|harm|fight) someone\b",
+    r"\bi feel like (hurting|punching|killing|attacking) someone\b",
+    r"\bsomeone deserves to (die|suffer|get hurt)\b"
+]
 
 @app.route("/moderate", methods=["POST"])
 def moderate():
     data = request.get_json()
     message = data.get("message", "").lower()
 
-    matched = [word for word in banned_keywords if re.search(r'\b' + re.escape(word) + r'\b', message)]
+    matched = [pat for pat in banned_patterns if re.search(pat, message)]
     flagged = bool(matched)
 
     return jsonify({
