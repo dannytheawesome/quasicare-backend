@@ -29,7 +29,7 @@
     button:hover {
       background-color: #444;
     }
-    textarea {
+    textarea, input[type="text"] {
       width: 80%;
       max-width: 500px;
       padding: 10px;
@@ -66,10 +66,20 @@
       align-items: center;
       padding: 20px;
     }
+    .vent-box {
+      background-color: #1a1a1a;
+      margin: 10px auto;
+      padding: 15px;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 600px;
+      text-align: left;
+    }
   </style>
 </head>
 <body>
 
+  <!-- Disclaimer Modal -->
   <div id="disclaimerModal">
     <h2>Disclaimer</h2>
     <p>
@@ -81,6 +91,7 @@
     <button onclick="enterApp()">I Agree & Enter</button>
   </div>
 
+  <!-- Home -->
   <div id="homeScreen" class="hidden">
     <h1>QuasiCare</h1>
     <button onclick="showSection('talkScreen')">Talk</button>
@@ -88,6 +99,7 @@
     <button onclick="showSection('lookupScreen')">Check Replies</button>
   </div>
 
+  <!-- Talk -->
   <div id="talkScreen" class="hidden">
     <h2>Vent Anonymously</h2>
     <textarea id="ventInput" placeholder="Type your message..."></textarea><br>
@@ -101,6 +113,7 @@
     </div>
   </div>
 
+  <!-- Listen -->
   <div id="listenScreen" class="hidden">
     <h2>Support Someone</h2>
     <div id="ventFeed">Loading...</div>
@@ -112,16 +125,25 @@
     </div>
   </div>
 
+  <!-- Check Replies -->
   <div id="lookupScreen" class="hidden">
     <h2>Check for Replies</h2>
+    <p>Enter the code you received after submitting your message.</p>
     <input id="lookupCode" placeholder="Enter your code..."><br>
-    <div id="repliesOutput" style="margin-top: 20px;"></div>
+    <button onclick="lookupReplies()">Search</button>
     <button onclick="showSection('homeScreen')">Back</button>
+    <div id="repliesOutput" style="margin-top: 20px; font-size: 16px;"></div>
+    <div class="footer">
+      <a href="terms.html" target="_blank">Terms</a> |
+      <a href="privacy.html" target="_blank">Privacy</a> |
+      <a href="#">Disclaimer</a>
+    </div>
   </div>
 
+  <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getDatabase, ref, set, onValue, update, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    import { getDatabase, ref, set, onValue, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDeHTQr0thvi-fBqIEZELFDI0VL70erlCE",
@@ -178,63 +200,55 @@
     };
 
     function loadVents() {
-      const feed = document.getElementById("ventFeed");
-      feed.innerHTML = "Loading...";
+      const container = document.getElementById("ventFeed");
+      container.innerHTML = "Loading...";
+      const ventsRef = ref(db, 'vents');
 
-      const ventsRef = ref(db, "vents");
-      onValue(ventsRef, snapshot => {
+      onValue(ventsRef, (snapshot) => {
         const data = snapshot.val();
-        feed.innerHTML = "";
+        container.innerHTML = "";
 
         if (!data) {
-          feed.innerHTML = "No vents yet.";
+          container.innerText = "No vents available yet.";
           return;
         }
 
-        Object.entries(data).reverse().forEach(([code, entry]) => {
-          if (entry.reply) return; // Hide already replied
+        Object.entries(data).forEach(([code, entry]) => {
+          if (entry.reply) return; // Skip vents that already have a reply
 
-          const box = document.createElement("div");
-          box.style.background = "#1a1a1a";
-          box.style.margin = "10px auto";
-          box.style.padding = "15px";
-          box.style.borderRadius = "8px";
-          box.style.width = "90%";
-          box.style.maxWidth = "600px";
-          box.style.textAlign = "left";
-
+          const box = document.createElement('div');
+          box.className = 'vent-box';
           box.innerHTML = `
-            <strong>Message:</strong><br>${entry.message}<br><br>
-            <textarea id="reply-${code}" placeholder="Write your reply..."></textarea><br>
-            <button onclick="sendReply('${code}')">Send Reply</button>
+            <strong>Message:</strong> ${entry.message}<br><br>
+            <textarea placeholder="Write your reply..."></textarea><br>
+            <button onclick="sendReply('${code}', this.previousElementSibling.value)">Send Reply</button>
           `;
-
-          feed.appendChild(box);
+          container.appendChild(box);
         });
       });
     }
 
-    window.sendReply = async function (code) {
-      const text = document.getElementById("reply-" + code).value.trim();
-      if (!text) return alert("Please write something.");
-
+    window.sendReply = async function (code, reply) {
+      if (!reply) return alert("Reply cannot be empty.");
       try {
-        await update(ref(db, `vents/${code}`), {
-          reply: text
-        });
+        await set(ref(db, `vents/${code}/reply`), reply);
         alert("Reply sent.");
+        loadVents();
       } catch (err) {
-        console.error("Reply error:", err);
         alert("Failed to send reply.");
+        console.error(err);
       }
     };
 
     window.lookupReplies = async function () {
-      const code = document.getElementById("lookupCode").value.trim().toUpperCase();
+      const input = document.getElementById("lookupCode");
+      const code = input.value.trim().toUpperCase();
       const output = document.getElementById("repliesOutput");
 
+      output.innerHTML = "";
+
       if (!code) {
-        output.innerHTML = "Please enter a code.";
+        output.innerHTML = "<span style='color: orange;'>Please enter your code.</span>";
         return;
       }
 
@@ -243,14 +257,17 @@
         const data = snapshot.val();
 
         if (!data) {
-          output.innerHTML = "Code not found.";
+          output.innerHTML = "<span style='color: red;'>Code not found. Double-check and try again.</span>";
         } else if (data.reply) {
-          output.innerHTML = `<strong>Reply:</strong><br>${data.reply}`;
+          output.innerHTML = `<strong>Someone replied to you:</strong><br><div style="margin-top:10px; padding:10px; background:#1e1e1e; border-radius:6px;">${data.reply}</div>`;
         } else {
-          output.innerHTML = "No reply yet.";
+          output.innerHTML = "<span style='color: gray;'>No reply yet. Please check back later.</span>";
         }
+
+        input.value = "";
       } catch (err) {
-        output.innerHTML = "Error fetching reply.";
+        console.error("Lookup error:", err);
+        output.innerHTML = "<span style='color: red;'>Error retrieving reply. Try again later.</span>";
       }
     };
   </script>
