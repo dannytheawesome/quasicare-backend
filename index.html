@@ -101,15 +101,17 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
   <script>
+    // REPLACE these values locally; do not commit actual keys
     const firebaseConfig = {
-      apiKey: "AIzaSyAqEp_EIjR61rc0k8o4dJsvyB62DCe77OM",
-      authDomain: "quasicare.firebaseapp.com",
-      databaseURL: "https://quasicare-default-rtdb.firebaseio.com",
-      projectId: "quasicare",
-      storageBucket: "quasicare.appspot.com",
-      messagingSenderId: "849765157350",
-      appId: "1:849765157350:web:73e4e4233b44a4aa84a5a3"
+      apiKey: "REPLACE_WITH_YOUR_API_KEY",
+      authDomain: "REPLACE_WITH_YOUR_AUTH_DOMAIN",
+      databaseURL: "REPLACE_WITH_YOUR_DATABASE_URL",
+      projectId: "REPLACE_WITH_YOUR_PROJECT_ID",
+      storageBucket: "REPLACE_WITH_YOUR_STORAGE_BUCKET",
+      messagingSenderId: "REPLACE_WITH_YOUR_SENDER_ID",
+      appId: "REPLACE_WITH_YOUR_APP_ID"
     };
+
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
@@ -171,7 +173,6 @@
         .catch(() => alert("Error: Invalid code."));
     }
 
-    // Auto-refresh vent list in listen mode
     setInterval(() => {
       if (!document.getElementById('listenScreen').classList.contains('hidden')) {
         loadVents();
