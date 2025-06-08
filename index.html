@@ -18,11 +18,13 @@
       min-height: 100vh;
       text-align: center;
     }
+
     .modal, .container {
       padding: 30px;
       max-width: 700px;
       width: 90%;
     }
+
     .modal {
       position: fixed;
       z-index: 10;
@@ -33,12 +35,15 @@
       transform: translate(-50%, -50%);
       box-shadow: 0 0 20px rgba(0,0,0,0.4);
     }
+
     h1, h2 {
       margin-bottom: 20px;
     }
+
     p {
       margin-bottom: 20px;
     }
+
     .btn {
       padding: 12px 24px;
       font-size: 1rem;
@@ -48,27 +53,34 @@
       margin: 10px;
       transition: background-color 0.3s;
     }
+
     .btn-talk, .btn-submit {
       background-color: #333;
       color: #fff;
     }
+
     .btn-talk:hover, .btn-submit:hover {
       background-color: #555;
     }
+
     .btn-listen {
       background-color: #444;
       color: #fff;
     }
+
     .btn-listen:hover {
       background-color: #666;
     }
+
     .btn-exit {
       background-color: #1c1c1c;
       color: #ccc;
     }
+
     .btn-exit:hover {
       background-color: #2a2a2a;
     }
+
     textarea {
       width: 100%;
       max-width: 600px;
@@ -80,16 +92,19 @@
       border-radius: 10px;
       padding: 10px;
     }
-    #ventBox, #responseBox, #checkBox {
+
+    #ventBox, #responseBox {
       display: none;
     }
-    .footer {
-      margin-top: 30px;
-    }
-    .footer a {
-      color: #aaa;
-      margin: 0 10px;
+
+    footer {
+      margin-top: 40px;
       font-size: 0.9rem;
+    }
+
+    footer a {
+      color: #aaa;
+      text-decoration: underline;
     }
   </style>
 </head>
@@ -103,11 +118,10 @@
 
   <div class="container" id="mainContent" style="display:none;">
     <h1>Welcome to QuasiCare</h1>
-    <p>Select an option below to either share your thoughts, support someone in need, or check your replies.</p>
+    <p>Select an option below to either share your thoughts or support someone in need. All interactions are anonymous and safe.</p>
     <div>
       <button class="btn btn-talk" onclick="showVent()">Talk</button>
       <button class="btn btn-listen" onclick="showListen()">Listen</button>
-      <button class="btn btn-talk" onclick="showCheckReplies()">Check Replies</button>
     </div>
 
     <div id="ventBox">
@@ -122,6 +136,99 @@
     <div id="responseBox">
       <h2>Support Someone</h2>
       <div id="ventDisplay" class="vent-card">Loading...</div>
-      <textarea id="replyInput" placeholder="Write a supportive message..."></textarea>
+      <textarea id="responseInput" placeholder="Write a supportive message..."></textarea>
       <div>
-        <button class="btn btn-listen" onclick="sendReply()
+        <button class="btn btn-listen" onclick="sendResponse()">Send Response</button>
+        <button class="btn btn-exit" onclick="resetBoxes()">Exit</button>
+      </div>
+    </div>
+
+    <footer>
+      <a href="terms.html">Terms</a> | 
+      <a href="privacy.html">Privacy</a> | 
+      <a href="disclaimer.html">Disclaimer</a>
+    </footer>
+  </div>
+
+  <!-- Global Script -->
+  <script>
+    function acceptTerms() {
+      document.getElementById("termsModal").style.display = "none";
+      document.getElementById("mainContent").style.display = "block";
+    }
+
+    function resetBoxes() {
+      document.getElementById("ventBox").style.display = "none";
+      document.getElementById("responseBox").style.display = "none";
+    }
+  </script>
+
+  <!-- Firebase + App Logic -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDeHTQr0thvi-fBqIEZELFDI0VL70erlCE",
+      authDomain: "quasicare.firebaseapp.com",
+      databaseURL: "https://quasicare-default-rtdb.firebaseio.com",
+      projectId: "quasicare",
+      storageBucket: "quasicare.appspot.com",
+      messagingSenderId: "197366070004",
+      appId: "1:197366070004:web:2972eb9297102b6183bca1"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    window.showVent = function () {
+      resetBoxes();
+      document.getElementById("ventBox").style.display = "block";
+    }
+
+    window.showListen = function () {
+      resetBoxes();
+      document.getElementById("responseBox").style.display = "block";
+      const display = document.getElementById("ventDisplay");
+      display.innerHTML = "<em>Loading latest messages...</em>";
+      const messagesRef = ref(db, 'vents');
+      onChildAdded(messagesRef, (data) => {
+        const post = data.val().message;
+        display.innerHTML = `<strong>Anonymous Post:</strong><br>"${post}"`;
+      });
+    }
+
+    window.submitMessage = async function () {
+      const input = document.getElementById("ventInput");
+      const message = input.value.trim();
+      if (!message) return alert("Please type something.");
+      try {
+        const response = await fetch("https://quasicare-backend.onrender.com/moderate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message })
+        });
+        const result = await response.json();
+        if (result.flagged) return alert("Message flagged for review. Please rephrase.");
+        await push(ref(db, 'vents'), {
+          message,
+          timestamp: Date.now()
+        });
+        alert("Your message has been submitted.");
+        input.value = "";
+        resetBoxes();
+      } catch (err) {
+        alert("Error contacting moderation server.");
+        console.error(err);
+      }
+    }
+
+    window.sendResponse = function () {
+      const reply = document.getElementById("responseInput").value.trim();
+      if (!reply) return alert("Please type your response.");
+      alert("Thank you for your support! This feature is coming soon.");
+      document.getElementById("responseInput").value = "";
+    }
+  </script>
+</body>
+</html>
