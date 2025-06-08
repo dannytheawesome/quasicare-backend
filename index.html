@@ -125,8 +125,41 @@
   </div>
 
   <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"></script>
+  <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDeHTQr0thvi-fBqIEZELFDI0VL70erlCE",
+    authDomain: "quasicare.firebaseapp.com",
+    databaseURL: "https://quasicare-default-rtdb.firebaseio.com",
+    projectId: "quasicare",
+    storageBucket: "quasicare.appspot.com",
+    messagingSenderId: "197366070004",
+    appId: "1:197366070004:web:2972eb9297102b6183bca1"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  window.submitVent = async function () {
+    const input = document.getElementById("ventInput");
+    const message = input.value.trim();
+    if (!message) return alert("Please write something.");
+
+    const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+    await set(ref(db, `vents/${code}`), {
+      message,
+      reply: null,
+      timestamp: Date.now()
+    });
+
+    document.getElementById("codeDisplay").innerText = `Your code: ${code}. Save it to check replies.`;
+    input.value = "";
+  };
+
+  // Optional: listener logic, reply, lookupReplies can be moved here if needed
+</script>
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyDeHTQr0thvi-fBqIEZELFDI0VL70erlCE",
