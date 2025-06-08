@@ -11,39 +11,16 @@
       color: #ffffff;
       margin: 0;
       padding: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
       text-align: center;
     }
-
-    .modal, .container {
-      padding: 30px;
+    .container, .footer {
       max-width: 700px;
-      width: 90%;
+      margin: 0 auto;
+      padding: 30px 20px;
     }
-
-    .modal {
-      position: fixed;
-      z-index: 10;
-      background: #1e1e1e;
-      border-radius: 12px;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      box-shadow: 0 0 20px rgba(0,0,0,0.4);
-    }
-
     h1, h2 {
       margin-bottom: 20px;
     }
-
-    p {
-      margin-bottom: 20px;
-    }
-
     .btn {
       padding: 12px 24px;
       font-size: 1rem;
@@ -51,48 +28,47 @@
       border-radius: 8px;
       cursor: pointer;
       margin: 10px;
-      transition: background-color 0.3s;
-    }
-
-    .btn-talk, .btn-submit {
       background-color: #333;
       color: #fff;
     }
-
-    .btn-talk:hover, .btn-submit:hover {
+    .btn:hover {
       background-color: #555;
     }
-
-    .btn-listen {
-      background-color: #444;
-      color: #fff;
-    }
-
-    .btn-listen:hover {
-      background-color: #666;
-    }
-
-    .btn-exit {
-      background-color: #1c1c1c;
-      color: #ccc;
-    }
-
-    .btn-exit:hover {
-      background-color: #2a2a2a;
-    }
-
     textarea {
       width: 100%;
       max-width: 600px;
       height: 120px;
-      margin-top: 10px;
       background: #1a1a1a;
       color: white;
       border: none;
       border-radius: 10px;
       padding: 10px;
+      margin-top: 10px;
     }
-
+    .modal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.95);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+    }
+    .modal-content {
+      background: #1e1e1e;
+      padding: 30px;
+      border-radius: 12px;
+      text-align: center;
+      max-width: 600px;
+      width: 90%;
+    }
+    .footer a {
+      color: #999;
+      text-decoration: none;
+      margin: 0 10px;
+      font-size: 0.9rem;
+    }
     #ventBox, #responseBox {
       display: none;
     }
@@ -100,38 +76,39 @@
 </head>
 <body>
   <div class="modal" id="termsModal">
-    <h2>Terms & Disclaimer</h2>
-    <p>QuasiCare is not a medical service. All communication is anonymous and peer-based.</p>
-    <p>If you are in danger, call emergency services.</p>
-    <button class="btn btn-submit" onclick="acceptTerms()">I Agree & Enter</button>
+    <div class="modal-content">
+      <h2>Terms & Disclaimer</h2>
+      <p>QuasiCare is not a medical service. All communication is anonymous and peer-based.</p>
+      <p>If you are in danger, call emergency services.</p>
+      <button class="btn" onclick="acceptTerms()">I Agree & Enter</button>
+    </div>
   </div>
 
-  <div class="container" id="mainContent" style="display:none;">
+  <div class="container" id="welcome">
     <h1>Welcome to QuasiCare</h1>
     <p>Select an option below to either share your thoughts or support someone in need. All interactions are anonymous and safe.</p>
-    <div>
-      <button class="btn btn-talk" onclick="showVent()">Talk</button>
-      <button class="btn btn-listen" onclick="showListen()">Listen</button>
-    </div>
+    <button class="btn" onclick="showVent()">Talk</button>
+    <button class="btn" onclick="showListen()">Listen</button>
+  </div>
 
-    <div id="ventBox">
-      <h2>Vent Anonymously</h2>
-      <textarea id="ventInput" placeholder="Type your message..."></textarea>
-      <div>
-        <button class="btn btn-submit" onclick="submitMessage()">Submit</button>
-        <button class="btn btn-exit" onclick="resetBoxes()">Exit</button>
-      </div>
-    </div>
+  <div class="container" id="ventBox">
+    <h2>Vent Anonymously</h2>
+    <textarea id="ventInput" placeholder="Type your message..."></textarea><br>
+    <button class="btn" onclick="submitMessage()">Submit</button>
+    <button class="btn" onclick="resetBoxes()">Exit</button>
+  </div>
 
-    <div id="responseBox">
-      <h2>Support Someone</h2>
-      <div id="ventDisplay" class="vent-card">Loading...</div>
-      <textarea placeholder="Write a supportive message..."></textarea>
-      <div>
-        <button class="btn btn-listen">Send Response</button>
-        <button class="btn btn-exit" onclick="resetBoxes()">Exit</button>
-      </div>
-    </div>
+  <div class="container" id="responseBox">
+    <h2>Support Someone</h2>
+    <div id="ventDisplay">Loading...</div>
+    <textarea id="responseInput" placeholder="Write a supportive message..."></textarea><br>
+    <button class="btn" onclick="sendResponse()">Send Response</button>
+    <button class="btn" onclick="resetBoxes()">Exit</button>
+  </div>
+
+  <div class="footer">
+    <a href="terms.html" target="_blank">Terms of Use</a>
+    <a href="privacy.html" target="_blank">Privacy Policy</a>
   </div>
 
   <script type="module">
@@ -153,16 +130,15 @@
 
     window.acceptTerms = function () {
       document.getElementById("termsModal").style.display = "none";
-      document.getElementById("mainContent").style.display = "block";
     }
 
     window.showVent = function () {
-      resetBoxes();
+      hideAll();
       document.getElementById("ventBox").style.display = "block";
     }
 
     window.showListen = function () {
-      resetBoxes();
+      hideAll();
       document.getElementById("responseBox").style.display = "block";
       const display = document.getElementById("ventDisplay");
       display.innerHTML = "<em>Loading latest messages...</em>";
@@ -174,8 +150,14 @@
     }
 
     window.resetBoxes = function () {
+      hideAll();
+      document.getElementById("welcome").style.display = "block";
+    }
+
+    function hideAll() {
       document.getElementById("ventBox").style.display = "none";
       document.getElementById("responseBox").style.display = "none";
+      document.getElementById("welcome").style.display = "none";
     }
 
     window.submitMessage = async function () {
@@ -189,7 +171,7 @@
           body: JSON.stringify({ message })
         });
         const result = await response.json();
-        if (result.flagged) return alert("Message flagged for review. Please rephrase.");
+        if (result.flagged) return alert("Message flagged. Please rephrase.");
         await push(ref(db, 'vents'), {
           message,
           timestamp: Date.now()
@@ -201,6 +183,10 @@
         alert("Error contacting moderation server.");
         console.error(err);
       }
+    }
+
+    window.sendResponse = function () {
+      alert("This feature will allow sending anonymous replies soon!");
     }
   </script>
 </body>
