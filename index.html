@@ -100,19 +100,19 @@
     <div class="footer">
       <a href="terms.html" target="_blank">Terms</a> |
       <a href="privacy.html" target="_blank">Privacy</a> |
-      <a href="disclaimer.html" target="_blank">Disclaimer</a>
+      <a href="#">Disclaimer</a>
     </div>
   </div>
 
   <!-- Listen -->
   <div id="listenScreen" class="hidden">
     <h2>Support Someone</h2>
-    <div id="ventFeed">Coming soon</div>
+    <div id="ventFeed">Loading...</div>
     <button onclick="showSection('homeScreen')">Exit</button>
     <div class="footer">
       <a href="terms.html" target="_blank">Terms</a> |
       <a href="privacy.html" target="_blank">Privacy</a> |
-      <a href="disclaimer.html" target="_blank">Disclaimer</a>
+      <a href="#">Disclaimer</a>
     </div>
   </div>
 
@@ -122,17 +122,12 @@
     <input id="lookupCode" placeholder="Enter your code..."><br>
     <div id="repliesOutput" style="margin-top: 20px;"></div>
     <button onclick="showSection('homeScreen')">Back</button>
-    <div class="footer">
-      <a href="terms.html" target="_blank">Terms</a> |
-      <a href="privacy.html" target="_blank">Privacy</a> |
-      <a href="disclaimer.html" target="_blank">Disclaimer</a>
-    </div>
   </div>
 
-  <!-- Firebase SDK -->
+  <!-- Firebase SDK + Logic -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    import { getDatabase, ref, set, onValue, update, get, child } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDeHTQr0thvi-fBqIEZELFDI0VL70erlCE",
@@ -187,6 +182,66 @@
         codeDisplay.innerHTML = `<span style="color:red;">Error submitting vent. Try again.</span>`;
       }
     };
+
+    function loadVents() {
+      const feed = document.getElementById("ventFeed");
+      feed.innerHTML = "Loading...";
+
+      const ventsRef = ref(db, "vents");
+      onValue(ventsRef, snapshot => {
+        const data = snapshot.val();
+        feed.innerHTML = "";
+
+        if (!data) {
+          feed.innerHTML = "No vents yet.";
+          return;
+        }
+
+        Object.entries(data).reverse().forEach(([code, entry]) => {
+          const box = document.createElement("div");
+          box.style.background = "#1a1a1a";
+          box.style.margin = "10px auto";
+          box.style.padding = "15px";
+          box.style.borderRadius = "8px";
+          box.style.width = "90%";
+          box.style.maxWidth = "600px";
+          box.style.textAlign = "left";
+
+          box.innerHTML = `
+            <strong>Code:</strong> ${code}<br>
+            <strong>Message:</strong> ${entry.message}<br><br>
+            ${entry.reply ? 
+              `<strong>Already Replied:</strong><br>${entry.reply}` : 
+              `<textarea id="reply-${code}" placeholder="Write your reply..."></textarea>
+               <br><button onclick="sendReply('${code}')">Send Reply</button>`}
+          `;
+
+          feed.appendChild(box);
+        });
+      });
+    }
+
+    window.sendReply = async function(code) {
+      const textarea = document.getElementById(`reply-${code}`);
+      const reply = textarea.value.trim();
+      if (!reply) return alert("Reply cannot be empty.");
+
+      try {
+        await update(ref(db, `vents/${code}`), { reply });
+        alert("Reply sent.");
+        loadVents(); // Refresh the feed
+      } catch (err) {
+        console.error("Error sending reply:", err);
+        alert("Failed to send reply.");
+      }
+    };
+
+    setInterval(() => {
+      const listenScreen = document.getElementById("listenScreen");
+      if (!listenScreen.classList.contains("hidden")) {
+        loadVents();
+      }
+    }, 5000);
   </script>
 </body>
 </html>
