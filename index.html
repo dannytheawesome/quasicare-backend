@@ -13,13 +13,22 @@
       padding: 0;
       text-align: center;
     }
-    .container, .footer {
-      max-width: 700px;
-      margin: 0 auto;
-      padding: 30px 20px;
+    .container {
+      padding: 40px 20px;
+      max-width: 800px;
+      margin: auto;
     }
-    h1, h2 {
-      margin-bottom: 20px;
+    .hidden { display: none; }
+    h1, h2 { margin: 16px 0; }
+    textarea {
+      width: 90%;
+      max-width: 600px;
+      height: 120px;
+      background: #1a1a1a;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 10px;
     }
     .btn {
       padding: 12px 24px;
@@ -28,92 +37,62 @@
       border-radius: 8px;
       cursor: pointer;
       margin: 10px;
-      background-color: #333;
-      color: #fff;
+      background: #2f2f2f;
+      color: white;
     }
     .btn:hover {
-      background-color: #555;
+      background: #444;
     }
-    textarea {
-      width: 100%;
-      max-width: 600px;
-      height: 120px;
-      background: #1a1a1a;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      padding: 10px;
-      margin-top: 10px;
-    }
-    .modal {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.95);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 10;
-    }
-    .modal-content {
-      background: #1e1e1e;
-      padding: 30px;
-      border-radius: 12px;
-      text-align: center;
-      max-width: 600px;
-      width: 90%;
+    .footer {
+      margin-top: 40px;
     }
     .footer a {
-      color: #999;
-      text-decoration: none;
+      color: #aaa;
       margin: 0 10px;
-      font-size: 0.9rem;
-    }
-    #ventBox, #responseBox {
-      display: none;
     }
   </style>
 </head>
 <body>
-  <div class="modal" id="termsModal">
-    <div class="modal-content">
-      <h2>Terms & Disclaimer</h2>
-      <p>QuasiCare is not a medical service. All communication is anonymous and peer-based.</p>
-      <p>If you are in danger, call emergency services.</p>
-      <button class="btn" onclick="acceptTerms()">I Agree & Enter</button>
-    </div>
-  </div>
-
   <div class="container" id="welcome">
     <h1>Welcome to QuasiCare</h1>
     <p>Select an option below to either share your thoughts or support someone in need. All interactions are anonymous and safe.</p>
-    <button class="btn" onclick="showVent()">Talk</button>
-    <button class="btn" onclick="showListen()">Listen</button>
+    <button class="btn" onclick="showSection('vent')">Talk</button>
+    <button class="btn" onclick="showSection('listen')">Listen</button>
+    <button class="btn" onclick="showSection('check')">Check Replies</button>
   </div>
 
-  <div class="container" id="ventBox">
+  <div class="container hidden" id="vent">
     <h2>Vent Anonymously</h2>
     <textarea id="ventInput" placeholder="Type your message..."></textarea><br>
-    <button class="btn" onclick="submitMessage()">Submit</button>
-    <button class="btn" onclick="resetBoxes()">Exit</button>
+    <button class="btn" onclick="submitVent()">Submit</button>
+    <button class="btn" onclick="goBack()">Exit</button>
+    <p id="codeDisplay"></p>
   </div>
 
-  <div class="container" id="responseBox">
+  <div class="container hidden" id="listen">
     <h2>Support Someone</h2>
     <div id="ventDisplay">Loading...</div>
-    <textarea id="responseInput" placeholder="Write a supportive message..."></textarea><br>
-    <button class="btn" onclick="sendResponse()">Send Response</button>
-    <button class="btn" onclick="resetBoxes()">Exit</button>
+    <textarea id="replyInput" placeholder="Write a supportive message..."></textarea><br>
+    <button class="btn" onclick="submitReply()">Send Response</button>
+    <button class="btn" onclick="goBack()">Exit</button>
+  </div>
+
+  <div class="container hidden" id="check">
+    <h2>Check Your Replies</h2>
+    <input type="text" id="codeInput" placeholder="Enter your code..." /><br><br>
+    <div id="replyDisplay">Responses will appear here.</div>
+    <button class="btn" onclick="loadReplies()">Check</button>
+    <button class="btn" onclick="goBack()">Exit</button>
   </div>
 
   <div class="footer">
-    <a href="terms.html" target="_blank">Terms of Use</a>
-    <a href="privacy.html" target="_blank">Privacy Policy</a>
+    <a href="terms.html">Terms of Use</a>
+    <a href="privacy.html">Privacy Policy</a>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    import { getDatabase, ref, push, set, onChildAdded, child, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDeHTQr0thvi-fBqIEZELFDI0VL70erlCE",
@@ -128,41 +107,26 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    window.acceptTerms = function () {
-      document.getElementById("termsModal").style.display = "none";
+    let currentCode = "";
+
+    function generateCode() {
+      return Math.random().toString(36).substr(2, 5).toUpperCase();
     }
 
-    window.showVent = function () {
-      hideAll();
-      document.getElementById("ventBox").style.display = "block";
+    window.showSection = function (id) {
+      document.querySelectorAll('.container').forEach(div => div.classList.add('hidden'));
+      document.getElementById(id).classList.remove('hidden');
+      if (id === 'listen') {
+        const listenRef = ref(db, 'vents');
+        onChildAdded(listenRef, (snap) => {
+          currentCode = snap.key;
+          document.getElementById('ventDisplay').innerHTML = `<strong>Anonymous Post:</strong><br>"${snap.val().message}"`;
+        });
+      }
     }
 
-    window.showListen = function () {
-      hideAll();
-      document.getElementById("responseBox").style.display = "block";
-      const display = document.getElementById("ventDisplay");
-      display.innerHTML = "<em>Loading latest messages...</em>";
-      const messagesRef = ref(db, 'vents');
-      onChildAdded(messagesRef, (data) => {
-        const post = data.val().message;
-        display.innerHTML = `<strong>Anonymous Post:</strong><br>"${post}"`;
-      });
-    }
-
-    window.resetBoxes = function () {
-      hideAll();
-      document.getElementById("welcome").style.display = "block";
-    }
-
-    function hideAll() {
-      document.getElementById("ventBox").style.display = "none";
-      document.getElementById("responseBox").style.display = "none";
-      document.getElementById("welcome").style.display = "none";
-    }
-
-    window.submitMessage = async function () {
-      const input = document.getElementById("ventInput");
-      const message = input.value.trim();
+    window.submitVent = async function () {
+      const message = document.getElementById('ventInput').value.trim();
       if (!message) return alert("Please type something.");
       try {
         const response = await fetch("https://quasicare-backend.onrender.com/moderate", {
@@ -172,21 +136,39 @@
         });
         const result = await response.json();
         if (result.flagged) return alert("Message flagged. Please rephrase.");
-        await push(ref(db, 'vents'), {
-          message,
-          timestamp: Date.now()
-        });
-        alert("Your message has been submitted.");
-        input.value = "";
-        resetBoxes();
-      } catch (err) {
+        const code = generateCode();
+        await set(ref(db, 'vents/' + code), { message });
+        document.getElementById('codeDisplay').innerText = `Your reply code: ${code}`;
+        currentCode = code;
+      } catch (e) {
         alert("Error contacting moderation server.");
-        console.error(err);
       }
     }
 
-    window.sendResponse = function () {
+    window.submitReply = async function () {
+      const message = document.getElementById('replyInput').value.trim();
+      if (!message) return;
+      if (!currentCode) return alert("No active post to reply to.");
+      await push(ref(db, `replies/${currentCode}`), {
+        message,
+        timestamp: Date.now()
+      });
       alert("This feature will allow sending anonymous replies soon!");
+    }
+
+    window.loadReplies = async function () {
+      const code = document.getElementById('codeInput').value.trim().toUpperCase();
+      const replyRef = ref(db, `replies/${code}`);
+      const snap = await get(replyRef);
+      const replyBox = document.getElementById("replyDisplay");
+      if (!snap.exists()) return replyBox.innerText = "No replies yet.";
+      const messages = Object.values(snap.val()).map(r => `- ${r.message}`).join("\n");
+      replyBox.innerText = messages;
+    }
+
+    window.goBack = function () {
+      document.querySelectorAll('.container').forEach(div => div.classList.add('hidden'));
+      document.getElementById('welcome').classList.remove('hidden');
     }
   </script>
 </body>
