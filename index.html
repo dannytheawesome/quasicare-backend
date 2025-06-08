@@ -82,7 +82,7 @@
     <button onclick="enterApp()">I Agree & Enter</button>
   </div>
 
-  <!-- Home -->
+  <!-- Home Screen -->
   <div id="homeScreen" class="hidden">
     <h1>QuasiCare</h1>
     <button onclick="showSection('talkScreen')">Talk</button>
@@ -90,7 +90,7 @@
     <button onclick="showSection('lookupScreen')">Check Replies</button>
   </div>
 
-  <!-- Talk -->
+  <!-- Talk Screen -->
   <div id="talkScreen" class="hidden">
     <h2>Vent Anonymously</h2>
     <textarea id="ventInput" placeholder="Type your message..."></textarea><br>
@@ -104,14 +104,14 @@
     </div>
   </div>
 
-  <!-- Listen -->
+  <!-- Listen Placeholder -->
   <div id="listenScreen" class="hidden">
     <h2>Support Someone</h2>
     <div id="ventFeed">Coming soon</div>
     <button onclick="showSection('homeScreen')">Exit</button>
   </div>
 
-  <!-- Check Replies -->
+  <!-- Lookup Replies -->
   <div id="lookupScreen" class="hidden">
     <h2>Check for Replies</h2>
     <input id="lookupCode" placeholder="Enter your code..."><br>
@@ -119,7 +119,7 @@
     <button onclick="showSection('homeScreen')">Back</button>
   </div>
 
-  <!-- Firebase SDK -->
+  <!-- Firebase Script -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
