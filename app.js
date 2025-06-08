@@ -18,7 +18,21 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// Save vent message and call moderation
+// Local moderation keyword list
+const bannedWords = [
+  "kill", "suicide", "die", "murder", "bomb", "shoot",
+  "stab", "rape", "torture", "abuse", "hate", "terrorist",
+  "harm myself", "end my life", "cut myself", "school shooting",
+  "threaten", "destroy", "violence", "blow up", "gun"
+];
+
+// Function to check if a message contains flagged content
+function isFlagged(message) {
+  const lower = message.toLowerCase();
+  return bannedWords.some(word => lower.includes(word));
+}
+
+// Submit anonymous message
 window.submitMessage = async function () {
   const input = document.getElementById("ventInput");
   const message = input.value.trim();
@@ -28,23 +42,15 @@ window.submitMessage = async function () {
     return;
   }
 
+  // Check for unsafe language locally
+  if (isFlagged(message)) {
+    alert("This message was flagged as potentially unsafe. Please revise it.");
+    return;
+  }
+
   try {
-    // Step 1: Moderate the message via your backend
-    const response = await fetch("https://quasicare-backend.onrender.com/moderate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message })
-    });
-
-    const result = await response.json();
-
-    if (result.flagged) {
-      alert("This message was flagged as potentially unsafe. Please revise it.");
-      return;
-    }
-
-    // Step 2: Save to Firebase if not flagged
-    await push(ref(db, 'vents'), {
+    // Save safe message to Firebase
+    await push(ref(db, "vents"), {
       message: message,
       timestamp: Date.now()
     });
@@ -53,12 +59,12 @@ window.submitMessage = async function () {
     input.value = "";
     document.getElementById("ventBox").style.display = "none";
   } catch (err) {
-    alert("Something went wrong.");
+    alert("Something went wrong while saving your message.");
     console.error(err);
   }
 };
 
-// Show latest message
+// Show latest anonymous message
 window.showListen = function () {
   resetBoxes();
   document.getElementById("responseBox").style.display = "block";
@@ -66,14 +72,14 @@ window.showListen = function () {
   const display = document.getElementById("ventDisplay");
   display.innerHTML = "<em>Loading latest messages...</em>";
 
-  const messagesRef = ref(db, 'vents');
+  const messagesRef = ref(db, "vents");
   onChildAdded(messagesRef, (data) => {
     const post = data.val().message;
     display.innerHTML = `<strong>Anonymous Post:</strong><br>"${post}"`;
   });
 };
 
-// UI reset
+// Reset both sections
 window.resetBoxes = function () {
   document.getElementById("ventBox").style.display = "none";
   document.getElementById("responseBox").style.display = "none";
