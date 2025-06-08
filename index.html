@@ -82,7 +82,7 @@
     <button onclick="enterApp()">I Agree & Enter</button>
   </div>
 
-  <!-- Home Screen -->
+  <!-- Home -->
   <div id="homeScreen" class="hidden">
     <h1>QuasiCare</h1>
     <button onclick="showSection('talkScreen')">Talk</button>
@@ -90,7 +90,7 @@
     <button onclick="showSection('lookupScreen')">Check Replies</button>
   </div>
 
-  <!-- Talk Screen -->
+  <!-- Talk -->
   <div id="talkScreen" class="hidden">
     <h2>Vent Anonymously</h2>
     <textarea id="ventInput" placeholder="Type your message..."></textarea><br>
@@ -100,26 +100,36 @@
     <div class="footer">
       <a href="terms.html" target="_blank">Terms</a> |
       <a href="privacy.html" target="_blank">Privacy</a> |
-      <a href="#">Disclaimer</a>
+      <a href="disclaimer.html" target="_blank">Disclaimer</a>
     </div>
   </div>
 
-  <!-- Listen Placeholder -->
+  <!-- Listen -->
   <div id="listenScreen" class="hidden">
     <h2>Support Someone</h2>
     <div id="ventFeed">Coming soon</div>
     <button onclick="showSection('homeScreen')">Exit</button>
+    <div class="footer">
+      <a href="terms.html" target="_blank">Terms</a> |
+      <a href="privacy.html" target="_blank">Privacy</a> |
+      <a href="disclaimer.html" target="_blank">Disclaimer</a>
+    </div>
   </div>
 
-  <!-- Lookup Replies -->
+  <!-- Check Replies -->
   <div id="lookupScreen" class="hidden">
     <h2>Check for Replies</h2>
     <input id="lookupCode" placeholder="Enter your code..."><br>
     <div id="repliesOutput" style="margin-top: 20px;"></div>
     <button onclick="showSection('homeScreen')">Back</button>
+    <div class="footer">
+      <a href="terms.html" target="_blank">Terms</a> |
+      <a href="privacy.html" target="_blank">Privacy</a> |
+      <a href="disclaimer.html" target="_blank">Disclaimer</a>
+    </div>
   </div>
 
-  <!-- Firebase Script -->
+  <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
