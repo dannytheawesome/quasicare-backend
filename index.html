@@ -78,10 +78,9 @@
   </style>
 </head>
 <body>
-
   <div id="disclaimerModal">
     <h2>Disclaimer</h2>
-    <p>QuasiCare is an anonymous support tool. Do not submit harmful, illegal, or confidential information. By continuing, you agree to our <a href="#" style="color:#88f;">Terms of Use</a> and <a href="#" style="color:#88f;">Privacy Policy</a>.</p>
+    <p>QuasiCare is an anonymous support tool. Do not submit harmful, illegal, or confidential information. By continuing, you agree to our <a href="#">Terms of Use</a> and <a href="#">Privacy Policy</a>.</p>
     <button onclick="enterApp()">I Agree & Enter</button>
   </div>
 
@@ -97,7 +96,7 @@
     <textarea id="ventInput" placeholder="Type your message..."></textarea><br>
     <button onclick="submitVent()">Submit</button>
     <button onclick="showSection('homeScreen')">Exit</button>
-    <div id="codeDisplay" style="margin-top: 10px;"></div>
+    <div id="codeDisplay"></div>
     <div class="footer">
       <a href="#">Terms</a> | <a href="#">Privacy</a> | <a href="#">Disclaimer</a>
     </div>
@@ -105,11 +104,11 @@
 
   <div id="listenScreen" class="hidden">
     <h2>Support Someone</h2>
-    <div id="ventFeed"></div>
+    <div id="ventFeed">Loading...</div>
+    <button onclick="showSection('homeScreen')">Exit</button>
     <div class="footer">
       <a href="#">Terms</a> | <a href="#">Privacy</a> | <a href="#">Disclaimer</a>
     </div>
-    <button onclick="showSection('homeScreen')">Exit</button>
   </div>
 
   <div id="lookupScreen" class="hidden">
@@ -120,15 +119,82 @@
     <div id="repliesOutput" style="margin-top:20px;"></div>
   </div>
 
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"></script>
   <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDeHTQr0thvi-fBqIEZELFDI0VL70erlCE",
+      authDomain: "quasicare.firebaseapp.com",
+      databaseURL: "https://quasicare-default-rtdb.firebaseio.com",
+      projectId: "quasicare",
+      storageBucket: "quasicare.appspot.com",
+      messagingSenderId: "197366070004",
+      appId: "1:197366070004:web:2972eb9297102b6183bca1"
+    };
+
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
     function enterApp() {
       document.getElementById('disclaimerModal').style.display = 'none';
       showSection('homeScreen');
     }
+
     function showSection(id) {
       ['homeScreen', 'talkScreen', 'listenScreen', 'lookupScreen'].forEach(s => document.getElementById(s).classList.add('hidden'));
       document.getElementById(id).classList.remove('hidden');
     }
+
+    function generateCode() {
+      return Math.random().toString(36).substring(2, 8).toUpperCase();
+    }
+
+    function submitVent() {
+      const text = document.getElementById("ventInput").value.trim();
+      if (!text) return alert("Please type something.");
+      const code = generateCode();
+      db.ref('vents/' + code).set({ message: text, reply: null, timestamp: Date.now() });
+      document.getElementById("codeDisplay").innerText = "Your code: " + code + ". Save it to check replies.";
+      document.getElementById("ventInput").value = "";
+    }
+
+    function loadVents() {
+      const container = document.getElementById("ventFeed");
+      db.ref('vents').on('value', snapshot => {
+        container.innerHTML = "";
+        const data = snapshot.val();
+        for (let code in data) {
+          const vent = data[code];
+          const box = document.createElement('div');
+          box.className = 'vent-box';
+          box.innerHTML = `<strong>${code}</strong><br>${vent.message}<br><br><textarea placeholder='Reply...'></textarea><br><button onclick="sendReply('${code}', this.previousElementSibling.value)">Send</button>`;
+          container.appendChild(box);
+        }
+      });
+    }
+
+    function sendReply(code, reply) {
+      if (!reply) return alert("Reply cannot be empty.");
+      db.ref('vents/' + code + '/reply').set(reply).then(() => alert("Reply sent."));
+    }
+
+    function lookupReplies() {
+      const code = document.getElementById("lookupCode").value.trim().toUpperCase();
+      const out = document.getElementById("repliesOutput");
+      db.ref('vents/' + code).once('value').then(snapshot => {
+        const data = snapshot.val();
+        if (!data) out.innerText = "Code not found.";
+        else if (data.reply) out.innerHTML = `<strong>Reply:</strong><br>${data.reply}`;
+        else out.innerText = "No reply yet.";
+      });
+    }
+
+    setInterval(() => {
+      if (!document.getElementById("listenScreen").classList.contains("hidden")) {
+        loadVents();
+      }
+    }, 4000);
   </script>
 </body>
 </html>
