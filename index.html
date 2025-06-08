@@ -1,12 +1,142 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QuasiCare</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QuasiCare | Anonymous Support</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #121212;
+      color: #ffffff;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      text-align: center;
+    }
+
+    .modal, .container {
+      padding: 30px;
+      max-width: 700px;
+      width: 90%;
+    }
+
+    .modal {
+      position: fixed;
+      z-index: 10;
+      background: #1e1e1e;
+      border-radius: 12px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 20px rgba(0,0,0,0.4);
+    }
+
+    h1, h2 {
+      margin-bottom: 20px;
+    }
+
+    p {
+      margin-bottom: 20px;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 10px;
+      transition: background-color 0.3s;
+    }
+
+    .btn-talk, .btn-submit {
+      background-color: #333;
+      color: #fff;
+    }
+
+    .btn-talk:hover, .btn-submit:hover {
+      background-color: #555;
+    }
+
+    .btn-listen {
+      background-color: #444;
+      color: #fff;
+    }
+
+    .btn-listen:hover {
+      background-color: #666;
+    }
+
+    .btn-exit {
+      background-color: #1c1c1c;
+      color: #ccc;
+    }
+
+    .btn-exit:hover {
+      background-color: #2a2a2a;
+    }
+
+    textarea {
+      width: 100%;
+      max-width: 600px;
+      height: 120px;
+      margin-top: 10px;
+      background: #1a1a1a;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 10px;
+    }
+
+    #ventBox, #responseBox {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="modal" id="termsModal">
+    <h2>Terms & Disclaimer</h2>
+    <p>QuasiCare is not a medical service. All communication is anonymous and peer-based.</p>
+    <p>If you are in danger, call emergency services.</p>
+    <button class="btn btn-submit" onclick="acceptTerms()">I Agree & Enter</button>
+  </div>
+
+  <div class="container" id="mainContent" style="display:none;">
+    <h1>Welcome to QuasiCare</h1>
+    <p>Select an option below to either share your thoughts or support someone in need. All interactions are anonymous and safe.</p>
+    <div>
+      <button class="btn btn-talk" onclick="showVent()">Talk</button>
+      <button class="btn btn-listen" onclick="showListen()">Listen</button>
+    </div>
+
+    <div id="ventBox">
+      <h2>Vent Anonymously</h2>
+      <textarea id="ventInput" placeholder="Type your message..."></textarea>
+      <div>
+        <button class="btn btn-submit" onclick="submitMessage()">Submit</button>
+        <button class="btn btn-exit" onclick="resetBoxes()">Exit</button>
+      </div>
+    </div>
+
+    <div id="responseBox">
+      <h2>Support Someone</h2>
+      <div id="ventDisplay" class="vent-card">Loading...</div>
+      <textarea placeholder="Write a supportive message..."></textarea>
+      <div>
+        <button class="btn btn-listen">Send Response</button>
+        <button class="btn btn-exit" onclick="resetBoxes()">Exit</button>
+      </div>
+    </div>
+  </div>
+
   <script type="module">
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-    import { getDatabase, ref, push, onChildAdded } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDeHTQr0thvi-fBqIEZELFDI0VL70erlCE",
@@ -15,130 +145,63 @@
       projectId: "quasicare",
       storageBucket: "quasicare.appspot.com",
       messagingSenderId: "197366070004",
-      appId: "1:197366070004:web:2972eb9297102b6183bca1",
-      measurementId: "G-B4YZ476BVN"
+      appId: "1:197366070004:web:2972eb9297102b6183bca1"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
+    window.acceptTerms = function () {
+      document.getElementById("termsModal").style.display = "none";
+      document.getElementById("mainContent").style.display = "block";
+    }
+
+    window.showVent = function () {
+      resetBoxes();
+      document.getElementById("ventBox").style.display = "block";
+    }
+
+    window.showListen = function () {
+      resetBoxes();
+      document.getElementById("responseBox").style.display = "block";
+      const display = document.getElementById("ventDisplay");
+      display.innerHTML = "<em>Loading latest messages...</em>";
+      const messagesRef = ref(db, 'vents');
+      onChildAdded(messagesRef, (data) => {
+        const post = data.val().message;
+        display.innerHTML = `<strong>Anonymous Post:</strong><br>"${post}"`;
+      });
+    }
+
+    window.resetBoxes = function () {
+      document.getElementById("ventBox").style.display = "none";
+      document.getElementById("responseBox").style.display = "none";
+    }
+
     window.submitMessage = async function () {
       const input = document.getElementById("ventInput");
       const message = input.value.trim();
-
-      if (!message) {
-        alert("Please type something before submitting.");
-        return;
-      }
-
+      if (!message) return alert("Please type something.");
       try {
         const response = await fetch("https://quasicare-backend.onrender.com/moderate", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ message })
         });
-
         const result = await response.json();
-
-        if (result.flagged) {
-          alert("Message was flagged. Please revise it.");
-          return;
-        }
-
+        if (result.flagged) return alert("Message flagged for review. Please rephrase.");
         await push(ref(db, 'vents'), {
           message,
           timestamp: Date.now()
         });
-
-        alert("Message submitted anonymously.");
+        alert("Your message has been submitted.");
         input.value = "";
-        document.getElementById("ventBox").style.display = "none";
+        resetBoxes();
       } catch (err) {
         alert("Error contacting moderation server.");
+        console.error(err);
       }
-    };
-
-    window.showListen = function () {
-      resetBoxes();
-      document.getElementById("responseBox").style.display = "block";
-      const display = document.getElementById("ventDisplay");
-      display.innerHTML = "<em>Loading...</em>";
-      const messagesRef = ref(db, 'vents');
-      onChildAdded(messagesRef, (data) => {
-        const post = data.val().message;
-        display.innerHTML = `<strong>Anonymous Post:</strong><br>"${post}"`;
-      });
-    };
-
-    window.resetBoxes = function () {
-      document.getElementById("ventBox").style.display = "none";
-      document.getElementById("responseBox").style.display = "none";
-    };
-
-    window.acceptTerms = function () {
-      document.getElementById("termsModal").style.display = "none";
-      document.getElementById("mainContent").style.display = "flex";
-    };
+    }
   </script>
-  <style>
-    body {
-      background: #121212;
-      color: white;
-      font-family: system-ui;
-      text-align: center;
-      margin: 0;
-    }
-    textarea {
-      background: #1f1f1f;
-      color: white;
-      border: none;
-      padding: 10px;
-      border-radius: 8px;
-      width: 80%;
-    }
-    button {
-      padding: 10px 20px;
-      margin: 10px;
-      font-weight: bold;
-      border-radius: 8px;
-      border: none;
-      cursor: pointer;
-    }
-    .btn-talk { background: #3a3d98; color: white; }
-    .btn-listen { background: #27876e; color: white; }
-    .btn-exit { background: #b23b3b; color: white; }
-    .vent-card { background: #1f1f1f; padding: 15px; border-radius: 10px; margin-top: 20px; }
-  </style>
-</head>
-<body>
-  <div id="termsModal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);display:flex;align-items:center;justify-content:center;">
-    <div style="background:#1e1e1e;padding:30px;border-radius:12px;color:white;max-width:600px;text-align:left">
-      <h2>Terms & Disclaimer</h2>
-      <p>QuasiCare is not a medical service. All communication is anonymous and peer-based.</p>
-      <p>If you are in danger, call emergency services.</p>
-      <button onclick="acceptTerms()">I Agree & Enter</button>
-    </div>
-  </div>
-  <div id="mainContent" style="display:none;padding:40px;">
-    <h1>Welcome to QuasiCare</h1>
-    <p>Select an option below to either share your thoughts or support someone in need. All interactions are anonymous and safe.</p>
-    <button class="btn-talk" onclick="showVent()">Talk</button>
-    <button class="btn-listen" onclick="showListen()">Listen</button>
-
-    <div id="ventBox" style="display:none">
-      <h2>Vent Anonymously</h2>
-      <textarea id="ventInput" placeholder="Type your thoughts here..."></textarea><br>
-      <button class="btn-talk" onclick="submitMessage()">Submit</button>
-      <button class="btn-exit" onclick="resetBoxes()">Exit</button>
-    </div>
-
-    <div id="responseBox" style="display:none">
-      <h2>Support Someone</h2>
-      <div id="ventDisplay" class="vent-card"></div>
-      <textarea id="responseInput" placeholder="Write a supportive message..."></textarea><br>
-      <button class="btn-listen">Send Response</button>
-      <button class="btn-exit" onclick="resetBoxes()">Exit</button>
-    </div>
-  </div>
 </body>
 </html>
