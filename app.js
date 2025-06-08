@@ -1,6 +1,6 @@
 // Firebase SDK imports
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getDatabase, ref, set, push, onValue, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { getDatabase, ref, set, push, get, onValue, child } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 // Firebase config
 const firebaseConfig = {
@@ -17,87 +17,99 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
+// Utility
 function generateCode() {
   return Math.random().toString(36).substring(2, 8).toUpperCase();
 }
 
+// Submit a vent anonymously
 window.submitVent = async function () {
   const input = document.getElementById("ventInput");
-  const text = input.value.trim();
-  if (!text) return alert("Please type something.");
+  const message = input.value.trim();
+
+  if (!message) {
+    alert("Please write something before submitting.");
+    return;
+  }
 
   const code = generateCode();
-  await set(ref(db, "vents/" + code), {
-    message: text,
+  await set(ref(db, `vents/${code}`), {
+    message: message,
     reply: null,
     timestamp: Date.now()
   });
 
-  document.getElementById("codeDisplay").innerHTML = `Your anonymous code: <strong>${code}</strong>. Save this to check for replies later.`;
+  document.getElementById("codeDisplay").innerText = `Your anonymous code: ${code}. Save this to check replies.`;
   input.value = "";
 };
 
-window.loadVents = function () {
-  const feed = document.getElementById("ventFeed");
-  feed.innerHTML = "Loading...";
+// Load recent vents for listeners to reply
+function loadVents() {
+  const container = document.getElementById("ventFeed");
+  container.innerHTML = "Loading...";
 
-  onValue(ref(db, "vents"), (snapshot) => {
-    feed.innerHTML = "";
+  onValue(ref(db, 'vents'), (snapshot) => {
+    container.innerHTML = '';
     const data = snapshot.val();
-    if (!data) return (feed.innerHTML = "No vents found.");
+    if (!data) {
+      container.innerHTML = "No vents available yet.";
+      return;
+    }
 
-    Object.entries(data).forEach(([code, obj]) => {
-      const div = document.createElement("div");
-      div.className = "vent-box";
-      div.innerHTML = `
-        <strong>Vent:</strong> ${obj.message}<br><br>
-        <textarea placeholder='Type your reply...' id='reply-${code}'></textarea><br>
-        <button onclick='submitReply("${code}")'>Send Reply</button>
-      `;
-      feed.appendChild(div);
+    Object.entries(data).forEach(([code, item]) => {
+      const box = document.createElement("div");
+      box.className = "vent-box";
+
+      const hasReply = item.reply && item.reply.trim().length > 0;
+      if (!hasReply) {
+        const replyInput = document.createElement("textarea");
+        replyInput.placeholder = "Type a kind reply...";
+
+        const sendBtn = document.createElement("button");
+        sendBtn.innerText = "Send";
+        sendBtn.onclick = async () => {
+          const reply = replyInput.value.trim();
+          if (!reply) return alert("Please write a reply.");
+          await set(ref(db, `vents/${code}/reply`), reply);
+          alert("Reply submitted.");
+        };
+
+        box.innerHTML = `<strong>Code:</strong> ${code}<br><strong>Message:</strong> ${item.message}<br>`;
+        box.appendChild(replyInput);
+        box.appendChild(sendBtn);
+      } else {
+        box.innerHTML = `<strong>Code:</strong> ${code}<br><strong>Message:</strong> ${item.message}<br><strong>Already replied.</strong>`;
+      }
+
+      container.appendChild(box);
     });
   });
-};
+}
 
-window.submitReply = function (code) {
-  const textArea = document.getElementById("reply-" + code);
-  const reply = textArea.value.trim();
-  if (!reply) return alert("Please type your reply.");
-
-  update(ref(db, "vents/" + code), {
-    reply: reply
-  }).then(() => {
-    alert("Reply sent.");
-    textArea.value = "";
-  }).catch(() => alert("Failed to send reply."));
-};
-
-window.lookupReplies = function () {
+// Lookup replies by code
+window.lookupReplies = async function () {
   const code = document.getElementById("lookupCode").value.trim().toUpperCase();
   const output = document.getElementById("repliesOutput");
-  if (!code) return alert("Enter your code.");
+  output.innerHTML = "Searching...";
 
-  const ventRef = ref(db, "vents/" + code);
-  onValue(ventRef, (snapshot) => {
-    const data = snapshot.val();
-    if (!data) return (output.innerHTML = "No message found with that code.");
+  const snapshot = await get(ref(db, `vents/${code}`));
+  if (!snapshot.exists()) {
+    output.innerText = "No vent found with that code.";
+    return;
+  }
 
-    output.innerHTML = `
-      <div class='vent-box'>
-        <strong>Your Message:</strong><br>${data.message}<br><br>
-        <strong>Reply:</strong><br>${data.reply || "No reply yet. Please check back later."}
-      </div>
-    `;
-  }, {
-    onlyOnce: true
-  });
+  const data = snapshot.val();
+  if (data.reply && data.reply.trim().length > 0) {
+    output.innerHTML = `<strong>Your Vent:</strong><br>${data.message}<br><br><strong>Reply:</strong><br>${data.reply}`;
+  } else {
+    output.innerHTML = "No replies yet. Please check back later.";
+  }
 };
 
-// Auto-load vents when listener screen is shown
+// Auto-load vents when in Listen screen
 const observer = new MutationObserver(() => {
-  const listenScreen = document.getElementById("listenScreen");
-  if (!listenScreen.classList.contains("hidden")) {
-    window.loadVents();
+  if (!document.getElementById("listenScreen").classList.contains("hidden")) {
+    loadVents();
   }
 });
 
