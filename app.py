@@ -3,7 +3,7 @@ from flask_cors import CORS
 import re
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/moderate": {"origins": "*"}})  # ← FIXED: CORS for Carrd
 
 # Expanded keyword list with phrases
 banned_patterns = [
