@@ -104,13 +104,14 @@
     </div>
   </div>
 
-  <!-- Future Screens -->
+  <!-- Listen -->
   <div id="listenScreen" class="hidden">
     <h2>Support Someone</h2>
     <div id="ventFeed">Coming soon</div>
     <button onclick="showSection('homeScreen')">Exit</button>
   </div>
 
+  <!-- Check Replies -->
   <div id="lookupScreen" class="hidden">
     <h2>Check for Replies</h2>
     <input id="lookupCode" placeholder="Enter your code..."><br>
@@ -118,7 +119,7 @@
     <button onclick="showSection('homeScreen')">Back</button>
   </div>
 
-  <!-- Script logic -->
+  <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
@@ -151,18 +152,30 @@
     window.submitVent = async function () {
       const input = document.getElementById("ventInput");
       const message = input.value.trim();
-      if (!message) return alert("Please write something.");
+      const codeDisplay = document.getElementById("codeDisplay");
+
+      if (!message) {
+        alert("Please write something.");
+        return;
+      }
 
       const code = Math.random().toString(36).substring(2, 8).toUpperCase();
-      await set(ref(db, `vents/${code}`), {
-        message,
-        reply: null,
-        timestamp: Date.now()
-      });
 
-      document.getElementById("codeDisplay").innerText =
-        `Your anonymous code: ${code}. Save this to check replies later.`;
-      input.value = "";
+      try {
+        await set(ref(db, `vents/${code}`), {
+          message,
+          reply: null,
+          timestamp: Date.now()
+        });
+
+        console.log("Vent submitted:", code);
+        codeDisplay.innerHTML = `<strong>Your anonymous code:</strong> <code>${code}</code><br>Save this to check replies.`;
+        input.value = "";
+
+      } catch (err) {
+        console.error("Firebase submission error:", err);
+        codeDisplay.innerHTML = `<span style="color:red;">Error submitting vent. Try again.</span>`;
+      }
     };
   </script>
 </body>
