@@ -78,7 +78,6 @@
 </head>
 <body>
 
-  <!-- Disclaimer Modal -->
   <div id="disclaimerModal">
     <h2>Disclaimer</h2>
     <p>
@@ -90,7 +89,6 @@
     <button onclick="enterApp()">I Agree & Enter</button>
   </div>
 
-  <!-- Home -->
   <div id="homeScreen" class="hidden">
     <h1>QuasiCare</h1>
     <button onclick="showSection('talkScreen')">Talk</button>
@@ -98,7 +96,6 @@
     <button onclick="showSection('lookupScreen')">Check Replies</button>
   </div>
 
-  <!-- Talk -->
   <div id="talkScreen" class="hidden">
     <h2>Vent Anonymously</h2>
     <textarea id="ventInput" placeholder="Type your message..."></textarea><br>
@@ -112,12 +109,8 @@
     </div>
   </div>
 
-  <!-- Listen -->
   <div id="listenScreen" class="hidden">
     <h2>Support Someone</h2>
-    <p style="color: #aaa; font-size: 14px;">
-      Once a vent is replied to, it will be removed from this list to make room for others in need.
-    </p>
     <div id="ventFeed">Loading...</div>
     <button onclick="showSection('homeScreen')">Exit</button>
     <div class="footer">
@@ -127,7 +120,6 @@
     </div>
   </div>
 
-  <!-- Lookup -->
   <div id="lookupScreen" class="hidden">
     <h2>Check for Replies</h2>
     <input id="lookupCode" placeholder="Enter your code..."><br>
@@ -136,10 +128,9 @@
     <div id="repliesOutput" style="margin-top: 20px;"></div>
   </div>
 
-  <!-- Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getDatabase, ref, set, onValue, get, child } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    import { getDatabase, ref, set, onValue, get, remove, child, push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDeHTQr0thvi-fBqIEZELFDI0VL70erlCE",
@@ -164,36 +155,43 @@
         document.getElementById(screen).classList.add('hidden');
       });
       document.getElementById(id).classList.remove('hidden');
-
       if (id === 'listenScreen') loadVents();
     };
+
+    async function moderateAndLog(type, code, message) {
+      const res = await fetch("https://quasicare-moderation.onrender.com/moderate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message })
+      });
+      const result = await res.json();
+      const logRef = ref(db, `moderationLogs/${Date.now()}_${type}_${code}`);
+      await set(logRef, {
+        type, code, message,
+        flagged: result.flagged,
+        matches: result.matched_words || [],
+        timestamp: Date.now()
+      });
+      return result.flagged;
+    }
 
     window.submitVent = async function () {
       const input = document.getElementById("ventInput");
       const message = input.value.trim();
       const codeDisplay = document.getElementById("codeDisplay");
-
-      if (!message) {
-        alert("Please write something.");
-        return;
-      }
-
+      if (!message) return alert("Please write something.");
       const code = Math.random().toString(36).substring(2, 8).toUpperCase();
 
-      try {
-        await set(ref(db, `vents/${code}`), {
-          message,
-          reply: null,
-          timestamp: Date.now()
-        });
+      const flagged = await moderateAndLog("vent", code, message);
+      if (flagged) return codeDisplay.innerHTML = `<span style="color:red;">Message flagged by moderation.</span>`;
 
-        codeDisplay.innerHTML = `<strong>Your anonymous code:</strong> <code>${code}</code><br>Save this to check replies.`;
-        input.value = "";
-
-      } catch (err) {
-        console.error("Firebase submission error:", err);
-        codeDisplay.innerHTML = `<span style="color:red;">Error submitting vent. Try again.</span>`;
-      }
+      await set(ref(db, `vents/${code}`), {
+        message,
+        reply: null,
+        timestamp: Date.now()
+      });
+      codeDisplay.innerHTML = `<strong>Your anonymous code:</strong> <code>${code}</code><br>Save this to check replies.`;
+      input.value = "";
     };
 
     function loadVents() {
@@ -203,7 +201,7 @@
         const data = snapshot.val();
         for (let code in data) {
           const vent = data[code];
-          if (vent.reply) continue; // hide replied vents
+          if (vent.reply) continue;
           const replyBoxId = `reply-${code}`;
           const box = document.createElement("div");
           box.className = "vent-box";
@@ -217,25 +215,20 @@
       });
     }
 
-    window.sendReply = function (code, boxId) {
+    window.sendReply = async function (code, boxId) {
       const text = document.getElementById(boxId).value.trim();
-      if (!text) {
-        alert("Reply cannot be empty.");
-        return;
-      }
-      set(ref(db, `vents/${code}/reply`), text).then(() => {
-        alert("Reply sent.");
-      });
+      if (!text) return alert("Reply cannot be empty.");
+      const flagged = await moderateAndLog("reply", code, text);
+      if (flagged) return alert("Reply blocked by moderation.");
+      await set(ref(db, `vents/${code}/reply`), text);
+      await remove(ref(db, `vents/${code}/message`));
+      alert("Reply sent.");
     };
 
     window.lookupReplies = function () {
       const code = document.getElementById("lookupCode").value.trim().toUpperCase();
       const out = document.getElementById("repliesOutput");
-
-      if (!code) {
-        out.innerText = "Please enter your code.";
-        return;
-      }
+      if (!code) return out.innerText = "Please enter your code.";
 
       get(child(ref(db), `vents/${code}`)).then(snapshot => {
         const data = snapshot.val();
