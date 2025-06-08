@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>QuasiCare</title>
   <style>
     body {
       background-color: #111;
       color: #fff;
-      font-family: Arial, sans-serif;
+      font-family: system-ui, sans-serif;
       margin: 0;
       padding: 0;
       text-align: center;
     }
-    .hidden {
-      display: none;
+    h1, h2, h3 {
+      margin-top: 1em;
     }
     button {
       margin: 10px;
@@ -24,209 +24,111 @@
       border: none;
       border-radius: 6px;
       cursor: pointer;
+      font-size: 16px;
     }
     button:hover {
       background-color: #444;
     }
-    textarea {
+    textarea, input[type="text"] {
       width: 80%;
-      height: 120px;
-      margin: 20px 0;
+      max-width: 500px;
       padding: 10px;
-      border-radius: 6px;
+      margin-top: 10px;
+      background-color: #1e1e1e;
       border: 1px solid #333;
-      background-color: #1a1a1a;
-      color: #fff;
+      border-radius: 6px;
+      color: white;
     }
     .footer {
-      margin-top: 20px;
+      margin-top: 30px;
       font-size: 14px;
     }
     .footer a {
-      color: #999;
-      margin: 0 10px;
+      color: #aaa;
       text-decoration: none;
+      margin: 0 10px;
+    }
+    .hidden {
+      display: none;
     }
     .vent-box {
-      background-color: #1e1e1e;
+      background-color: #1a1a1a;
       margin: 10px auto;
       padding: 10px;
-      width: 80%;
       border-radius: 8px;
+      width: 90%;
+      max-width: 600px;
+      text-align: left;
+    }
+    #disclaimerModal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #000;
+      color: #fff;
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
     }
   </style>
 </head>
 <body>
 
-  <!-- Disclaimer Modal -->
   <div id="disclaimerModal">
     <h2>Disclaimer</h2>
-    <p>QuasiCare is an anonymous support tool. Do not submit harmful, illegal, or confidential information. By continuing, you agree to our Terms of Use and Privacy Policy.</p>
+    <p>QuasiCare is an anonymous support tool. Do not submit harmful, illegal, or confidential information. By continuing, you agree to our <a href="#" style="color:#88f;">Terms of Use</a> and <a href="#" style="color:#88f;">Privacy Policy</a>.</p>
     <button onclick="enterApp()">I Agree & Enter</button>
   </div>
 
-  <!-- Home Screen -->
   <div id="homeScreen" class="hidden">
     <h1>QuasiCare</h1>
     <button onclick="showSection('talkScreen')">Talk</button>
     <button onclick="showSection('listenScreen')">Listen</button>
-    <button onclick="showLookup()">Check Replies</button>
+    <button onclick="showSection('lookupScreen')">Check Replies</button>
   </div>
 
-  <!-- Talk Screen -->
   <div id="talkScreen" class="hidden">
     <h2>Vent Anonymously</h2>
     <textarea id="ventInput" placeholder="Type your message..."></textarea><br>
     <button onclick="submitVent()">Submit</button>
-    <button onclick="goHome()">Exit</button>
+    <button onclick="showSection('homeScreen')">Exit</button>
+    <div id="codeDisplay" style="margin-top: 10px;"></div>
     <div class="footer">
       <a href="#">Terms</a> | <a href="#">Privacy</a> | <a href="#">Disclaimer</a>
     </div>
   </div>
 
-  <!-- Listen Screen -->
   <div id="listenScreen" class="hidden">
     <h2>Support Someone</h2>
     <div id="ventFeed"></div>
-    <h3>Reply to a Vent</h3>
-    <input type="text" id="replyCode" placeholder="Enter vent code"/><br><br>
-    <textarea id="replyInput" placeholder="Type your reply..."></textarea><br>
-    <button onclick="submitReply()">Send Reply</button>
-    <button onclick="goHome()">Exit</button>
     <div class="footer">
       <a href="#">Terms</a> | <a href="#">Privacy</a> | <a href="#">Disclaimer</a>
     </div>
+    <button onclick="showSection('homeScreen')">Exit</button>
   </div>
 
-  <!-- Lookup Replies Screen -->
-  <div id="lookupSection" class="hidden">
+  <div id="lookupScreen" class="hidden">
     <h2>Check for Replies</h2>
-    <input id="lookupCode" placeholder="Enter your code..." /><br><br>
+    <input id="lookupCode" placeholder="Enter your code..."><br>
     <button onclick="lookupReplies()">Search</button>
-    <div id="repliesOutput" style="margin-top: 20px;"></div>
-    <button onclick="exitToHome()">Back</button>
+    <button onclick="showSection('homeScreen')">Back</button>
+    <div id="repliesOutput" style="margin-top:20px;"></div>
   </div>
 
-  <!-- Firebase + App JS -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
   <script>
-    const firebaseConfig = {
-      apiKey: "REPLACE_WITH_YOUR_API_KEY",
-      authDomain: "REPLACE_WITH_YOUR_AUTH_DOMAIN",
-      databaseURL: "REPLACE_WITH_YOUR_DATABASE_URL",
-      projectId: "REPLACE_WITH_YOUR_PROJECT_ID",
-      storageBucket: "REPLACE_WITH_YOUR_STORAGE_BUCKET",
-      messagingSenderId: "REPLACE_WITH_YOUR_SENDER_ID",
-      appId: "REPLACE_WITH_YOUR_APP_ID"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-
     function enterApp() {
       document.getElementById('disclaimerModal').style.display = 'none';
-      document.getElementById('homeScreen').classList.remove('hidden');
-    }
-
-    function showSection(id) {
-      document.getElementById('homeScreen').classList.add('hidden');
-      document.getElementById('talkScreen').classList.add('hidden');
-      document.getElementById('listenScreen').classList.add('hidden');
-      document.getElementById('lookupSection').classList.add('hidden');
-      document.getElementById(id).classList.remove('hidden');
-    }
-
-    function goHome() {
       showSection('homeScreen');
     }
-
-    function showLookup() {
-      showSection('lookupSection');
+    function showSection(id) {
+      ['homeScreen', 'talkScreen', 'listenScreen', 'lookupScreen'].forEach(s => document.getElementById(s).classList.add('hidden'));
+      document.getElementById(id).classList.remove('hidden');
     }
-
-    function exitToHome() {
-      document.getElementById('lookupSection').classList.add('hidden');
-      document.getElementById('homeScreen').classList.remove('hidden');
-    }
-
-    function generateCode() {
-      return Math.random().toString(36).substring(2, 8).toUpperCase();
-    }
-
-    function submitVent() {
-      const text = document.getElementById('ventInput').value.trim();
-      if (!text) return alert("Please write something first.");
-      const code = generateCode();
-      db.ref('vents/' + code).set({
-        message: text,
-        timestamp: Date.now()
-      });
-      alert("Your anonymous code: " + code + ". Save this to view replies later.");
-      document.getElementById('ventInput').value = '';
-    }
-
-    function loadVents() {
-      const container = document.getElementById('ventFeed');
-      container.innerHTML = '';
-      db.ref('vents').on('value', snapshot => {
-        container.innerHTML = '';
-        const data = snapshot.val();
-        for (let code in data) {
-          const vent = data[code].message;
-          const replies = data[code].replies || {};
-          const replyCount = Object.keys(replies).length;
-          const box = document.createElement('div');
-          box.className = 'vent-box';
-          box.innerHTML = `<strong>Code:</strong> ${code}<br><strong>Message:</strong> ${vent}<br><strong>Replies:</strong> ${replyCount}`;
-          container.appendChild(box);
-        }
-      });
-    }
-
-    function submitReply() {
-      const code = document.getElementById('replyCode').value.trim().toUpperCase();
-      const reply = document.getElementById('replyInput').value.trim();
-      if (!code || !reply) return alert("Please enter a code and a reply.");
-      const replyId = "r" + Date.now();
-      db.ref('vents/' + code + '/replies/' + replyId).set({
-        message: reply,
-        timestamp: Date.now()
-      }).then(() => {
-        alert("Reply sent.");
-        document.getElementById('replyInput').value = '';
-      }).catch(() => alert("Error: Invalid code."));
-    }
-
-    function lookupReplies() {
-      const code = document.getElementById("lookupCode").value.trim().toUpperCase();
-      const output = document.getElementById("repliesOutput");
-      output.innerHTML = "Searching...";
-
-      db.ref("vents/" + code).once("value", snapshot => {
-        const data = snapshot.val();
-        if (data) {
-          const replies = data.replies || {};
-          const replyList = Object.values(replies);
-          if (replyList.length === 0) {
-            output.innerHTML = "No replies yet. Please check back later.";
-          } else {
-            output.innerHTML = "<h4>Replies:</h4>";
-            replyList.forEach(r => {
-              output.innerHTML += `<div class="vent-box">${r.message}</div>`;
-            });
-          }
-        } else {
-          output.innerHTML = "No vent found with that code.";
-        }
-      });
-    }
-
-    setInterval(() => {
-      if (!document.getElementById('listenScreen').classList.contains('hidden')) {
-        loadVents();
-      }
-    }, 4000);
   </script>
 </body>
 </html>
