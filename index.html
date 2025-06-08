@@ -70,6 +70,7 @@
     <h1>QuasiCare</h1>
     <button onclick="showSection('talkScreen')">Talk</button>
     <button onclick="showSection('listenScreen')">Listen</button>
+    <button onclick="showLookup()">Check Replies</button>
   </div>
 
   <!-- Talk Screen -->
@@ -97,11 +98,19 @@
     </div>
   </div>
 
+  <!-- Lookup Replies Screen -->
+  <div id="lookupSection" class="hidden">
+    <h2>Check for Replies</h2>
+    <input id="lookupCode" placeholder="Enter your code..." /><br><br>
+    <button onclick="lookupReplies()">Search</button>
+    <div id="repliesOutput" style="margin-top: 20px;"></div>
+    <button onclick="exitToHome()">Back</button>
+  </div>
+
   <!-- Firebase + App JS -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
   <script>
-    // REPLACE these values locally; do not commit actual keys
     const firebaseConfig = {
       apiKey: "REPLACE_WITH_YOUR_API_KEY",
       authDomain: "REPLACE_WITH_YOUR_AUTH_DOMAIN",
@@ -124,11 +133,21 @@
       document.getElementById('homeScreen').classList.add('hidden');
       document.getElementById('talkScreen').classList.add('hidden');
       document.getElementById('listenScreen').classList.add('hidden');
+      document.getElementById('lookupSection').classList.add('hidden');
       document.getElementById(id).classList.remove('hidden');
     }
 
     function goHome() {
       showSection('homeScreen');
+    }
+
+    function showLookup() {
+      showSection('lookupSection');
+    }
+
+    function exitToHome() {
+      document.getElementById('lookupSection').classList.add('hidden');
+      document.getElementById('homeScreen').classList.remove('hidden');
     }
 
     function generateCode() {
@@ -139,7 +158,10 @@
       const text = document.getElementById('ventInput').value.trim();
       if (!text) return alert("Please write something first.");
       const code = generateCode();
-      db.ref('vents/' + code).set({ message: text });
+      db.ref('vents/' + code).set({
+        message: text,
+        timestamp: Date.now()
+      });
       alert("Your anonymous code: " + code + ". Save this to view replies later.");
       document.getElementById('ventInput').value = '';
     }
@@ -152,10 +174,11 @@
         const data = snapshot.val();
         for (let code in data) {
           const vent = data[code].message;
-          const reply = data[code].reply || "No reply yet.";
+          const replies = data[code].replies || {};
+          const replyCount = Object.keys(replies).length;
           const box = document.createElement('div');
           box.className = 'vent-box';
-          box.innerHTML = `<strong>Code:</strong> ${code}<br><strong>Message:</strong> ${vent}<br><strong>Reply:</strong> ${reply}`;
+          box.innerHTML = `<strong>Code:</strong> ${code}<br><strong>Message:</strong> ${vent}<br><strong>Replies:</strong> ${replyCount}`;
           container.appendChild(box);
         }
       });
@@ -165,12 +188,38 @@
       const code = document.getElementById('replyCode').value.trim().toUpperCase();
       const reply = document.getElementById('replyInput').value.trim();
       if (!code || !reply) return alert("Please enter a code and a reply.");
-      db.ref('vents/' + code + '/reply').set(reply)
-        .then(() => {
-          alert("Reply sent.");
-          document.getElementById('replyInput').value = '';
-        })
-        .catch(() => alert("Error: Invalid code."));
+      const replyId = "r" + Date.now();
+      db.ref('vents/' + code + '/replies/' + replyId).set({
+        message: reply,
+        timestamp: Date.now()
+      }).then(() => {
+        alert("Reply sent.");
+        document.getElementById('replyInput').value = '';
+      }).catch(() => alert("Error: Invalid code."));
+    }
+
+    function lookupReplies() {
+      const code = document.getElementById("lookupCode").value.trim().toUpperCase();
+      const output = document.getElementById("repliesOutput");
+      output.innerHTML = "Searching...";
+
+      db.ref("vents/" + code).once("value", snapshot => {
+        const data = snapshot.val();
+        if (data) {
+          const replies = data.replies || {};
+          const replyList = Object.values(replies);
+          if (replyList.length === 0) {
+            output.innerHTML = "No replies yet. Please check back later.";
+          } else {
+            output.innerHTML = "<h4>Replies:</h4>";
+            replyList.forEach(r => {
+              output.innerHTML += `<div class="vent-box">${r.message}</div>`;
+            });
+          }
+        } else {
+          output.innerHTML = "No vent found with that code.";
+        }
+      });
     }
 
     setInterval(() => {
