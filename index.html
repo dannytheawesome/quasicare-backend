@@ -2,155 +2,146 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>QuasiCare</title>
   <style>
     body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
       background-color: #111;
       color: #fff;
-      font-family: system-ui, sans-serif;
-      margin: 0;
-      padding: 0;
       text-align: center;
     }
-    h1, h2 {
-      margin-top: 1em;
+
+    h1 {
+      margin-top: 20px;
     }
-    button {
+
+    button, input {
+      padding: 12px;
+      font-size: 16px;
       margin: 10px;
-      padding: 12px 24px;
-      background-color: #222;
-      color: white;
       border: none;
       border-radius: 6px;
-      cursor: pointer;
-      font-size: 16px;
     }
-    button:hover {
-      background-color: #444;
-    }
-    textarea, input[type="text"] {
+
+    input {
       width: 80%;
-      max-width: 500px;
-      padding: 10px;
-      background-color: #1e1e1e;
-      border: 1px solid #333;
-      border-radius: 6px;
+      max-width: 300px;
+      background: #1e1e1e;
+      color: #fff;
+      border: 1px solid #444;
+    }
+
+    button {
+      background-color: #333;
       color: white;
+      cursor: pointer;
     }
-    .footer {
-      margin-top: 30px;
-      font-size: 14px;
+
+    button:hover {
+      background-color: #555;
     }
-    .footer a {
-      color: #aaa;
-      text-decoration: none;
-      margin: 0 10px;
-    }
+
     .hidden {
       display: none;
     }
-    .vent-box {
-      background-color: #1a1a1a;
-      margin: 10px auto;
-      padding: 10px;
-      border-radius: 8px;
-      width: 90%;
-      max-width: 600px;
-      text-align: left;
+
+    .section {
+      margin-top: 30px;
     }
-    #disclaimerModal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: #000;
-      color: #fff;
-      z-index: 999;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-    }
-    #suicideStats {
-      margin-top: 15px;
-      font-style: italic;
+
+    .stats {
+      margin-top: 20px;
+      font-size: 0.9em;
       color: #ccc;
+    }
+
+    .loading {
+      border: 4px solid #333;
+      border-top: 4px solid #00f2ff;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      margin: 20px auto;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    #adminPanel {
+      display: none;
+      margin-top: 50px;
+      background: #222;
+      padding: 20px;
     }
   </style>
 </head>
 <body>
 
-  <div id="disclaimerModal">
-    <h2>Disclaimer</h2>
-    <p>
-      QuasiCare is an anonymous support tool. Do not submit harmful, illegal, or confidential information.
-      By continuing, you agree to our
-      <a href="terms.html" target="_blank">Terms of Use</a> and
-      <a href="privacy.html" target="_blank">Privacy Policy</a>.
-    </p>
-    <button onclick="enterApp()">I Agree & Enter</button>
+  <!-- Auth Screen -->
+  <div id="authScreen">
+    <h1>Welcome to QuasiCare</h1>
+    <div>
+      <input type="email" id="authEmail" placeholder="Email" /><br>
+      <input type="password" id="authPassword" placeholder="Password" /><br>
+      <button onclick="login()">Login</button>
+      <button onclick="register()">Register</button>
+    </div>
+    <p id="authMessage" style="color: red;"></p>
   </div>
 
-  <div id="homeScreen" class="hidden">
+  <!-- Main App -->
+  <div id="mainApp" class="hidden">
     <h1>QuasiCare</h1>
-    <p>Choose how you'd like to participate:</p>
-    <button onclick="showSection('talkScreen')">Talk</button>
-    <button onclick="showSection('listenScreen')">Listen</button>
-    <button onclick="showSection('lookupScreen')">Check Replies</button>
+    <p>Welcome, <span id="userEmail"></span></p>
+    <button onclick="logout()">Logout</button>
 
-    <div id="suicideStats">
-      <p id="usCounter">U.S. Suicides in 2025: 0</p>
-      <p id="globalCounter">Global Suicides in 2025: 0</p>
+    <div class="section">
+      <button onclick="submitMessage()">Talk</button>
+      <button onclick="showListen()">Listen</button>
+      <button onclick="alert('Coming soon')">Check Replies</button>
     </div>
 
-    <div class="footer">
-      <a href="terms.html" target="_blank">Terms</a> |
-      <a href="privacy.html" target="_blank">Privacy</a> |
-      <a href="disclaimer.html" target="_blank">Disclaimer</a>
+    <div id="ventBox" class="hidden section">
+      <textarea id="ventInput" rows="4" placeholder="Type your anonymous message..." style="width:80%; max-width:400px;"></textarea><br>
+      <button onclick="submitMessage()">Submit</button>
+      <button onclick="resetBoxes()">Exit</button>
     </div>
-  </div>
 
-  <!-- Talk Screen -->
-  <div id="talkScreen" class="hidden">
-    <h2>Vent Anonymously</h2>
-    <textarea id="ventInput" placeholder="Type your message..."></textarea><br>
-    <button onclick="submitVent()">Submit</button>
-    <button onclick="showSection('homeScreen')">Exit</button>
-    <div id="codeDisplay" style="margin-top: 10px;"></div>
-    <div class="footer">
-      <a href="terms.html" target="_blank">Terms</a> |
-      <a href="privacy.html" target="_blank">Privacy</a> |
-      <a href="disclaimer.html" target="_blank">Disclaimer</a>
+    <div id="responseBox" class="hidden section">
+      <div id="ventDisplay"><div class="loading"></div></div>
+      <button onclick="resetBoxes()">Back</button>
+    </div>
+
+    <div class="stats">
+      <p>🧠 Estimated U.S. suicides in 2025: <span id="usCount">Loading...</span></p>
+      <p>🌎 Estimated global suicides in 2025: <span id="globalCount">Loading...</span></p>
     </div>
   </div>
 
-  <!-- Listen Screen -->
-  <div id="listenScreen" class="hidden">
-    <h2>Support Someone</h2>
-    <div id="ventFeed">Loading...</div>
-    <button onclick="showSection('homeScreen')">Exit</button>
-    <div class="footer">
-      <a href="terms.html" target="_blank">Terms</a> |
-      <a href="privacy.html" target="_blank">Privacy</a> |
-      <a href="disclaimer.html" target="_blank">Disclaimer</a>
-    </div>
+  <!-- Admin Panel (Hidden) -->
+  <div id="adminPanel">
+    <h2>Admin Panel</h2>
+    <p>This is hidden by default. Only visible to admins later.</p>
   </div>
 
-  <!-- Lookup Screen -->
-  <div id="lookupScreen" class="hidden">
-    <h2>Check for Replies</h2>
-    <input id="lookupCode" placeholder="Enter your code..."><br>
-    <button onclick="lookupReplies()">Search</button>
-    <button onclick="showSection('homeScreen')">Back</button>
-    <div id="repliesOutput" style="margin-top: 20px;"></div>
-  </div>
-
+  <!-- Firebase + Auth + App Logic -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getDatabase, ref, set, onValue, get, remove, child } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    import {
+      getDatabase, ref, push, onChildAdded
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    import {
+      getAuth,
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword,
+      signOut,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDeHTQr0thvi-fBqIEZELFDI0VL70erlCE",
@@ -163,108 +154,86 @@
     };
 
     const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
     const db = getDatabase(app);
 
-    window.enterApp = function () {
-      document.getElementById('disclaimerModal').style.display = 'none';
-      showSection('homeScreen');
-      startSuicideCounters();
-    };
+    const authScreen = document.getElementById("authScreen");
+    const mainApp = document.getElementById("mainApp");
+    const emailDisplay = document.getElementById("userEmail");
+    const authMsg = document.getElementById("authMessage");
 
-    window.showSection = function (id) {
-      ['homeScreen', 'talkScreen', 'listenScreen', 'lookupScreen'].forEach(screen => {
-        document.getElementById(screen).classList.add('hidden');
-      });
-      document.getElementById(id).classList.remove('hidden');
-      if (id === 'listenScreen') loadVents();
-    };
-
-    function startSuicideCounters() {
-      const usPerDay = 135;
-      const globalPerDay = 2190;
-
-      const yearStart = new Date("2025-01-01T00:00:00Z").getTime();
-      const now = Date.now();
-      const daysElapsed = (now - yearStart) / (1000 * 60 * 60 * 24);
-
-      let usBase = Math.floor(usPerDay * daysElapsed);
-      let globalBase = Math.floor(globalPerDay * daysElapsed);
-
-      const usEl = document.getElementById("usCounter");
-      const globalEl = document.getElementById("globalCounter");
-
-      function updateCounters() {
-        usBase += 1;
-        globalBase += 2;
-        usEl.textContent = `U.S. Suicides in 2025: ${usBase.toLocaleString()}`;
-        globalEl.textContent = `Global Suicides in 2025: ${globalBase.toLocaleString()}`;
+    window.register = async function () {
+      const email = document.getElementById("authEmail").value;
+      const pass = document.getElementById("authPassword").value;
+      try {
+        await createUserWithEmailAndPassword(auth, email, pass);
+      } catch (e) {
+        authMsg.textContent = e.message;
       }
+    };
 
-      updateCounters();
-      setInterval(updateCounters, 30000); // every 30 seconds
+    window.login = async function () {
+      const email = document.getElementById("authEmail").value;
+      const pass = document.getElementById("authPassword").value;
+      try {
+        await signInWithEmailAndPassword(auth, email, pass);
+      } catch (e) {
+        authMsg.textContent = e.message;
+      }
+    };
+
+    window.logout = async function () {
+      await signOut(auth);
+    };
+
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        authScreen.classList.add("hidden");
+        mainApp.classList.remove("hidden");
+        emailDisplay.textContent = user.email;
+      } else {
+        authScreen.classList.remove("hidden");
+        mainApp.classList.add("hidden");
+        emailDisplay.textContent = "";
+      }
+    });
+
+    // Show/hide interface
+    window.showListen = function () {
+      resetBoxes();
+      document.getElementById("responseBox").style.display = "block";
+      const display = document.getElementById("ventDisplay");
+      display.innerHTML = "<div class='loading'></div>";
+
+      const messagesRef = ref(db, "vents");
+      onChildAdded(messagesRef, (data) => {
+        const post = data.val().message;
+        display.innerHTML = `<strong>Anonymous Post:</strong><br>"${post}"`;
+      });
+    };
+
+    window.submitMessage = async function () {
+      resetBoxes();
+      document.getElementById("ventBox").style.display = "block";
+    };
+
+    window.resetBoxes = function () {
+      document.getElementById("ventBox").style.display = "none";
+      document.getElementById("responseBox").style.display = "none";
+    };
+
+    // Suicide stats
+    async function fetchSuicideStats() {
+      try {
+        document.getElementById("usCount").textContent = Math.floor(48000 * (new Date().getMonth() + 1) / 12);
+        document.getElementById("globalCount").textContent = Math.floor(700000 * (new Date().getMonth() + 1) / 12);
+      } catch (err) {
+        document.getElementById("usCount").textContent = "N/A";
+        document.getElementById("globalCount").textContent = "N/A";
+      }
     }
 
-    window.submitVent = async function () {
-      const input = document.getElementById("ventInput");
-      const message = input.value.trim();
-      const codeDisplay = document.getElementById("codeDisplay");
-      if (!message) return alert("Please write something.");
-      const code = Math.random().toString(36).substring(2, 8).toUpperCase();
-
-      await set(ref(db, `vents/${code}`), {
-        message,
-        reply: null,
-        timestamp: Date.now()
-      });
-      codeDisplay.innerHTML = `<strong>Your anonymous code:</strong> <code>${code}</code><br>Save this to check replies.`;
-      input.value = "";
-    };
-
-    function loadVents() {
-      const container = document.getElementById("ventFeed");
-      onValue(ref(db, 'vents'), snapshot => {
-        container.innerHTML = "";
-        const data = snapshot.val();
-        for (let code in data) {
-          const vent = data[code];
-          if (vent.reply) continue;
-          const replyBoxId = `reply-${code}`;
-          const box = document.createElement("div");
-          box.className = "vent-box";
-          box.innerHTML = `
-            <p><strong>Message:</strong> ${vent.message}</p>
-            <textarea id="${replyBoxId}" placeholder="Write your reply..."></textarea><br>
-            <button onclick="sendReply('${code}', '${replyBoxId}')">Send Reply</button>
-          `;
-          container.appendChild(box);
-        }
-      });
-    }
-
-    window.sendReply = async function (code, boxId) {
-      const text = document.getElementById(boxId).value.trim();
-      if (!text) return alert("Reply cannot be empty.");
-      await set(ref(db, `vents/${code}/reply`), text);
-      await remove(ref(db, `vents/${code}/message`));
-      alert("Reply sent.");
-    };
-
-    window.lookupReplies = function () {
-      const code = document.getElementById("lookupCode").value.trim().toUpperCase();
-      const out = document.getElementById("repliesOutput");
-      if (!code) return out.innerText = "Please enter your code.";
-
-      get(child(ref(db), `vents/${code}`)).then(snapshot => {
-        const data = snapshot.val();
-        if (!data) {
-          out.innerText = "Code not found.";
-        } else if (data.reply) {
-          out.innerHTML = `<strong>Reply:</strong><br>${data.reply}`;
-        } else {
-          out.innerText = "No reply yet.";
-        }
-      });
-    };
+    fetchSuicideStats();
   </script>
 </body>
 </html>
