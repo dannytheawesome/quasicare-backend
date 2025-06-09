@@ -14,30 +14,29 @@
       text-align: center;
     }
     h1, h2 {
-      margin-top: 1.5em;
+      margin-top: 1em;
     }
     button {
-      margin: 12px;
-      padding: 14px 26px;
+      margin: 10px;
+      padding: 12px 24px;
       background-color: #222;
       color: white;
       border: none;
       border-radius: 6px;
       cursor: pointer;
-      font-size: 17px;
+      font-size: 16px;
     }
     button:hover {
       background-color: #444;
     }
     textarea, input[type="text"] {
-      width: 85%;
+      width: 80%;
       max-width: 500px;
-      padding: 12px;
+      padding: 10px;
       background-color: #1e1e1e;
       border: 1px solid #333;
       border-radius: 6px;
       color: white;
-      font-size: 16px;
     }
     .footer {
       margin-top: 30px;
@@ -76,13 +75,9 @@
       padding: 20px;
     }
     #suicideStats {
-      margin-top: 20px;
-      font-size: 14px;
-      color: #ccc;
-    }
-    #suicideStats p {
-      margin: 4px 0;
+      margin-top: 15px;
       font-style: italic;
+      color: #ccc;
     }
   </style>
 </head>
@@ -105,10 +100,10 @@
     <button onclick="showSection('talkScreen')">Talk</button>
     <button onclick="showSection('listenScreen')">Listen</button>
     <button onclick="showSection('lookupScreen')">Check Replies</button>
-    
+
     <div id="suicideStats">
-      <p id="usCounter">U.S. Suicides Today: 0</p>
-      <p id="globalCounter">Global Suicides Today: 0</p>
+      <p id="usCounter">U.S. Suicides in 2025: 0</p>
+      <p id="globalCounter">Global Suicides in 2025: 0</p>
     </div>
 
     <div class="footer">
@@ -118,10 +113,11 @@
     </div>
   </div>
 
+  <!-- Talk Screen -->
   <div id="talkScreen" class="hidden">
     <h2>Vent Anonymously</h2>
     <textarea id="ventInput" placeholder="Type your message..."></textarea><br>
-    <button onclick="submitMessage()">Submit</button>
+    <button onclick="submitVent()">Submit</button>
     <button onclick="showSection('homeScreen')">Exit</button>
     <div id="codeDisplay" style="margin-top: 10px;"></div>
     <div class="footer">
@@ -131,6 +127,7 @@
     </div>
   </div>
 
+  <!-- Listen Screen -->
   <div id="listenScreen" class="hidden">
     <h2>Support Someone</h2>
     <div id="ventFeed">Loading...</div>
@@ -142,6 +139,7 @@
     </div>
   </div>
 
+  <!-- Lookup Screen -->
   <div id="lookupScreen" class="hidden">
     <h2>Check for Replies</h2>
     <input id="lookupCode" placeholder="Enter your code..."><br>
@@ -152,7 +150,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getDatabase, ref, set, onValue, get, remove, child, push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    import { getDatabase, ref, set, onValue, get, remove, child } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDeHTQr0thvi-fBqIEZELFDI0VL70erlCE",
@@ -170,6 +168,7 @@
     window.enterApp = function () {
       document.getElementById('disclaimerModal').style.display = 'none';
       showSection('homeScreen');
+      startSuicideCounters();
     };
 
     window.showSection = function (id) {
@@ -180,20 +179,43 @@
       if (id === 'listenScreen') loadVents();
     };
 
-    window.submitMessage = async function () {
+    function startSuicideCounters() {
+      const usPerDay = 135;
+      const globalPerDay = 2190;
+
+      const yearStart = new Date("2025-01-01T00:00:00Z").getTime();
+      const now = Date.now();
+      const daysElapsed = (now - yearStart) / (1000 * 60 * 60 * 24);
+
+      let usBase = Math.floor(usPerDay * daysElapsed);
+      let globalBase = Math.floor(globalPerDay * daysElapsed);
+
+      const usEl = document.getElementById("usCounter");
+      const globalEl = document.getElementById("globalCounter");
+
+      function updateCounters() {
+        usBase += 1;
+        globalBase += 2;
+        usEl.textContent = `U.S. Suicides in 2025: ${usBase.toLocaleString()}`;
+        globalEl.textContent = `Global Suicides in 2025: ${globalBase.toLocaleString()}`;
+      }
+
+      updateCounters();
+      setInterval(updateCounters, 30000); // every 30 seconds
+    }
+
+    window.submitVent = async function () {
       const input = document.getElementById("ventInput");
       const message = input.value.trim();
-      const code = Math.random().toString(36).substring(2, 8).toUpperCase();
       const codeDisplay = document.getElementById("codeDisplay");
-
       if (!message) return alert("Please write something.");
+      const code = Math.random().toString(36).substring(2, 8).toUpperCase();
 
       await set(ref(db, `vents/${code}`), {
         message,
         reply: null,
         timestamp: Date.now()
       });
-
       codeDisplay.innerHTML = `<strong>Your anonymous code:</strong> <code>${code}</code><br>Save this to check replies.`;
       input.value = "";
     };
@@ -243,28 +265,6 @@
         }
       });
     };
-
-    // Suicide Counter Simulation
-    function startSuicideCounters() {
-      const usPerDay = 132;
-      const globalPerDay = 2160;
-      const startTime = Date.now();
-      const usEl = document.getElementById("usCounter");
-      const globalEl = document.getElementById("globalCounter");
-
-      function updateCounters() {
-        const elapsed = (Date.now() - startTime) / 1000;
-        const usCount = Math.floor(elapsed / (86400 / usPerDay));
-        const globalCount = Math.floor(elapsed / (86400 / globalPerDay));
-        usEl.textContent = `U.S. Suicides Today: ${usCount}`;
-        globalEl.textContent = `Global Suicides Today: ${globalCount}`;
-      }
-
-      updateCounters();
-      setInterval(updateCounters, 10000);
-    }
-
-    startSuicideCounters();
   </script>
 </body>
 </html>
