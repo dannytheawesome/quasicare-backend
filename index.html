@@ -14,34 +14,29 @@
       text-align: center;
     }
     h1, h2 {
-      margin: 1em auto 0.5em;
-      font-size: 1.6em;
+      margin-top: 1em;
     }
     button {
-      margin: 12px;
+      margin: 10px;
       padding: 12px 24px;
       background-color: #222;
       color: white;
       border: none;
       border-radius: 6px;
-      font-size: 1rem;
       cursor: pointer;
-      width: 80%;
-      max-width: 300px;
+      font-size: 16px;
     }
     button:hover {
-      background-color: #333;
+      background-color: #444;
     }
     textarea, input[type="text"] {
       width: 80%;
       max-width: 500px;
-      padding: 12px;
-      margin: 10px auto;
+      padding: 10px;
       background-color: #1e1e1e;
-      border: 1px solid #444;
+      border: 1px solid #333;
       border-radius: 6px;
-      color: #fff;
-      font-size: 1rem;
+      color: white;
     }
     .footer {
       margin-top: 30px;
@@ -66,7 +61,10 @@
     }
     #disclaimerModal {
       position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
       background-color: #000;
       color: #fff;
       z-index: 999;
@@ -75,11 +73,6 @@
       justify-content: center;
       align-items: center;
       padding: 20px;
-      text-align: center;
-    }
-    #codeDisplay {
-      margin-top: 15px;
-      font-size: 0.95rem;
     }
   </style>
 </head>
@@ -98,7 +91,7 @@
 
   <div id="homeScreen" class="hidden">
     <h1>QuasiCare</h1>
-    <p>Choose how you’d like to participate:</p>
+    <p>Choose how you'd like to participate:</p>
     <button onclick="showSection('talkScreen')">Talk</button>
     <button onclick="showSection('listenScreen')">Listen</button>
     <button onclick="showSection('lookupScreen')">Check Replies</button>
@@ -109,11 +102,11 @@
     <textarea id="ventInput" placeholder="Type your message..."></textarea><br>
     <button onclick="submitVent()">Submit</button>
     <button onclick="showSection('homeScreen')">Exit</button>
-    <div id="codeDisplay"></div>
+    <div id="codeDisplay" style="margin-top: 10px;"></div>
     <div class="footer">
-      <a href="terms.html">Terms</a> |
-      <a href="privacy.html">Privacy</a> |
-      <a href="disclaimer.html">Disclaimer</a>
+      <a href="terms.html" target="_blank">Terms</a> |
+      <a href="privacy.html" target="_blank">Privacy</a> |
+      <a href="disclaimer.html" target="_blank">Disclaimer</a>
     </div>
   </div>
 
@@ -122,9 +115,9 @@
     <div id="ventFeed">Loading...</div>
     <button onclick="showSection('homeScreen')">Exit</button>
     <div class="footer">
-      <a href="terms.html">Terms</a> |
-      <a href="privacy.html">Privacy</a> |
-      <a href="disclaimer.html">Disclaimer</a>
+      <a href="terms.html" target="_blank">Terms</a> |
+      <a href="privacy.html" target="_blank">Privacy</a> |
+      <a href="disclaimer.html" target="_blank">Disclaimer</a>
     </div>
   </div>
 
@@ -134,6 +127,13 @@
     <button onclick="lookupReplies()">Search</button>
     <button onclick="showSection('homeScreen')">Back</button>
     <div id="repliesOutput" style="margin-top: 20px;"></div>
+  </div>
+
+  <!-- Hidden Admin Panel -->
+  <div id="adminPanel" class="hidden">
+    <h2>Admin Panel</h2>
+    <div id="moderationLogs">Loading moderation logs...</div>
+    <button onclick="showSection('homeScreen')">Exit</button>
   </div>
 
   <script type="module">
@@ -159,12 +159,29 @@
     };
 
     window.showSection = function (id) {
-      ['homeScreen', 'talkScreen', 'listenScreen', 'lookupScreen'].forEach(screen => {
+      ['homeScreen', 'talkScreen', 'listenScreen', 'lookupScreen', 'adminPanel'].forEach(screen => {
         document.getElementById(screen).classList.add('hidden');
       });
       document.getElementById(id).classList.remove('hidden');
       if (id === 'listenScreen') loadVents();
     };
+
+    async function moderateAndLog(type, code, message) {
+      const res = await fetch("https://quasicare-moderation.onrender.com/moderate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message })
+      });
+      const result = await res.json();
+      const logRef = ref(db, `moderationLogs/${Date.now()}_${type}_${code}`);
+      await set(logRef, {
+        type, code, message,
+        flagged: result.flagged,
+        matches: result.matched_words || [],
+        timestamp: Date.now()
+      });
+      return result.flagged;
+    }
 
     window.submitVent = async function () {
       const input = document.getElementById("ventInput");
@@ -173,22 +190,26 @@
       if (!message) return alert("Please write something.");
       const code = Math.random().toString(36).substring(2, 8).toUpperCase();
 
+      const flagged = await moderateAndLog("vent", code, message);
+      if (flagged) return codeDisplay.innerHTML = `<span style="color:red;">Message flagged by moderation.</span>`;
+
       await set(ref(db, `vents/${code}`), {
         message,
         reply: null,
         timestamp: Date.now()
       });
-      codeDisplay.innerHTML = `<strong>Your anonymous code:</strong> <code>${code}</code><br>Save this to check for a reply.`;
+      codeDisplay.innerHTML = `<strong>Your anonymous code:</strong> <code>${code}</code><br>Save this code to check for replies later.`;
       input.value = "";
     };
 
     function loadVents() {
       const container = document.getElementById("ventFeed");
+      container.innerHTML = "<em>Loading...</em>";
       onValue(ref(db, 'vents'), snapshot => {
         container.innerHTML = "";
         const data = snapshot.val();
         if (!data) {
-          container.innerText = "No recent messages found.";
+          container.innerHTML = "<p>No messages available right now.</p>";
           return;
         }
         for (let code in data) {
@@ -210,6 +231,8 @@
     window.sendReply = async function (code, boxId) {
       const text = document.getElementById(boxId).value.trim();
       if (!text) return alert("Reply cannot be empty.");
+      const flagged = await moderateAndLog("reply", code, text);
+      if (flagged) return alert("Reply blocked by moderation.");
       await set(ref(db, `vents/${code}/reply`), text);
       await remove(ref(db, `vents/${code}/message`));
       alert("Reply sent.");
@@ -231,6 +254,15 @@
         }
       });
     };
+
+    // Optional admin access trigger (hidden)
+    document.addEventListener("keydown", (e) => {
+      if (e.ctrlKey && e.altKey && e.key === "A") {
+        const pass = prompt("Enter Admin Code");
+        if (pass === "MYRA") showSection("adminPanel");
+        else alert("Access denied");
+      }
+    });
   </script>
 </body>
 </html>
