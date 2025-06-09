@@ -1,81 +1,31 @@
-// Firebase SDK imports
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+import re
 
-// Firebase config
-const firebaseConfig = {
-  apiKey: "AIzaSyDeHTQr0thvi-fBqIEZELFDI0VL70erlCE",
-  authDomain: "quasicare.firebaseapp.com",
-  databaseURL: "https://quasicare-default-rtdb.firebaseio.com",
-  projectId: "quasicare",
-  storageBucket: "quasicare.appspot.com",
-  messagingSenderId: "197366070004",
-  appId: "1:197366070004:web:2972eb9297102b6183bca1",
-  measurementId: "G-B4YZ476BVN"
-};
+app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+# List of banned patterns (basic moderation logic)
+banned_patterns = [
+    r"\bhate\b", r"\bkill\b", r"\bdie\b", r"\bpunch\b", r"\bhurt\b",
+    r"\bsuicide\b", r"\bshoot\b", r"\bstab\b", r"\battack\b", r"\bexplode\b",
+    r"\bi want to (hurt|kill|punch|hit|stab|harm|fight) someone\b",
+    r"\bi feel like (hurting|punching|killing|attacking) someone\b",
+    r"\bsomeone deserves to (die|suffer|get hurt)\b"
+]
 
-// Submit anonymous message
-window.submitMessage = async function () {
-  const input = document.getElementById("ventInput");
-  const message = input.value.trim();
+@app.route("/moderate", methods=["POST"])
+def moderate():
+    data = request.get_json()
+    message = data.get("message", "").lower()
 
-  if (!message) {
-    alert("Please type something before submitting.");
-    return;
-  }
+    matched = [pattern for pattern in banned_patterns if re.search(pattern, message)]
+    flagged = bool(matched)
 
-  // Run server-side moderation
-  try {
-    const res = await fetch("https://quasicare-moderation.onrender.com/moderate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message })
-    });
+    return jsonify({
+        "flagged": flagged,
+        "matched_words": matched
+    })
 
-    if (!res.ok) throw new Error("Moderation service failed.");
-
-    const result = await res.json();
-    if (result.flagged) {
-      alert("This message was flagged as potentially unsafe. Please revise it.");
-      return;
-    }
-
-    // Message passed moderation - save it
-    await push(ref(db, "vents"), {
-      message: message,
-      timestamp: Date.now()
-    });
-
-    alert("Your message has been submitted anonymously.");
-    input.value = "";
-    document.getElementById("ventBox").style.display = "none";
-  } catch (err) {
-    alert("Error submitting message. Please try again later.");
-    console.error(err);
-  }
-};
-
-// Show latest anonymous message
-window.showListen = function () {
-  resetBoxes();
-  document.getElementById("responseBox").style.display = "block";
-
-  const display = document.getElementById("ventDisplay");
-  display.innerHTML = "<em>Loading latest messages...</em>";
-
-  const messagesRef = ref(db, "vents");
-  onChildAdded(messagesRef, (data) => {
-    const post = data.val().message;
-    display.innerHTML = `<strong>Anonymous Post:</strong><br>"${post}"`;
-  });
-};
-
-// Reset both sections
-window.resetBoxes = function () {
-  document.getElementById("ventBox").style.display = "none";
-  document.getElementById("responseBox").style.display = "none";
-};
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
