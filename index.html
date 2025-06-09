@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>QuasiCare</title>
   <style>
     body {
@@ -74,207 +74,212 @@
       align-items: center;
       padding: 20px;
     }
+    #spinner {
+      display: none;
+      margin-top: 20px;
+    }
+    .loader {
+      border: 4px solid #333;
+      border-top: 4px solid white;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
   </style>
 </head>
 <body>
 
-  <div id="disclaimerModal">
-    <h2>Disclaimer</h2>
-    <p>
-      QuasiCare is an anonymous support tool. Do not submit harmful, illegal, or confidential information.
-      By continuing, you agree to our
-      <a href="terms.html" target="_blank">Terms of Use</a> and
-      <a href="privacy.html" target="_blank">Privacy Policy</a>.
-    </p>
-    <button onclick="enterApp()">I Agree & Enter</button>
+<div id="disclaimerModal">
+  <h2>Disclaimer</h2>
+  <p>
+    QuasiCare is an anonymous support tool. Do not submit harmful, illegal, or confidential information.
+    By continuing, you agree to our
+    <a href="terms.html" target="_blank">Terms of Use</a> and
+    <a href="privacy.html" target="_blank">Privacy Policy</a>.
+  </p>
+  <button onclick="enterApp()">I Agree & Enter</button>
+</div>
+
+<div id="spinner" class="hidden"><div class="loader"></div></div>
+
+<div id="homeScreen" class="hidden">
+  <h1>QuasiCare</h1>
+  <p>Your safe space to speak and support anonymously.</p>
+  <button onclick="showSection('talkScreen')">Talk</button>
+  <button onclick="showSection('listenScreen')">Listen</button>
+  <button onclick="showSection('lookupScreen')">Check Replies</button>
+  <button onclick="enterAdmin()">Admin Panel</button>
+</div>
+
+<div id="talkScreen" class="hidden">
+  <h2>Vent Anonymously</h2>
+  <textarea id="ventInput" placeholder="Type your message..."></textarea><br>
+  <button onclick="submitVent()">Submit</button>
+  <button onclick="showSection('homeScreen')">Exit</button>
+  <div id="codeDisplay" style="margin-top: 10px;"></div>
+  <div class="footer">
+    <a href="terms.html" target="_blank">Terms</a> |
+    <a href="privacy.html" target="_blank">Privacy</a> |
+    <a href="disclaimer.html" target="_blank">Disclaimer</a>
   </div>
+</div>
 
-  <div id="homeScreen" class="hidden">
-    <h1>QuasiCare</h1>
-    <button onclick="showSection('talkScreen')">Talk</button>
-    <button onclick="showSection('listenScreen')">Listen</button>
-    <button onclick="showSection('lookupScreen')">Check Replies</button>
+<div id="listenScreen" class="hidden">
+  <h2>Support Someone</h2>
+  <div id="ventFeed">Loading...</div>
+  <button onclick="showSection('homeScreen')">Exit</button>
+  <div class="footer">
+    <a href="terms.html" target="_blank">Terms</a> |
+    <a href="privacy.html" target="_blank">Privacy</a> |
+    <a href="disclaimer.html" target="_blank">Disclaimer</a>
   </div>
+</div>
 
-  <div id="talkScreen" class="hidden">
-    <h2>Vent Anonymously</h2>
-    <textarea id="ventInput" placeholder="Type your message..."></textarea><br>
-    <button onclick="submitVent()">Submit</button>
-    <button onclick="showSection('homeScreen')">Exit</button>
-    <div id="codeDisplay" style="margin-top: 10px;"></div>
-    <div class="footer">
-      <a href="terms.html" target="_blank">Terms</a> |
-      <a href="privacy.html" target="_blank">Privacy</a> |
-      <a href="disclaimer.html" target="_blank">Disclaimer</a>
-    </div>
-  </div>
+<div id="lookupScreen" class="hidden">
+  <h2>Check for Replies</h2>
+  <input id="lookupCode" placeholder="Enter your code..."><br>
+  <button onclick="lookupReplies()">Search</button>
+  <button onclick="showSection('homeScreen')">Back</button>
+  <div id="repliesOutput" style="margin-top: 20px;"></div>
+</div>
 
-  <div id="listenScreen" class="hidden">
-    <h2>Support Someone</h2>
-    <div id="ventFeed">Loading...</div>
-    <button onclick="showSection('homeScreen')">Exit</button>
-    <div class="footer">
-      <a href="terms.html" target="_blank">Terms</a> |
-      <a href="privacy.html" target="_blank">Privacy</a> |
-      <a href="disclaimer.html" target="_blank">Disclaimer</a>
-    </div>
-  </div>
+<div id="adminPrompt" class="hidden">
+  <h2>Enter Admin Code</h2>
+  <input id="adminCode" placeholder="Enter code..."><br>
+  <button onclick="accessAdmin()">Enter</button>
+  <button onclick="showSection('homeScreen')">Cancel</button>
+</div>
 
-  <div id="lookupScreen" class="hidden">
-    <h2>Check for Replies</h2>
-    <input id="lookupCode" placeholder="Enter your code..."><br>
-    <button onclick="lookupReplies()">Search</button>
-    <button onclick="showSection('homeScreen')">Back</button>
-    <div id="repliesOutput" style="margin-top: 20px;"></div>
-  </div>
+<div id="adminPanel" class="hidden">
+  <h2>Admin Panel</h2>
+  <p>Moderation Logs</p>
+  <div id="logOutput">Feature coming soon...</div>
+  <button onclick="showSection('homeScreen')">Back to Home</button>
+</div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getDatabase, ref, set, onValue, get, remove, child, push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getDatabase, ref, set, onValue, get, remove, child } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyDeHTQr0thvi-fBqIEZELFDI0VL70erlCE",
-      authDomain: "quasicare.firebaseapp.com",
-      databaseURL: "https://quasicare-default-rtdb.firebaseio.com",
-      projectId: "quasicare",
-      storageBucket: "quasicare.appspot.com",
-      messagingSenderId: "197366070004",
-      appId: "1:197366070004:web:2972eb9297102b6183bca1"
-    };
+  const app = initializeApp({
+    apiKey: "AIzaSyDeHTQr0thvi-fBqIEZELFDI0VL70erlCE",
+    authDomain: "quasicare.firebaseapp.com",
+    databaseURL: "https://quasicare-default-rtdb.firebaseio.com",
+    projectId: "quasicare",
+    storageBucket: "quasicare.appspot.com",
+    messagingSenderId: "197366070004",
+    appId: "1:197366070004:web:2972eb9297102b6183bca1"
+  });
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
+  const db = getDatabase(app);
 
-    // Secure Admin Panel Access
-    const urlParams = new URLSearchParams(window.location.search);
-    const isAdminView = urlParams.get("admin") === "true";
-    const adminCode = urlParams.get("code");
-    const secretCode = "myra";
+  window.enterApp = () => {
+    document.getElementById('disclaimerModal').style.display = 'none';
+    showSection('homeScreen');
+  };
 
-    if (isAdminView && adminCode === secretCode) {
-      document.body.innerHTML = `
-        <h2>Moderation Logs</h2>
-        <div id="logContainer">Loading...</div>
-      `;
-      onValue(ref(db, 'moderationLogs'), snapshot => {
-        const container = document.getElementById("logContainer");
-        container.innerHTML = "";
-        const data = snapshot.val();
-        if (!data) {
-          container.innerText = "No logs.";
-          return;
-        }
-        Object.entries(data).reverse().forEach(([key, val]) => {
-          const div = document.createElement("div");
-          div.className = "vent-box";
-          div.innerHTML = `
-            <p><strong>${val.type.toUpperCase()} (${val.code})</strong></p>
-            <p>${val.message}</p>
-            <p>Flagged: ${val.flagged}</p>
-            <p>Matches: ${val.matches.join(", ")}</p>
-            <p style="font-size:12px;">${new Date(val.timestamp).toLocaleString()}</p>
-          `;
-          container.appendChild(div);
-        });
+  window.showSection = id => {
+    document.getElementById("spinner").style.display = "block";
+    setTimeout(() => {
+      ["homeScreen", "talkScreen", "listenScreen", "lookupScreen", "adminPrompt", "adminPanel"].forEach(s => {
+        document.getElementById(s).classList.add("hidden");
       });
-    }
+      document.getElementById(id).classList.remove("hidden");
+      document.getElementById("spinner").style.display = "none";
+      if (id === "listenScreen") loadVents();
+    }, 400);
+  };
 
-    window.enterApp = function () {
-      document.getElementById('disclaimerModal').style.display = 'none';
-      showSection('homeScreen');
-    };
+  async function moderateAndLog(type, code, message) {
+    const res = await fetch("https://quasicare-moderation.onrender.com/moderate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message })
+    });
+    const result = await res.json();
+    const logRef = ref(db, `moderationLogs/${Date.now()}_${type}_${code}`);
+    await set(logRef, {
+      type, code, message,
+      flagged: result.flagged,
+      matches: result.matched_words || [],
+      timestamp: Date.now()
+    });
+    return result.flagged;
+  }
 
-    window.showSection = function (id) {
-      ['homeScreen', 'talkScreen', 'listenScreen', 'lookupScreen'].forEach(screen => {
-        document.getElementById(screen).classList.add('hidden');
-      });
-      document.getElementById(id).classList.remove('hidden');
-      if (id === 'listenScreen') loadVents();
-    };
+  window.submitVent = async function () {
+    const input = document.getElementById("ventInput");
+    const message = input.value.trim();
+    const codeDisplay = document.getElementById("codeDisplay");
+    if (!message) return alert("Please write something.");
+    const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const flagged = await moderateAndLog("vent", code, message);
+    if (flagged) return codeDisplay.innerHTML = `<span style="color:red;">Message flagged by moderation.</span>`;
+    await set(ref(db, `vents/${code}`), { message, reply: null, timestamp: Date.now() });
+    codeDisplay.innerHTML = `<strong>Your anonymous code:</strong> <code>${code}</code><br>Save this to check replies.`;
+    input.value = "";
+  };
 
-    async function moderateAndLog(type, code, message) {
-      const res = await fetch("https://quasicare-moderation.onrender.com/moderate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message })
-      });
-      const result = await res.json();
-      const logRef = ref(db, `moderationLogs/${Date.now()}_${type}_${code}`);
-      await set(logRef, {
-        type, code, message,
-        flagged: result.flagged,
-        matches: result.matched_words || [],
-        timestamp: Date.now()
-      });
-      return result.flagged;
-    }
+  function loadVents() {
+    const container = document.getElementById("ventFeed");
+    onValue(ref(db, 'vents'), snapshot => {
+      container.innerHTML = "";
+      const data = snapshot.val();
+      for (let code in data) {
+        const vent = data[code];
+        if (vent.reply) continue;
+        const replyBoxId = `reply-${code}`;
+        const box = document.createElement("div");
+        box.className = "vent-box";
+        box.innerHTML = `
+          <p><strong>Message:</strong> ${vent.message}</p>
+          <textarea id="${replyBoxId}" placeholder="Write your reply..."></textarea><br>
+          <button onclick="sendReply('${code}', '${replyBoxId}')">Send Reply</button>
+        `;
+        container.appendChild(box);
+      }
+    });
+  }
 
-    window.submitVent = async function () {
-      const input = document.getElementById("ventInput");
-      const message = input.value.trim();
-      const codeDisplay = document.getElementById("codeDisplay");
-      if (!message) return alert("Please write something.");
-      const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+  window.sendReply = async function (code, boxId) {
+    const text = document.getElementById(boxId).value.trim();
+    if (!text) return alert("Reply cannot be empty.");
+    const flagged = await moderateAndLog("reply", code, text);
+    if (flagged) return alert("Reply blocked by moderation.");
+    await set(ref(db, `vents/${code}/reply`), text);
+    await remove(ref(db, `vents/${code}/message`));
+    alert("Reply sent.");
+  };
 
-      const flagged = await moderateAndLog("vent", code, message);
-      if (flagged) return codeDisplay.innerHTML = `<span style="color:red;">Message flagged by moderation.</span>`;
+  window.lookupReplies = function () {
+    const code = document.getElementById("lookupCode").value.trim().toUpperCase();
+    const out = document.getElementById("repliesOutput");
+    if (!code) return out.innerText = "Please enter your code.";
+    get(child(ref(db), `vents/${code}`)).then(snapshot => {
+      const data = snapshot.val();
+      if (!data) {
+        out.innerText = "Code not found.";
+      } else if (data.reply) {
+        out.innerHTML = `<strong>Reply:</strong><br>${data.reply}`;
+      } else {
+        out.innerText = "No reply yet.";
+      }
+    });
+  };
 
-      await set(ref(db, `vents/${code}`), {
-        message,
-        reply: null,
-        timestamp: Date.now()
-      });
-      codeDisplay.innerHTML = `<strong>Your anonymous code:</strong> <code>${code}</code><br>Save this to check replies.`;
-      input.value = "";
-    };
+  window.enterAdmin = () => showSection("adminPrompt");
 
-    function loadVents() {
-      const container = document.getElementById("ventFeed");
-      onValue(ref(db, 'vents'), snapshot => {
-        container.innerHTML = "";
-        const data = snapshot.val();
-        for (let code in data) {
-          const vent = data[code];
-          if (vent.reply) continue;
-          const replyBoxId = `reply-${code}`;
-          const box = document.createElement("div");
-          box.className = "vent-box";
-          box.innerHTML = `
-            <p><strong>Message:</strong> ${vent.message}</p>
-            <textarea id="${replyBoxId}" placeholder="Write your reply..."></textarea><br>
-            <button onclick="sendReply('${code}', '${replyBoxId}')">Send Reply</button>
-          `;
-          container.appendChild(box);
-        }
-      });
-    }
-
-    window.sendReply = async function (code, boxId) {
-      const text = document.getElementById(boxId).value.trim();
-      if (!text) return alert("Reply cannot be empty.");
-      const flagged = await moderateAndLog("reply", code, text);
-      if (flagged) return alert("Reply blocked by moderation.");
-      await set(ref(db, `vents/${code}/reply`), text);
-      await remove(ref(db, `vents/${code}/message`));
-      alert("Reply sent.");
-    };
-
-    window.lookupReplies = function () {
-      const code = document.getElementById("lookupCode").value.trim().toUpperCase();
-      const out = document.getElementById("repliesOutput");
-      if (!code) return out.innerText = "Please enter your code.";
-
-      get(child(ref(db), `vents/${code}`)).then(snapshot => {
-        const data = snapshot.val();
-        if (!data) {
-          out.innerText = "Code not found.";
-        } else if (data.reply) {
-          out.innerHTML = `<strong>Reply:</strong><br>${data.reply}`;
-        } else {
-          out.innerText = "No reply yet.";
-        }
-      });
-    };
-  </script>
+  window.accessAdmin = () => {
+    const pass = document.getElementById("adminCode").value.trim().toLowerCase();
+    if (pass === "myra") showSection("adminPanel");
+    else alert("Incorrect code.");
+  };
+</script>
 </body>
 </html>
