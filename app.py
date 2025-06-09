@@ -44,7 +44,7 @@ window.submitMessage = async function () {
       return;
     }
 
-    // Message passed moderation – save it
+    // Message passed moderation - save it
     await push(ref(db, "vents"), {
       message: message,
       timestamp: Date.now()
