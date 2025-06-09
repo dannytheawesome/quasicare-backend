@@ -14,29 +14,30 @@
       text-align: center;
     }
     h1, h2 {
-      margin-top: 1em;
+      margin-top: 1.5em;
     }
     button {
-      margin: 10px;
-      padding: 12px 24px;
+      margin: 12px;
+      padding: 14px 26px;
       background-color: #222;
       color: white;
       border: none;
       border-radius: 6px;
       cursor: pointer;
-      font-size: 16px;
+      font-size: 17px;
     }
     button:hover {
       background-color: #444;
     }
     textarea, input[type="text"] {
-      width: 80%;
+      width: 85%;
       max-width: 500px;
-      padding: 10px;
+      padding: 12px;
       background-color: #1e1e1e;
       border: 1px solid #333;
       border-radius: 6px;
       color: white;
+      font-size: 16px;
     }
     .footer {
       margin-top: 30px;
@@ -74,6 +75,15 @@
       align-items: center;
       padding: 20px;
     }
+    #suicideStats {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #ccc;
+    }
+    #suicideStats p {
+      margin: 4px 0;
+      font-style: italic;
+    }
   </style>
 </head>
 <body>
@@ -95,12 +105,23 @@
     <button onclick="showSection('talkScreen')">Talk</button>
     <button onclick="showSection('listenScreen')">Listen</button>
     <button onclick="showSection('lookupScreen')">Check Replies</button>
+    
+    <div id="suicideStats">
+      <p id="usCounter">U.S. Suicides Today: 0</p>
+      <p id="globalCounter">Global Suicides Today: 0</p>
+    </div>
+
+    <div class="footer">
+      <a href="terms.html" target="_blank">Terms</a> |
+      <a href="privacy.html" target="_blank">Privacy</a> |
+      <a href="disclaimer.html" target="_blank">Disclaimer</a>
+    </div>
   </div>
 
   <div id="talkScreen" class="hidden">
     <h2>Vent Anonymously</h2>
     <textarea id="ventInput" placeholder="Type your message..."></textarea><br>
-    <button onclick="submitVent()">Submit</button>
+    <button onclick="submitMessage()">Submit</button>
     <button onclick="showSection('homeScreen')">Exit</button>
     <div id="codeDisplay" style="margin-top: 10px;"></div>
     <div class="footer">
@@ -129,16 +150,9 @@
     <div id="repliesOutput" style="margin-top: 20px;"></div>
   </div>
 
-  <!-- Hidden Admin Panel -->
-  <div id="adminPanel" class="hidden">
-    <h2>Admin Panel</h2>
-    <div id="moderationLogs">Loading moderation logs...</div>
-    <button onclick="showSection('homeScreen')">Exit</button>
-  </div>
-
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getDatabase, ref, set, onValue, get, remove, child } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    import { getDatabase, ref, set, onValue, get, remove, child, push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDeHTQr0thvi-fBqIEZELFDI0VL70erlCE",
@@ -159,59 +173,36 @@
     };
 
     window.showSection = function (id) {
-      ['homeScreen', 'talkScreen', 'listenScreen', 'lookupScreen', 'adminPanel'].forEach(screen => {
+      ['homeScreen', 'talkScreen', 'listenScreen', 'lookupScreen'].forEach(screen => {
         document.getElementById(screen).classList.add('hidden');
       });
       document.getElementById(id).classList.remove('hidden');
       if (id === 'listenScreen') loadVents();
     };
 
-    async function moderateAndLog(type, code, message) {
-      const res = await fetch("https://quasicare-moderation.onrender.com/moderate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message })
-      });
-      const result = await res.json();
-      const logRef = ref(db, `moderationLogs/${Date.now()}_${type}_${code}`);
-      await set(logRef, {
-        type, code, message,
-        flagged: result.flagged,
-        matches: result.matched_words || [],
-        timestamp: Date.now()
-      });
-      return result.flagged;
-    }
-
-    window.submitVent = async function () {
+    window.submitMessage = async function () {
       const input = document.getElementById("ventInput");
       const message = input.value.trim();
-      const codeDisplay = document.getElementById("codeDisplay");
-      if (!message) return alert("Please write something.");
       const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+      const codeDisplay = document.getElementById("codeDisplay");
 
-      const flagged = await moderateAndLog("vent", code, message);
-      if (flagged) return codeDisplay.innerHTML = `<span style="color:red;">Message flagged by moderation.</span>`;
+      if (!message) return alert("Please write something.");
 
       await set(ref(db, `vents/${code}`), {
         message,
         reply: null,
         timestamp: Date.now()
       });
-      codeDisplay.innerHTML = `<strong>Your anonymous code:</strong> <code>${code}</code><br>Save this code to check for replies later.`;
+
+      codeDisplay.innerHTML = `<strong>Your anonymous code:</strong> <code>${code}</code><br>Save this to check replies.`;
       input.value = "";
     };
 
     function loadVents() {
       const container = document.getElementById("ventFeed");
-      container.innerHTML = "<em>Loading...</em>";
       onValue(ref(db, 'vents'), snapshot => {
         container.innerHTML = "";
         const data = snapshot.val();
-        if (!data) {
-          container.innerHTML = "<p>No messages available right now.</p>";
-          return;
-        }
         for (let code in data) {
           const vent = data[code];
           if (vent.reply) continue;
@@ -231,8 +222,6 @@
     window.sendReply = async function (code, boxId) {
       const text = document.getElementById(boxId).value.trim();
       if (!text) return alert("Reply cannot be empty.");
-      const flagged = await moderateAndLog("reply", code, text);
-      if (flagged) return alert("Reply blocked by moderation.");
       await set(ref(db, `vents/${code}/reply`), text);
       await remove(ref(db, `vents/${code}/message`));
       alert("Reply sent.");
@@ -255,14 +244,27 @@
       });
     };
 
-    // Optional admin access trigger (hidden)
-    document.addEventListener("keydown", (e) => {
-      if (e.ctrlKey && e.altKey && e.key === "A") {
-        const pass = prompt("Enter Admin Code");
-        if (pass === "MYRA") showSection("adminPanel");
-        else alert("Access denied");
+    // Suicide Counter Simulation
+    function startSuicideCounters() {
+      const usPerDay = 132;
+      const globalPerDay = 2160;
+      const startTime = Date.now();
+      const usEl = document.getElementById("usCounter");
+      const globalEl = document.getElementById("globalCounter");
+
+      function updateCounters() {
+        const elapsed = (Date.now() - startTime) / 1000;
+        const usCount = Math.floor(elapsed / (86400 / usPerDay));
+        const globalCount = Math.floor(elapsed / (86400 / globalPerDay));
+        usEl.textContent = `U.S. Suicides Today: ${usCount}`;
+        globalEl.textContent = `Global Suicides Today: ${globalCount}`;
       }
-    });
+
+      updateCounters();
+      setInterval(updateCounters, 10000);
+    }
+
+    startSuicideCounters();
   </script>
 </body>
 </html>
