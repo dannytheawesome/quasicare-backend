@@ -74,6 +74,26 @@
       align-items: center;
       padding: 20px;
     }
+    #adminPanel {
+      background-color: #1a1a1a;
+      padding: 20px;
+      max-height: 500px;
+      overflow-y: auto;
+      border-top: 2px solid #333;
+      display: none;
+    }
+    #adminPanel h2 {
+      margin-top: 0;
+    }
+    #logEntries {
+      text-align: left;
+      font-size: 14px;
+    }
+    .log-entry {
+      margin-bottom: 15px;
+      border-bottom: 1px solid #444;
+      padding-bottom: 10px;
+    }
   </style>
 </head>
 <body>
@@ -128,9 +148,15 @@
     <div id="repliesOutput" style="margin-top: 20px;"></div>
   </div>
 
+  <!-- Admin Panel -->
+  <div id="adminPanel">
+    <h2>Moderation Log</h2>
+    <div id="logEntries">Loading...</div>
+  </div>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getDatabase, ref, set, onValue, get, remove, child, push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    import { getDatabase, ref, set, onValue, get, remove, child } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDeHTQr0thvi-fBqIEZELFDI0VL70erlCE",
@@ -241,6 +267,29 @@
         }
       });
     };
+
+    // Show admin log panel if ?admin=true
+    if (window.location.search.includes("admin=true")) {
+      document.getElementById("adminPanel").style.display = "block";
+      const logContainer = document.getElementById("logEntries");
+      onValue(ref(db, "moderationLogs"), snapshot => {
+        const logs = snapshot.val();
+        logContainer.innerHTML = "";
+        for (let key in logs) {
+          const log = logs[key];
+          logContainer.innerHTML += `
+            <div class="log-entry">
+              <strong>Type:</strong> ${log.type}<br>
+              <strong>Code:</strong> ${log.code}<br>
+              <strong>Flagged:</strong> ${log.flagged}<br>
+              <strong>Message:</strong> ${log.message}<br>
+              <strong>Matches:</strong> ${log.matches.join(", ")}<br>
+              <strong>Timestamp:</strong> ${new Date(log.timestamp).toLocaleString()}
+            </div>
+          `;
+        }
+      });
+    }
   </script>
 </body>
 </html>
