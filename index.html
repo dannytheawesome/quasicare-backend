@@ -12,12 +12,11 @@
       color: #fff;
       text-align: center;
     }
+
     h1 {
       margin-top: 20px;
     }
-    p {
-      margin: 5px 0;
-    }
+
     button, input {
       padding: 12px;
       font-size: 16px;
@@ -25,6 +24,7 @@
       border: none;
       border-radius: 6px;
     }
+
     input {
       width: 80%;
       max-width: 300px;
@@ -32,25 +32,31 @@
       color: #fff;
       border: 1px solid #444;
     }
+
     button {
       background-color: #333;
       color: white;
       cursor: pointer;
     }
+
     button:hover {
       background-color: #555;
     }
+
     .hidden {
       display: none;
     }
+
     .section {
       margin-top: 30px;
     }
+
     .stats {
       margin-top: 20px;
       font-size: 0.95em;
       color: #ccc;
     }
+
     .loading {
       border: 4px solid #333;
       border-top: 4px solid #00f2ff;
@@ -60,161 +66,206 @@
       margin: 20px auto;
       animation: spin 1s linear infinite;
     }
+
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
+    }
+
+    #adminPanel {
+      display: none;
+      margin-top: 50px;
+      background: #222;
+      padding: 20px;
+    }
+
+    #authMessage {
+      color: red;
+      font-size: 0.9em;
     }
   </style>
 </head>
 <body>
 
-<!-- Auth Section -->
-<div id="authScreen">
-  <h1>Welcome to QuasiCare</h1>
-  <p style="color: #ccc;">A safe, anonymous space to vent your emotions or support someone who needs to be heard.</p>
-  <div>
-    <input type="email" id="authEmail" placeholder="Email" /><br>
-    <input type="password" id="authPassword" placeholder="Password" /><br>
-    <button onclick="register()">Register</button>
-    <button onclick="login()">Login</button>
-  </div>
-  <p id="authMessage" style="color: red;"></p>
-</div>
-
-<!-- Main App -->
-<div id="mainApp" class="hidden">
-  <h1>QuasiCare</h1>
-  <p>Welcome, <span id="userEmail"></span></p>
-  <button onclick="logout()">Logout</button>
-
-  <div class="section">
-    <button onclick="submitMessage()">Talk</button>
-    <button onclick="showListen()">Listen</button>
-    <button onclick="alert('Coming soon')">Check Replies</button>
+  <!-- Auth Screen -->
+  <div id="authScreen">
+    <h1>Welcome to QuasiCare</h1>
+    <p>A safe, anonymous space to vent your emotions or support someone who needs to be heard.</p>
+    <div>
+      <input type="email" id="authEmail" placeholder="Email" /><br>
+      <input type="password" id="authPassword" placeholder="Password" /><br>
+      <button onclick="register()">Register</button>
+      <button onclick="login()">Login</button>
+    </div>
+    <p id="authMessage"></p>
   </div>
 
-  <div id="ventBox" class="hidden section">
-    <textarea id="ventInput" rows="4" placeholder="Type your anonymous message..." style="width:80%; max-width:400px;"></textarea><br>
-    <button onclick="submitMessage()">Submit</button>
-    <button onclick="resetBoxes()">Exit</button>
+  <!-- Main App -->
+  <div id="mainApp" class="hidden">
+    <h1>QuasiCare</h1>
+    <p>Welcome, <span id="userEmail"></span></p>
+    <button onclick="logout()">Logout</button>
+
+    <div class="section">
+      <button onclick="submitMessage()">Talk</button>
+      <button onclick="showListen()">Listen</button>
+      <button onclick="alert('Coming soon')">Check Replies</button>
+    </div>
+
+    <div id="ventBox" class="hidden section">
+      <textarea id="ventInput" rows="4" placeholder="Type your anonymous message..." style="width:80%; max-width:400px;"></textarea><br>
+      <button onclick="submitMessage()">Submit</button>
+      <button onclick="resetBoxes()">Exit</button>
+    </div>
+
+    <div id="responseBox" class="hidden section">
+      <div id="ventDisplay"><div class="loading"></div></div>
+      <button onclick="resetBoxes()">Back</button>
+    </div>
+
+    <div class="stats">
+      <p>U.S. suicides in 2025: <span id="usCount">Loading...</span></p>
+      <p>Global suicides in 2025: <span id="globalCount">Loading...</span></p>
+    </div>
   </div>
 
-  <div id="responseBox" class="hidden section">
-    <div id="ventDisplay"><div class="loading"></div></div>
-    <button onclick="resetBoxes()">Back</button>
+  <!-- Admin Panel (Hidden) -->
+  <div id="adminPanel">
+    <h2>Admin Panel</h2>
+    <p>This is hidden by default. Only visible to admins later.</p>
   </div>
 
-  <div class="stats">
-    <p>U.S. suicides in 2025: <span id="usCount">Loading...</span></p>
-    <p>Global suicides in 2025: <span id="globalCount">Loading...</span></p>
-  </div>
-</div>
+  <!-- Firebase + Auth + App Logic -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getDatabase, ref, push, onChildAdded
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    import {
+      getAuth,
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword,
+      signOut,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-<!-- Firebase + App Script -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import {
-    getDatabase, ref, push, onChildAdded
-  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-  import {
-    getAuth,
-    createUserWithEmailAndPassword,
-    signInWithEmailAndPassword,
-    signOut,
-    onAuthStateChanged
-  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    const firebaseConfig = {
+      apiKey: "AIzaSyDeHTQr0thvi-fBqIEZELFDI0VL70erlCE",
+      authDomain: "quasicare.firebaseapp.com",
+      databaseURL: "https://quasicare-default-rtdb.firebaseio.com",
+      projectId: "quasicare",
+      storageBucket: "quasicare.appspot.com",
+      messagingSenderId: "197366070004",
+      appId: "1:197366070004:web:2972eb9297102b6183bca1"
+    };
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyDeHTQr0thvi-fBqIEZELFDI0VL70erlCE",
-    authDomain: "quasicare.firebaseapp.com",
-    databaseURL: "https://quasicare-default-rtdb.firebaseio.com",
-    projectId: "quasicare",
-    storageBucket: "quasicare.appspot.com",
-    messagingSenderId: "197366070004",
-    appId: "1:197366070004:web:2972eb9297102b6183bca1"
-  };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
 
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
-  const auth = getAuth(app);
+    const authScreen = document.getElementById("authScreen");
+    const mainApp = document.getElementById("mainApp");
+    const emailDisplay = document.getElementById("userEmail");
+    const authMsg = document.getElementById("authMessage");
 
-  const authScreen = document.getElementById("authScreen");
-  const mainApp = document.getElementById("mainApp");
-  const emailDisplay = document.getElementById("userEmail");
-  const authMsg = document.getElementById("authMessage");
+    window.register = async function () {
+      const email = document.getElementById("authEmail").value.trim();
+      const pass = document.getElementById("authPassword").value;
+      try {
+        await createUserWithEmailAndPassword(auth, email, pass);
+        authMsg.textContent = "";
+      } catch (e) {
+        switch (e.code) {
+          case "auth/email-already-in-use":
+            authMsg.textContent = "This email is already registered.";
+            break;
+          case "auth/invalid-email":
+            authMsg.textContent = "Please enter a valid email address.";
+            break;
+          case "auth/weak-password":
+            authMsg.textContent = "Password should be at least 6 characters.";
+            break;
+          default:
+            authMsg.textContent = "Registration failed. Try again.";
+        }
+      }
+    };
 
-  window.register = async function () {
-    const email = document.getElementById("authEmail").value;
-    const pass = document.getElementById("authPassword").value;
-    try {
-      await createUserWithEmailAndPassword(auth, email, pass);
-      authMsg.textContent = "Account created. You are now logged in.";
-    } catch (e) {
-      authMsg.textContent = "Firebase: " + e.message;
-    }
-  };
+    window.login = async function () {
+      const email = document.getElementById("authEmail").value.trim();
+      const pass = document.getElementById("authPassword").value;
+      try {
+        await signInWithEmailAndPassword(auth, email, pass);
+        authMsg.textContent = "";
+      } catch (e) {
+        switch (e.code) {
+          case "auth/user-not-found":
+            authMsg.textContent = "No account found with this email.";
+            break;
+          case "auth/wrong-password":
+            authMsg.textContent = "Incorrect password.";
+            break;
+          case "auth/invalid-email":
+            authMsg.textContent = "Invalid email format.";
+            break;
+          default:
+            authMsg.textContent = "Login failed. Try again.";
+        }
+      }
+    };
 
-  window.login = async function () {
-    const email = document.getElementById("authEmail").value;
-    const pass = document.getElementById("authPassword").value;
-    try {
-      await signInWithEmailAndPassword(auth, email, pass);
-      authMsg.textContent = "";
-    } catch (e) {
-      authMsg.textContent = "Firebase: " + e.message;
-    }
-  };
+    window.logout = async function () {
+      await signOut(auth);
+    };
 
-  window.logout = async function () {
-    await signOut(auth);
-  };
-
-  onAuthStateChanged(auth, user => {
-    if (user) {
-      authScreen.classList.add("hidden");
-      mainApp.classList.remove("hidden");
-      emailDisplay.textContent = user.email;
-    } else {
-      authScreen.classList.remove("hidden");
-      mainApp.classList.add("hidden");
-      emailDisplay.textContent = "";
-    }
-  });
-
-  // Talk
-  window.submitMessage = async function () {
-    resetBoxes();
-    document.getElementById("ventBox").classList.remove("hidden");
-  };
-
-  // Listen
-  window.showListen = function () {
-    resetBoxes();
-    document.getElementById("responseBox").classList.remove("hidden");
-    const display = document.getElementById("ventDisplay");
-    display.innerHTML = "<div class='loading'></div>";
-
-    const messagesRef = ref(db, "vents");
-    onChildAdded(messagesRef, (data) => {
-      const post = data.val().message;
-      display.innerHTML = `<strong>Anonymous Post:</strong><br>"${post}"`;
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        authScreen.classList.add("hidden");
+        mainApp.classList.remove("hidden");
+        emailDisplay.textContent = user.email;
+      } else {
+        authScreen.classList.remove("hidden");
+        mainApp.classList.add("hidden");
+        emailDisplay.textContent = "";
+      }
     });
-  };
 
-  window.resetBoxes = function () {
-    document.getElementById("ventBox").classList.add("hidden");
-    document.getElementById("responseBox").classList.add("hidden");
-  };
+    window.showListen = function () {
+      resetBoxes();
+      document.getElementById("responseBox").style.display = "block";
+      const display = document.getElementById("ventDisplay");
+      display.innerHTML = "<div class='loading'></div>";
 
-  // Suicide stats
-  async function fetchSuicideStats() {
-    const month = new Date().getMonth() + 1;
-    document.getElementById("usCount").textContent = Math.floor(48000 * month / 12);
-    document.getElementById("globalCount").textContent = Math.floor(700000 * month / 12);
-  }
+      const messagesRef = ref(db, "vents");
+      onChildAdded(messagesRef, (data) => {
+        const post = data.val().message;
+        display.innerHTML = `<strong>Anonymous Post:</strong><br>"${post}"`;
+      });
+    };
 
-  fetchSuicideStats();
-</script>
+    window.submitMessage = async function () {
+      resetBoxes();
+      document.getElementById("ventBox").style.display = "block";
+    };
 
+    window.resetBoxes = function () {
+      document.getElementById("ventBox").style.display = "none";
+      document.getElementById("responseBox").style.display = "none";
+    };
+
+    // Suicide stats (simplified)
+    async function fetchSuicideStats() {
+      try {
+        const currentMonth = new Date().getMonth() + 1;
+        document.getElementById("usCount").textContent = Math.floor(48000 * currentMonth / 12);
+        document.getElementById("globalCount").textContent = Math.floor(700000 * currentMonth / 12);
+      } catch (err) {
+        document.getElementById("usCount").textContent = "N/A";
+        document.getElementById("globalCount").textContent = "N/A";
+      }
+    }
+
+    fetchSuicideStats();
+  </script>
 </body>
 </html>
