@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Your Profile | QuasiCare</title>
   <style>
@@ -10,18 +10,17 @@
       color: white;
       font-family: system-ui, sans-serif;
       text-align: center;
-      padding: 50px 20px;
+      padding: 40px 20px;
     }
-    img {
-      border-radius: 50%;
-      width: 120px;
-      height: 120px;
-      object-fit: cover;
-      margin-bottom: 20px;
-    }
-    .info {
-      font-size: 1.1rem;
-      margin-bottom: 10px;
+    input {
+      padding: 10px;
+      margin: 10px;
+      background-color: #222;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      width: 80%;
+      max-width: 300px;
     }
     button {
       padding: 10px 20px;
@@ -29,34 +28,46 @@
       color: white;
       border: none;
       border-radius: 6px;
+      margin-top: 10px;
       cursor: pointer;
-      margin-top: 30px;
     }
     button:hover {
       background-color: #555;
     }
+    img {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      margin-top: 20px;
+    }
   </style>
 </head>
 <body>
-  <h1>Your QuasiCare Profile</h1>
-  <div id="profileSection">
-    <img id="profilePic" src="" alt="Profile Picture" style="display:none" />
-    <div class="info"><strong>Username:</strong> <span id="username">Loading...</span></div>
-    <div class="info"><strong>People Helped:</strong> <span id="points">0</span></div>
-  </div>
-  <button onclick="logout()">Log Out</button>
+  <h1>Your Profile</h1>
+  <p>Email: <span id="email">Loading...</span></p>
+  <img id="profilePic" src="" alt="Profile Photo" style="display: none;" />
+  
+  <p>Username: <span id="username">Loading...</span></p>
+  <p>Points: <span id="points">0</span></p>
+  <p>Badges: <span id="badges">None</span></p>
+
+  <h3>Edit Profile</h3>
+  <input type="text" id="newUsername" placeholder="New username" /><br>
+  <input type="text" id="newPhotoURL" placeholder="Profile photo URL (optional)" /><br>
+  <button onclick="saveProfile()">Save Changes</button><br><br>
+  <button onclick="location.href='index.html'">⬅ Back to Home</button>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import {
       getAuth,
-      onAuthStateChanged,
-      signOut
+      onAuthStateChanged
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import {
       getDatabase,
       ref,
-      get
+      get,
+      set
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
     const firebaseConfig = {
@@ -73,38 +84,57 @@
     const auth = getAuth(app);
     const db = getDatabase(app);
 
+    let uid = null;
+
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
+        alert("You must be logged in to view this page.");
         window.location.href = "login.html";
         return;
       }
 
-      const uid = user.uid;
-      const userRef = ref(db, `users/${uid}`);
+      uid = user.uid;
+      document.getElementById("email").textContent = user.email;
 
-      try {
-        const snapshot = await get(userRef);
-        if (snapshot.exists()) {
-          const data = snapshot.val();
-          document.getElementById("username").textContent = data.username || "(no username)";
-          document.getElementById("points").textContent = data.points || 0;
+      const profileRef = ref(db, "users/" + uid);
+      const snapshot = await get(profileRef);
 
-          if (data.profilePic) {
-            const pic = document.getElementById("profilePic");
-            pic.src = data.profilePic;
-            pic.style.display = "block";
-          }
-        } else {
-          document.getElementById("username").textContent = "(profile not found)";
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        document.getElementById("username").textContent = data.username || "Anonymous";
+        document.getElementById("points").textContent = data.points || 0;
+        document.getElementById("badges").textContent = (data.badges && data.badges.length > 0)
+          ? data.badges.join(", ") : "None";
+
+        if (data.photoURL) {
+          const img = document.getElementById("profilePic");
+          img.src = data.photoURL;
+          img.style.display = "block";
         }
-      } catch (error) {
-        console.error("Error loading profile:", error);
       }
     });
 
-    window.logout = async function () {
-      await signOut(auth);
-      window.location.href = "login.html";
+    window.saveProfile = async function () {
+      const username = document.getElementById("newUsername").value.trim();
+      const photoURL = document.getElementById("newPhotoURL").value.trim();
+      if (!username) return alert("Username cannot be empty.");
+
+      const updates = { username: username };
+      if (photoURL) updates.photoURL = photoURL;
+
+      try {
+        await set(ref(db, "users/" + uid), {
+          ...updates,
+          points: parseInt(document.getElementById("points").textContent),
+          badges: document.getElementById("badges").textContent === "None"
+            ? [] : document.getElementById("badges").textContent.split(", ")
+        });
+        alert("Profile updated.");
+        window.location.reload();
+      } catch (err) {
+        console.error(err);
+        alert("Failed to save profile.");
+      }
     };
   </script>
 </body>
