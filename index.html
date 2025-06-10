@@ -12,51 +12,45 @@
       color: #fff;
       text-align: center;
     }
-
     h1 {
       margin-top: 20px;
     }
-
-    button, input, textarea {
+    p {
+      margin: 5px 0;
+    }
+    button, input {
       padding: 12px;
       font-size: 16px;
       margin: 10px;
       border: none;
       border-radius: 6px;
     }
-
-    input, textarea {
+    input {
       width: 80%;
       max-width: 300px;
       background: #1e1e1e;
       color: #fff;
       border: 1px solid #444;
     }
-
     button {
       background-color: #333;
       color: white;
       cursor: pointer;
     }
-
     button:hover {
       background-color: #555;
     }
-
     .hidden {
       display: none;
     }
-
     .section {
       margin-top: 30px;
     }
-
     .stats {
       margin-top: 20px;
-      font-size: 0.9em;
+      font-size: 0.95em;
       color: #ccc;
     }
-
     .loading {
       border: 4px solid #333;
       border-top: 4px solid #00f2ff;
@@ -66,185 +60,161 @@
       margin: 20px auto;
       animation: spin 1s linear infinite;
     }
-
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
-    }
-
-    #adminPanel {
-      display: none;
-      margin-top: 50px;
-      background: #222;
-      padding: 20px;
-    }
-
-    #authMessage {
-      color: red;
-      margin-top: 10px;
-    }
-
-    .description {
-      font-size: 0.95em;
-      color: #bbb;
-      margin: 10px auto;
-      max-width: 80%;
     }
   </style>
 </head>
 <body>
 
-  <!-- Auth Screen -->
-  <div id="authScreen">
-    <h1>Welcome to QuasiCare</h1>
-    <p class="description">A safe, anonymous space to vent your emotions or support someone who needs to be heard.</p>
+<!-- Auth Section -->
+<div id="authScreen">
+  <h1>Welcome to QuasiCare</h1>
+  <p style="color: #ccc;">A safe, anonymous space to vent your emotions or support someone who needs to be heard.</p>
+  <div>
     <input type="email" id="authEmail" placeholder="Email" /><br>
     <input type="password" id="authPassword" placeholder="Password" /><br>
-    <button onclick="login()">Login</button>
     <button onclick="register()">Register</button>
-    <p id="authMessage"></p>
+    <button onclick="login()">Login</button>
+  </div>
+  <p id="authMessage" style="color: red;"></p>
+</div>
+
+<!-- Main App -->
+<div id="mainApp" class="hidden">
+  <h1>QuasiCare</h1>
+  <p>Welcome, <span id="userEmail"></span></p>
+  <button onclick="logout()">Logout</button>
+
+  <div class="section">
+    <button onclick="submitMessage()">Talk</button>
+    <button onclick="showListen()">Listen</button>
+    <button onclick="alert('Coming soon')">Check Replies</button>
   </div>
 
-  <!-- Main App -->
-  <div id="mainApp" class="hidden">
-    <h1>QuasiCare</h1>
-    <p>Welcome, <span id="userEmail"></span></p>
-    <button onclick="logout()">Logout</button>
-
-    <div class="section">
-      <button onclick="submitMessage()">Talk</button>
-      <button onclick="showListen()">Listen</button>
-      <button onclick="alert('Coming soon')">Check Replies</button>
-    </div>
-
-    <div id="ventBox" class="hidden section">
-      <textarea id="ventInput" rows="4" placeholder="Type your anonymous message..." style="width:80%; max-width:400px;"></textarea><br>
-      <button onclick="submitMessage()">Submit</button>
-      <button onclick="resetBoxes()">Exit</button>
-    </div>
-
-    <div id="responseBox" class="hidden section">
-      <div id="ventDisplay"><div class="loading"></div></div>
-      <button onclick="resetBoxes()">Back</button>
-    </div>
-
-    <div class="stats">
-      <p>🧠 Estimated U.S. suicides in 2025: <span id="usCount">Loading...</span></p>
-      <p>🌎 Estimated global suicides in 2025: <span id="globalCount">Loading...</span></p>
-    </div>
+  <div id="ventBox" class="hidden section">
+    <textarea id="ventInput" rows="4" placeholder="Type your anonymous message..." style="width:80%; max-width:400px;"></textarea><br>
+    <button onclick="submitMessage()">Submit</button>
+    <button onclick="resetBoxes()">Exit</button>
   </div>
 
-  <!-- Admin Panel (Hidden) -->
-  <div id="adminPanel">
-    <h2>Admin Panel</h2>
-    <p>This is hidden by default. Only visible to admins later.</p>
+  <div id="responseBox" class="hidden section">
+    <div id="ventDisplay"><div class="loading"></div></div>
+    <button onclick="resetBoxes()">Back</button>
   </div>
 
-  <!-- Firebase + Auth + App Logic -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import {
-      getDatabase, ref, push, onChildAdded
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-    import {
-      getAuth,
-      createUserWithEmailAndPassword,
-      signInWithEmailAndPassword,
-      signOut,
-      onAuthStateChanged
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  <div class="stats">
+    <p>U.S. suicides in 2025: <span id="usCount">Loading...</span></p>
+    <p>Global suicides in 2025: <span id="globalCount">Loading...</span></p>
+  </div>
+</div>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyDeHTQr0thvi-fBqIEZELFDI0VL70erlCE",
-      authDomain: "quasicare.firebaseapp.com",
-      databaseURL: "https://quasicare-default-rtdb.firebaseio.com",
-      projectId: "quasicare",
-      storageBucket: "quasicare.appspot.com",
-      messagingSenderId: "197366070004",
-      appId: "1:197366070004:web:2972eb9297102b6183bca1"
-    };
+<!-- Firebase + App Script -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {
+    getDatabase, ref, push, onChildAdded
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+  import {
+    getAuth,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    signOut,
+    onAuthStateChanged
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getDatabase(app);
+  const firebaseConfig = {
+    apiKey: "AIzaSyDeHTQr0thvi-fBqIEZELFDI0VL70erlCE",
+    authDomain: "quasicare.firebaseapp.com",
+    databaseURL: "https://quasicare-default-rtdb.firebaseio.com",
+    projectId: "quasicare",
+    storageBucket: "quasicare.appspot.com",
+    messagingSenderId: "197366070004",
+    appId: "1:197366070004:web:2972eb9297102b6183bca1"
+  };
 
-    const authScreen = document.getElementById("authScreen");
-    const mainApp = document.getElementById("mainApp");
-    const emailDisplay = document.getElementById("userEmail");
-    const authMsg = document.getElementById("authMessage");
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  const auth = getAuth(app);
 
-    window.register = async function () {
-      const email = document.getElementById("authEmail").value;
-      const pass = document.getElementById("authPassword").value;
-      try {
-        await createUserWithEmailAndPassword(auth, email, pass);
-      } catch (e) {
-        authMsg.textContent = e.message;
-      }
-    };
+  const authScreen = document.getElementById("authScreen");
+  const mainApp = document.getElementById("mainApp");
+  const emailDisplay = document.getElementById("userEmail");
+  const authMsg = document.getElementById("authMessage");
 
-    window.login = async function () {
-      const email = document.getElementById("authEmail").value;
-      const pass = document.getElementById("authPassword").value;
-      try {
-        await signInWithEmailAndPassword(auth, email, pass);
-      } catch (e) {
-        authMsg.textContent = e.message;
-      }
-    };
-
-    window.logout = async function () {
-      await signOut(auth);
-    };
-
-    onAuthStateChanged(auth, user => {
-      if (user) {
-        authScreen.classList.add("hidden");
-        mainApp.classList.remove("hidden");
-        emailDisplay.textContent = user.email;
-      } else {
-        authScreen.classList.remove("hidden");
-        mainApp.classList.add("hidden");
-        emailDisplay.textContent = "";
-      }
-    });
-
-    // Show/hide interface
-    window.showListen = function () {
-      resetBoxes();
-      document.getElementById("responseBox").style.display = "block";
-      const display = document.getElementById("ventDisplay");
-      display.innerHTML = "<div class='loading'></div>";
-
-      const messagesRef = ref(db, "vents");
-      onChildAdded(messagesRef, (data) => {
-        const post = data.val().message;
-        display.innerHTML = `<strong>Anonymous Post:</strong><br>"${post}"`;
-      });
-    };
-
-    window.submitMessage = async function () {
-      resetBoxes();
-      document.getElementById("ventBox").style.display = "block";
-    };
-
-    window.resetBoxes = function () {
-      document.getElementById("ventBox").style.display = "none";
-      document.getElementById("responseBox").style.display = "none";
-    };
-
-    // Suicide stats
-    async function fetchSuicideStats() {
-      try {
-        document.getElementById("usCount").textContent = Math.floor(48000 * (new Date().getMonth() + 1) / 12);
-        document.getElementById("globalCount").textContent = Math.floor(700000 * (new Date().getMonth() + 1) / 12);
-      } catch (err) {
-        document.getElementById("usCount").textContent = "N/A";
-        document.getElementById("globalCount").textContent = "N/A";
-      }
+  window.register = async function () {
+    const email = document.getElementById("authEmail").value;
+    const pass = document.getElementById("authPassword").value;
+    try {
+      await createUserWithEmailAndPassword(auth, email, pass);
+      authMsg.textContent = "Account created. You are now logged in.";
+    } catch (e) {
+      authMsg.textContent = "Firebase: " + e.message;
     }
+  };
 
-    fetchSuicideStats();
-  </script>
+  window.login = async function () {
+    const email = document.getElementById("authEmail").value;
+    const pass = document.getElementById("authPassword").value;
+    try {
+      await signInWithEmailAndPassword(auth, email, pass);
+      authMsg.textContent = "";
+    } catch (e) {
+      authMsg.textContent = "Firebase: " + e.message;
+    }
+  };
+
+  window.logout = async function () {
+    await signOut(auth);
+  };
+
+  onAuthStateChanged(auth, user => {
+    if (user) {
+      authScreen.classList.add("hidden");
+      mainApp.classList.remove("hidden");
+      emailDisplay.textContent = user.email;
+    } else {
+      authScreen.classList.remove("hidden");
+      mainApp.classList.add("hidden");
+      emailDisplay.textContent = "";
+    }
+  });
+
+  // Talk
+  window.submitMessage = async function () {
+    resetBoxes();
+    document.getElementById("ventBox").classList.remove("hidden");
+  };
+
+  // Listen
+  window.showListen = function () {
+    resetBoxes();
+    document.getElementById("responseBox").classList.remove("hidden");
+    const display = document.getElementById("ventDisplay");
+    display.innerHTML = "<div class='loading'></div>";
+
+    const messagesRef = ref(db, "vents");
+    onChildAdded(messagesRef, (data) => {
+      const post = data.val().message;
+      display.innerHTML = `<strong>Anonymous Post:</strong><br>"${post}"`;
+    });
+  };
+
+  window.resetBoxes = function () {
+    document.getElementById("ventBox").classList.add("hidden");
+    document.getElementById("responseBox").classList.add("hidden");
+  };
+
+  // Suicide stats
+  async function fetchSuicideStats() {
+    const month = new Date().getMonth() + 1;
+    document.getElementById("usCount").textContent = Math.floor(48000 * month / 12);
+    document.getElementById("globalCount").textContent = Math.floor(700000 * month / 12);
+  }
+
+  fetchSuicideStats();
+</script>
+
 </body>
 </html>
