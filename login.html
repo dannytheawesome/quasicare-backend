@@ -48,8 +48,15 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import {
       getAuth,
-      signInWithEmailAndPassword
+      signInWithEmailAndPassword,
+      onAuthStateChanged
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import {
+      getDatabase,
+      ref,
+      get,
+      set
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDeHTQr0thvi-fBqIEZELFDI0VL70erlCE",
@@ -63,6 +70,7 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+    const db = getDatabase(app);
 
     document.getElementById("loginBtn").addEventListener("click", async () => {
       const email = document.getElementById("email").value.trim();
@@ -70,7 +78,24 @@
       const error = document.getElementById("error");
 
       try {
-        await signInWithEmailAndPassword(auth, email, password);
+        const result = await signInWithEmailAndPassword(auth, email, password);
+        const user = result.user;
+        const uid = user.uid;
+        const userRef = ref(db, "users/" + uid);
+
+        const snapshot = await get(userRef);
+        if (!snapshot.exists()) {
+          await set(userRef, {
+            username: "Anonymous",
+            photoURL: "",
+            points: 0,
+            badges: []
+          });
+          console.log("Profile created for new user.");
+        } else {
+          console.log("Existing user profile found.");
+        }
+
         window.location.href = "index.html";
       } catch (err) {
         error.textContent = "Invalid email or password.";
