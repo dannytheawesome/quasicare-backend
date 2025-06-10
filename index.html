@@ -14,8 +14,6 @@
       padding: 60px 20px;
     }
 
-    .hidden { display: none; }
-
     h1 {
       font-size: 2.2rem;
       margin-bottom: 10px;
@@ -70,35 +68,34 @@
       .button-group {
         flex-direction: row;
         justify-content: center;
+        flex-wrap: wrap;
       }
     }
   </style>
 </head>
 <body>
-  <div id="loading">Checking authentication...</div>
 
-  <div id="app" class="hidden">
-    <h1>QuasiCare</h1>
-    <p>You are heard. You matter.</p>
+  <h1>QuasiCare</h1>
+  <p>You are heard. You matter.</p>
 
-    <button id="logoutBtn">Logout</button>
+  <button id="logoutBtn">Logout</button>
 
-    <div class="button-group">
-      <button onclick="location.href='talk.html'">Talk</button>
-      <button onclick="location.href='listen.html'">Listen</button>
-      <button onclick="location.href='replies.html'">Check Replies</button>
-    </div>
+  <div class="button-group">
+    <button onclick="location.href='talk.html'">Talk</button>
+    <button onclick="location.href='listen.html'">Listen</button>
+    <button onclick="location.href='replies.html'">Check Replies</button>
+    <button onclick="location.href='profile.html'">Profile</button>
+  </div>
 
-    <div class="stats">
-      <p>U.S. suicides in 2025: <span id="usCount">Loading...</span></p>
-      <p>Global suicides in 2025: <span id="globalCount">Loading...</span></p>
-    </div>
+  <div class="stats">
+    <p>U.S. suicides in 2025: <span id="usCount">Loading...</span></p>
+    <p>Global suicides in 2025: <span id="globalCount">Loading...</span></p>
+  </div>
 
-    <div id="footerLinks">
-      <a href="terms.html" target="_blank">Terms</a>
-      <a href="privacy.html" target="_blank">Privacy</a>
-      <a href="disclaimer.html" target="_blank">Disclaimer</a>
-    </div>
+  <div id="footerLinks">
+    <a href="terms.html" target="_blank">Terms</a>
+    <a href="privacy.html" target="_blank">Privacy</a>
+    <a href="disclaimer.html" target="_blank">Disclaimer</a>
   </div>
 
   <script type="module">
@@ -122,42 +119,39 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    // Handle auth state
+    // Logout
+    const logoutBtn = document.getElementById("logoutBtn");
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", async () => {
+        await signOut(auth);
+        window.location.href = "login.html";
+      });
+    }
+
+    // Auth protection
     onAuthStateChanged(auth, (user) => {
       if (!user) {
-        window.location.href = "login.html"; // redirect to login
-      } else {
-        document.getElementById("loading").classList.add("hidden");
-        document.getElementById("app").classList.remove("hidden");
-        animateCount("usCount", 21172);
-        animateCount("globalCount", 308767);
+        console.warn("User not authenticated.");
+        window.location.href = "login.html";
       }
     });
 
-    // Logout button
-    document.addEventListener("DOMContentLoaded", () => {
-      const logoutBtn = document.getElementById("logoutBtn");
-      if (logoutBtn) {
-        logoutBtn.addEventListener("click", async () => {
-          await signOut(auth);
-          window.location.href = "login.html";
-        });
-      }
-    });
-
-    function animateCount(id, target) {
+    // Stats animation
+    const animateCount = (id, target) => {
       let count = 0;
       const inc = target / 60;
-      const el = document.getElementById(id);
       const interval = setInterval(() => {
         count += inc;
         if (count >= target) {
           count = target;
           clearInterval(interval);
         }
-        el.textContent = Math.floor(count).toLocaleString();
+        document.getElementById(id).textContent = Math.floor(count).toLocaleString();
       }, 50);
-    }
+    };
+
+    animateCount("usCount", 21172);
+    animateCount("globalCount", 308767);
   </script>
 </body>
 </html>
