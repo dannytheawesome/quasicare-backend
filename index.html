@@ -119,9 +119,10 @@
 
     // Handle logout
     document.getElementById("logoutBtn").addEventListener("click", async () => {
-      await signOut(auth);
-      window.location.reload(); // reload instead of redirect to avoid warning
-    });
+  await signOut(auth);
+  alert("You’ve been logged out.");
+  window.location.reload(); // or redirect to a login page if you create one
+});
 
     // Protect route: redirect if not logged in
    onAuthStateChanged(auth, (user) => {
