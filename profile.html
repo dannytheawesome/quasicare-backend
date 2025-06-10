@@ -3,118 +3,186 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Your Profile | QuasiCare</title>
+  <title>Your Profile</title>
   <style>
     body {
       background-color: #111;
       color: white;
       font-family: system-ui, sans-serif;
-      text-align: center;
-      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
     }
-
-    .profile-pic {
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid #555;
-      margin: 10px auto;
-    }
-
     h1 {
       font-size: 2rem;
-      margin-bottom: 5px;
-    }
-
-    .username {
-      font-size: 1.2rem;
       margin-bottom: 10px;
-      color: #ccc;
     }
-
+    #avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 10px;
+      border: 2px solid #333;
+    }
+    #username {
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
     .stats {
       display: flex;
       justify-content: center;
       gap: 40px;
-      margin: 20px 0;
+      margin-bottom: 20px;
     }
-
-    .stat-box {
-      font-size: 1rem;
+    .stat-label {
+      font-size: 0.9rem;
+      color: #aaa;
     }
-
-    .edit-section {
-      margin: 20px 0;
+    .stat-value {
+      font-weight: bold;
+      font-size: 1.1rem;
     }
-
+    .profile-form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 30px;
+      width: 100%;
+      max-width: 300px;
+    }
     input[type="text"], input[type="file"] {
-      margin: 10px auto;
-      padding: 8px;
-      background: #222;
-      color: white;
-      border: 1px solid #444;
-      border-radius: 4px;
-      width: 250px;
-    }
-
-    button {
-      padding: 10px 20px;
-      background-color: #333;
+      width: 100%;
+      padding: 10px;
+      background-color: #222;
       color: white;
       border: none;
       border-radius: 6px;
+    }
+    button {
+      background-color: #333;
+      color: white;
+      padding: 10px 20px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 6px;
       cursor: pointer;
-      margin-top: 10px;
     }
-
-    .badges {
-      margin-top: 20px;
+    button:hover {
+      background-color: #555;
     }
-
-    .badge {
-      display: inline-block;
-      background-color: #222;
-      border: 1px solid #555;
-      padding: 6px 12px;
-      margin: 5px;
-      border-radius: 12px;
+    .footer {
+      margin-top: 30px;
       font-size: 0.9rem;
     }
-
-    .footer {
-      margin-top: 40px;
-      font-size: 0.85rem;
+    .footer a {
+      color: #aaa;
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
   <h1>Your Profile</h1>
-
-  <img id="profilePic" src="" alt="Profile Picture" class="profile-pic" />
-  <div class="username" id="displayName">Loading...</div>
-
+  <img id="avatar" src="" alt="Profile Picture" />
+  <div id="username">Loading...</div>
   <div class="stats">
-    <div class="stat-box"><strong>Replies</strong><br><span id="replyCount">0</span></div>
-    <div class="stat-box"><strong>Badges</strong><br><span id="badgeCount">None</span></div>
+    <div>
+      <div class="stat-value" id="replyCount">0</div>
+      <div class="stat-label">Replies</div>
+    </div>
+    <div>
+      <div class="stat-value" id="badgeDisplay">None</div>
+      <div class="stat-label">Badges</div>
+    </div>
   </div>
-
-  <div class="edit-section">
-    <input type="text" id="nameInput" placeholder="Update name" /><br>
-    <input type="file" id="picInput" accept="image/*" /><br>
-    <button onclick="saveProfile()">Save Changes</button>
+  <div class="profile-form">
+    <input type="text" id="displayNameInput" placeholder="Update name" />
+    <input type="file" id="avatarInput" accept="image/*" />
+    <button id="saveBtn">Save Changes</button>
   </div>
-
-  <div class="badges" id="badgeList"></div>
-
-  <button onclick="logout()">Logout</button>
-
-  <div class="footer">
-    <p><a href="index.html" style="color: #888; text-decoration: underline;">Back to Home</a></p>
-  </div>
+  <button onclick="location.href='index.html'">Back to Home</button>
+  <button onclick="logout()" style="margin-top: 10px;">Logout</button>
 
   <script type="module">
-    // Firebase logic will go here after layout
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getAuth,
+      onAuthStateChanged,
+      signOut,
+      updateProfile
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import {
+      getDatabase,
+      ref,
+      set,
+      get
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDeHTQr0thvi-fBqIEZELFDI0VL70erlCE",
+      authDomain: "quasicare.firebaseapp.com",
+      databaseURL: "https://quasicare-default-rtdb.firebaseio.com",
+      projectId: "quasicare",
+      storageBucket: "quasicare.appspot.com",
+      messagingSenderId: "197366070004",
+      appId: "1:197366070004:web:2972eb9297102b6183bca1"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    const avatar = document.getElementById("avatar");
+    const username = document.getElementById("username");
+    const badgeDisplay = document.getElementById("badgeDisplay");
+    const replyCount = document.getElementById("replyCount");
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) return (window.location.href = "login.html");
+
+      const snapshot = await get(ref(db, `users/${user.uid}`));
+      const data = snapshot.exists() ? snapshot.val() : {};
+
+      username.textContent = data.displayName || user.email;
+      avatar.src = data.photoURL || "https://via.placeholder.com/100";
+      badgeDisplay.textContent = data.badges || "None";
+      replyCount.textContent = data.replies || 0;
+    });
+
+    document.getElementById("saveBtn").addEventListener("click", async () => {
+      const user = auth.currentUser;
+      if (!user) return;
+
+      const name = document.getElementById("displayNameInput").value.trim();
+      const avatarFile = document.getElementById("avatarInput").files[0];
+
+      await set(ref(db, `users/${user.uid}`), {
+        displayName: name || user.email,
+        replies: 0,
+        badges: "None"
+      });
+
+      if (avatarFile) {
+        const reader = new FileReader();
+        reader.onload = async () => {
+          avatar.src = reader.result;
+          await set(ref(db, `users/${user.uid}/photoURL`), reader.result);
+        };
+        reader.readAsDataURL(avatarFile);
+      }
+
+      alert("Profile updated!");
+      window.location.reload();
+    });
+
+    window.logout = async () => {
+      await signOut(auth);
+      window.location.href = "login.html";
+    };
   </script>
 </body>
 </html>
