@@ -12,7 +12,9 @@
       --fg: #eee;
       --bg-secondary: #1c1c1c;
     }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
       display: flex;
       min-height: 100vh;
@@ -20,6 +22,7 @@
       background: var(--bg);
       color: var(--fg);
     }
+
     .sidebar {
       width: 220px;
       background: #000;
@@ -27,16 +30,19 @@
       display: flex;
       flex-direction: column;
     }
+
     .sidebar nav a {
       color: #ccc;
       font-size: 0.95rem;
       padding: 8px 0;
       text-decoration: none;
     }
+
     .sidebar nav a.active {
       color: var(--accent);
       font-weight: 600;
     }
+
     .sidebar button {
       margin-top: auto;
       background: var(--bg-secondary);
@@ -45,11 +51,13 @@
       padding: 8px;
       cursor: pointer;
     }
+
     .main {
       flex: 1;
-      padding: 20px;
+      padding: 30px 20px;
       overflow-y: auto;
     }
+
     .profile-header {
       display: flex;
       flex-direction: column;
@@ -57,39 +65,102 @@
       text-align: center;
       margin-bottom: 30px;
     }
-    .avatar-wrap img {
+
+    .avatar {
       width: 120px;
       height: 120px;
       border-radius: 50%;
-      border: 4px solid var(--accent);
+      border: 3px solid var(--accent);
       object-fit: cover;
-      cursor: pointer;
     }
+
     .verified {
       margin-top: 4px;
-      font-size: 0.85rem;
-      color: #4fb8a0;
+      color: #4fa9f7;
+      font-weight: 600;
     }
-    h2 { margin-top: 12px; font-size: 1.6rem; font-weight: 400; }
-    .stats { display: flex; gap: 30px; margin-top: 12px; font-size: 0.95rem; }
-    .stats .value { font-weight: bold; color: var(--accent); }
-    .feeling { font-style: italic; color: var(--muted); margin-top: 10px; }
-    .tabs { display: flex; justify-content: center; gap: 30px; border-top: 1px solid #333; margin-bottom: 20px; }
-    .tabs div { padding: 14px 0; font-size: 0.9rem; font-weight: 600; color: #ccc; cursor: pointer; }
-    .tabs .active { color: var(--accent); border-top: 2px solid var(--accent); }
-    .content-list { max-width: 600px; margin: 0 auto; text-align: left; }
-    .item { background: var(--bg-secondary); padding: 16px; margin-bottom: 12px; border-radius: 8px; }
-    .placeholder { text-align: center; color: #666; margin-top: 40px; }
-    #newJournalInput { width: 100%; padding: 10px; background: #222; color: white; border: none; border-radius: 6px; margin-bottom: 10px; }
-    #submitJournalBtn { padding: 8px 16px; background: var(--accent); color: white; border: none; border-radius: 6px; cursor: pointer; }
-    #avatarPicker { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); align-items: center; justify-content: center; z-index: 1000; }
-    #avatarPicker .picker-container { background: #222; padding: 20px; border-radius: 8px; display: flex; gap: 16px; flex-wrap: wrap; }
-    #avatarPicker img { width: 70px; height: 70px; border-radius: 50%; object-fit: cover; cursor: pointer; border: 2px solid transparent; transition: 0.2s ease-in-out; }
-    #avatarPicker img:hover { border-color: var(--accent); }
-    @media (max-width: 768px) {
-      body { flex-direction: column; }
-      .sidebar { width: 100%; flex-direction: row; justify-content: space-around; padding: 10px; position: fixed; top: 0; z-index: 1000; }
-      .main { margin-top: 120px; padding: 10px; }
+
+    h2 {
+      margin-top: 12px;
+      font-size: 1.6rem;
+      font-weight: 400;
+    }
+
+    .stats {
+      display: flex;
+      gap: 30px;
+      margin-top: 12px;
+      font-size: 0.95rem;
+    }
+
+    .stats .value {
+      font-weight: bold;
+      color: var(--accent);
+    }
+
+    .feeling {
+      font-style: italic;
+      color: var(--muted);
+      margin-top: 10px;
+    }
+
+    .tabs {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      border-top: 1px solid #333;
+      margin-bottom: 20px;
+    }
+
+    .tabs div {
+      padding: 14px 0;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #ccc;
+      cursor: pointer;
+    }
+
+    .tabs .active {
+      color: var(--accent);
+      border-top: 2px solid var(--accent);
+    }
+
+    .content-list {
+      max-width: 600px;
+      margin: 0 auto;
+      text-align: left;
+    }
+
+    .item {
+      background: var(--bg-secondary);
+      padding: 16px;
+      margin-bottom: 12px;
+      border-radius: 8px;
+    }
+
+    .placeholder {
+      text-align: center;
+      color: #666;
+      margin-top: 40px;
+    }
+
+    #newJournalInput {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      background: #222;
+      color: white;
+      border: none;
+      border-radius: 6px;
+    }
+
+    #submitJournalBtn {
+      padding: 8px 16px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -105,40 +176,33 @@
     </nav>
     <button onclick="logout()">Logout</button>
   </aside>
+
   <main class="main">
     <section class="profile-header">
-      <div class="avatar-wrap">
-        <img id="avatar" src="" alt="Avatar" />
-      </div>
-      <h2 id="username">You are heard. You matter.</h2>
+      <img id="avatar" class="avatar" src="avatars/animal1.png" alt="Avatar" />
+      <h2 id="encouragement">You are heard. You matter.</h2>
       <div id="verified" class="verified" style="display:none;">Verified ✓</div>
       <div class="stats">
         <div><span class="value" id="journalCount">0</span> Journals</div>
-        <div><span class="value" id="helpCount">0</span> Helped</div>
+        <div><span class="value" id="helpedCount">0</span> Helped</div>
         <div><span class="value" id="badgeCount">0</span> Badges</div>
       </div>
       <div class="feeling">Today I feel: <span id="feeling">—</span></div>
     </section>
+
     <section class="tabs">
       <div class="active" data-tab="journals">JOURNALS</div>
       <div data-tab="favorites">FAVORITES</div>
       <div data-tab="reflections">REFLECTIONS</div>
     </section>
+
     <div id="tabContent" class="content-list">
       <textarea id="newJournalInput" placeholder="Write your journal..."></textarea>
       <button id="submitJournalBtn">Submit</button>
       <div id="journalList"></div>
     </div>
   </main>
-  <div id="avatarPicker">
-    <div class="picker-container">
-      <img src="https://quasicare-default-rtdb.firebaseio.com/static/animal1.png" data-index="0" />
-      <img src="https://quasicare-default-rtdb.firebaseio.com/static/animal2.png" data-index="1" />
-      <img src="https://quasicare-default-rtdb.firebaseio.com/static/animal3.png" data-index="2" />
-      <img src="https://quasicare-default-rtdb.firebaseio.com/static/animal4.png" data-index="3" />
-      <img src="https://quasicare-default-rtdb.firebaseio.com/static/animal5.png" data-index="4" />
-    </div>
-  </div>
+
   <script type="module" src="profile.js"></script>
 </body>
 </html>
