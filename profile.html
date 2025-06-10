@@ -2,29 +2,27 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Profile • QuasiCare</title>
   <style>
-    /* reset and base */
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --accent: #4fb8a0;
+      --muted: #aaa;
+      --bg: #111;
+      --fg: #eee;
+      --bg-secondary: #1c1c1c;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
       display: flex;
       min-height: 100vh;
       font-family: system-ui, sans-serif;
-      background: #111;
-      color: #eee;
-    }
-    a { text-decoration: none; color: inherit; }
-    button { cursor: pointer; }
-
-    /* therapeutic accent */
-    :root {
-      --accent: #4fb8a0; /* soft teal */
-      --muted: #888;
-      --bg-secondary: #1a1a1a;
+      background: var(--bg);
+      color: var(--fg);
     }
 
-    /* sidebar */
     .sidebar {
       width: 220px;
       background: #000;
@@ -33,136 +31,83 @@
       flex-direction: column;
       gap: 16px;
     }
+
     .sidebar nav a {
-      padding: 8px 0;
-      font-size: 0.95rem;
       color: #ccc;
+      font-size: 0.95rem;
+      padding: 8px 0;
+      text-decoration: none;
     }
+
     .sidebar nav a.active {
       color: var(--accent);
       font-weight: 600;
     }
 
-    /* main content */
+    .sidebar button {
+      margin-top: auto;
+      background: var(--bg-secondary);
+      border: none;
+      color: #ccc;
+      padding: 8px;
+      cursor: pointer;
+    }
+
     .main {
       flex: 1;
-      padding: 24px;
+      padding: 30px 20px;
       overflow-y: auto;
     }
 
-    /* header */
     .profile-header {
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 32px;
-      margin-bottom: 24px;
-    }
-    .profile-header .avatar-wrap {
-      position: relative;
-      width: 140px;
-      height: 140px;
-    }
-    .profile-header img.avatar {
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 4px solid var(--accent);
-    }
-    /* mood ring: top-right small circle */
-    .profile-header .mood-indicator {
-      position: absolute;
-      top: 0;
-      right: 0;
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      background: #f5c259; /* e.g., happy mood */
-      border: 3px solid #111;
+      text-align: center;
+      margin-bottom: 30px;
     }
 
-    .profile-info {
-      flex: 1;
+    .avatar-wrap img {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 4px solid var(--accent);
+      object-fit: cover;
+      cursor: pointer;
     }
-    .profile-info .top {
+
+    h2 {
+      margin-top: 12px;
+      font-size: 1.6rem;
+      font-weight: 400;
+    }
+
+    .stats {
       display: flex;
-      align-items: center;
-      gap: 16px;
-      margin-bottom: 12px;
+      gap: 30px;
+      margin-top: 12px;
+      font-size: 0.95rem;
     }
-    .profile-info .top h2 {
-      font-size: 1.7rem;
-      font-weight: 300;
-    }
-    .profile-info .top button {
-      padding: 6px 14px;
-      background: var(--bg-secondary);
-      border: 1px solid #333;
-      border-radius: 4px;
-      font-size: 0.9rem;
-      font-weight: 500;
-      color: #eee;
-    }
-    .profile-info .stats {
-      display: flex;
-      gap: 28px;
-      margin-bottom: 12px;
-    }
-    .profile-info .stats div {
-      display: flex;
-      gap: 6px;
-      align-items: baseline;
-    }
-    .profile-info .stats .value {
+
+    .stats .value {
       font-weight: bold;
       color: var(--accent);
     }
-    .profile-info .bio {
-      font-size: 0.9rem;
-      line-height: 1.4;
-      margin-bottom: 16px;
-    }
-    .profile-info .bio .feeling {
+
+    .feeling {
       font-style: italic;
       color: var(--muted);
+      margin-top: 10px;
     }
 
-    /* story highlights */
-    .highlights {
-      display: flex;
-      gap: 14px;
-      margin-bottom: 28px;
-      overflow-x: auto;
-    }
-    .highlight {
-      text-align: center;
-      font-size: 0.8rem;
-      color: #ccc;
-    }
-    .highlight img, .highlight .new-icon {
-      width: 70px; height: 70px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 3px solid var(--bg-secondary);
-      margin-bottom: 4px;
-    }
-    .highlight .new-icon {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.6rem;
-      color: var(--muted);
-      background: var(--bg-secondary);
-    }
-
-    /* tabs */
     .tabs {
       display: flex;
-      gap: 48px;
       justify-content: center;
+      gap: 30px;
       border-top: 1px solid #333;
       margin-bottom: 20px;
     }
+
     .tabs div {
       padding: 14px 0;
       font-size: 0.9rem;
@@ -170,141 +115,212 @@
       color: #ccc;
       cursor: pointer;
     }
+
     .tabs .active {
       color: var(--accent);
       border-top: 2px solid var(--accent);
     }
 
-    /* placeholder content */
-    .content-placeholder {
+    .content-list {
+      max-width: 600px;
+      margin: 0 auto;
+      text-align: left;
+    }
+
+    .item {
+      background: var(--bg-secondary);
+      padding: 16px;
+      margin-bottom: 12px;
+      border-radius: 8px;
+    }
+
+    .placeholder {
       text-align: center;
-      margin-top: 48px;
-      color: #555;
-      font-size: 1rem;
+      color: #666;
+      margin-top: 40px;
+    }
+
+    #avatarPicker {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8);
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    #avatarPicker .picker-container {
+      background: #222;
+      padding: 20px;
+      border-radius: 8px;
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    #avatarPicker img {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      object-fit: cover;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: 0.2s ease-in-out;
+    }
+
+    #avatarPicker img:hover {
+      border-color: var(--accent);
+    }
+
+    @media (max-width: 768px) {
+      body { flex-direction: column; }
+      .sidebar { width: 100%; flex-direction: row; justify-content: space-around; padding: 10px; position: fixed; top: 0; z-index: 1000; }
+      .main { margin-top: 120px; }
     }
   </style>
 </head>
 <body>
 
-  <!-- sidebar -->
   <aside class="sidebar">
     <nav>
       <a href="index.html">Home</a>
       <a href="#">Search</a>
       <a href="#">Explore</a>
-      <a href="messages.html">Messages</a>
+      <a href="talk.html">Talk</a>
       <a href="replies.html">Check Replies</a>
       <a href="profile.html" class="active">Profile</a>
     </nav>
-    <button onclick="logout()" style="margin-top: auto; background: var(--bg-secondary); color: #ccc; border: none; padding: 8px;">Logout</button>
+    <button onclick="logout()">Logout</button>
   </aside>
 
-  <!-- main profile area -->
   <main class="main">
     <section class="profile-header">
       <div class="avatar-wrap">
-        <img id="avatar" class="avatar" src="" alt="Profile Picture" />
-        <div class="mood-indicator" title="Feeling: Happy"></div>
+        <img id="avatar" src="" alt="Avatar" />
       </div>
-      <div class="profile-info">
-        <div class="top">
-          <h2 id="username">Loading…</h2>
-          <button id="editProfileBtn">Edit Profile</button>
-        </div>
-        <div class="stats">
-          <div><span class="value" id="postCount">0</span><span>Journals</span></div>
-          <div><span class="value" id="followersCount">0</span><span>Friends</span></div>
-          <div><span class="value" id="followingCount">0</span><span>Following</span></div>
-        </div>
-        <div class="bio">
-          <div id="bioText">“Your feelings are valid.”</div>
-          <div class="feeling">Today I feel: <strong id="todayFeeling">Calm</strong></div>
-        </div>
+      <h2 id="username">Loading...</h2>
+      <div class="stats">
+        <div><span class="value" id="journalCount">0</span> Journals</div>
+        <div><span class="value" id="helpCount">0</span> Helped</div>
+        <div><span class="value" id="badgeCount">0</span> Badges</div>
       </div>
+      <div class="feeling">Today I feel: <span id="feeling">—</span></div>
     </section>
 
-    <!-- story highlights -->
-    <section class="highlights">
-      <div class="highlight">
-        <img src="https://via.placeholder.com/80?text=😊" alt="Self-care">
-        <div>Self-care</div>
-      </div>
-      <div class="highlight">
-        <img src="https://via.placeholder.com/80?text=✍️" alt="Journals">
-        <div>Journals</div>
-      </div>
-      <div class="highlight">
-        <img src="https://via.placeholder.com/80?text=💬" alt="Support">
-        <div>Support</div>
-      </div>
-      <div class="highlight">
-        <div class="new-icon">+</div>
-        <div>New</div>
-      </div>
-    </section>
-
-    <!-- tabs -->
     <section class="tabs">
       <div class="active" data-tab="journals">JOURNALS</div>
       <div data-tab="favorites">FAVORITES</div>
       <div data-tab="reflections">REFLECTIONS</div>
     </section>
 
-    <!-- content placeholder -->
-    <div id="tabContent" class="content-placeholder">
-      You haven’t added any journals yet.
+    <div id="tabContent" class="content-list">
+      <div class="placeholder">Loading...</div>
     </div>
   </main>
+
+  <div id="avatarPicker">
+    <div class="picker-container">
+      <img src="animal1_url" data-index="0" />
+      <img src="animal2_url" data-index="1" />
+      <img src="animal3_url" data-index="2" />
+      <img src="animal4_url" data-index="3" />
+      <img src="animal5_url" data-index="4" />
+    </div>
+  </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    import { getDatabase, ref, get, child, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-    const firebaseConfig = { /* your config */ };
-    const app = initializeApp(firebaseConfig);
+    const config = {
+      apiKey: "AIzaSyDeHTQr0thvi-fBqIEZELFDI0VL70erlCE",
+      authDomain: "quasicare.firebaseapp.com",
+      databaseURL: "https://quasicare-default-rtdb.firebaseio.com",
+      projectId: "quasicare",
+      storageBucket: "quasicare.appspot.com",
+      messagingSenderId: "197366070004",
+      appId: "1:197366070004:web:2972eb9297102b6183bca1"
+    };
+
+    const app = initializeApp(config);
     const auth = getAuth(app);
     const db = getDatabase(app);
 
+    const avatars = [
+      "https://path.to/animal1.png",
+      "https://path.to/animal2.png",
+      "https://path.to/animal3.png",
+      "https://path.to/animal4.png",
+      "https://path.to/animal5.png"
+    ];
+
     const avatarEl = document.getElementById("avatar");
     const usernameEl = document.getElementById("username");
-    const postCountEl = document.getElementById("postCount");
-    const followersEl = document.getElementById("followersCount");
-    const followingEl = document.getElementById("followingCount");
-    const feelingEl = document.getElementById("todayFeeling");
+    const journalCountEl = document.getElementById("journalCount");
+    const helpCountEl = document.getElementById("helpCount");
+    const badgeCountEl = document.getElementById("badgeCount");
+    const feelingEl = document.getElementById("feeling");
+    const tabs = document.querySelectorAll(".tabs div");
+    const tabContent = document.getElementById("tabContent");
+    const picker = document.getElementById("avatarPicker");
 
     onAuthStateChanged(auth, async user => {
-      if (!user) return window.location.href = "login.html";
-      const snap = await get(ref(db, `users/${user.uid}`));
+      if (!user) return location.href = "login.html";
+      const uid = user.uid;
+      const snap = await get(ref(db, `users/${uid}`));
       const data = snap.exists() ? snap.val() : {};
 
-      avatarEl.src         = data.photoURL || "https://via.placeholder.com/150";
       usernameEl.textContent = data.displayName || user.email;
-      postCountEl.textContent = data.posts || 0;
-      followersEl.textContent = data.friends || 0;
-      followingEl.textContent = data.following || 0;
-      feelingEl.textContent = data.todayFeeling || "Unknown";
+      journalCountEl.textContent = data.journals ? Object.keys(data.journals).length : 0;
+      helpCountEl.textContent = data.replies || 0;
+      badgeCountEl.textContent = data.badges ? data.badges.length : 0;
+      feelingEl.textContent = data.todayFeeling || "—";
+      avatarEl.src = avatars[data.avatarIndex || 0];
+
+      loadSection(uid, "journals");
+    });
+
+    async function loadSection(uid, section) {
+      const snap = await get(child(ref(db), `users/${uid}/${section}`));
+      const data = snap.exists() ? Object.values(snap.val()) : [];
+      tabContent.innerHTML = data.length
+        ? data.map(d => `<div class="item">${d.text || d}</div>`).join("")
+        : `<div class="placeholder">No ${section} yet.</div>`;
+    }
+
+    tabs.forEach(tab => {
+      tab.addEventListener("click", () => {
+        document.querySelector(".tabs .active").classList.remove("active");
+        tab.classList.add("active");
+        const section = tab.dataset.tab;
+        onAuthStateChanged(auth, user => {
+          if (user) loadSection(user.uid, section);
+        });
+      });
+    });
+
+    avatarEl.addEventListener("click", () => picker.style.display = "flex");
+    document.querySelectorAll("#avatarPicker img").forEach(img => {
+      img.addEventListener("click", async () => {
+        const idx = Number(img.dataset.index);
+        avatarEl.src = avatars[idx];
+        picker.style.display = "none";
+        const user = auth.currentUser;
+        if (user) await update(ref(db, `users/${user.uid}`), { avatarIndex: idx });
+      });
+    });
+
+    picker.addEventListener("click", e => {
+      if (e.target === picker) picker.style.display = "none";
     });
 
     window.logout = async () => {
       await signOut(auth);
-      window.location.href = "login.html";
+      location.href = "login.html";
     };
-
-    // tab switching
-    document.querySelectorAll(".tabs div").forEach(tab => {
-      tab.addEventListener("click", () => {
-        document.querySelector(".tabs .active").classList.remove("active");
-        tab.classList.add("active");
-        const key = tab.dataset.tab;
-        const messages = {
-          journals: "You haven’t added any journals yet.",
-          favorites: "No favorites saved.",
-          reflections: "No reflections posted."
-        };
-        document.getElementById("tabContent").textContent = messages[key];
-      });
-    });
   </script>
 </body>
 </html>
