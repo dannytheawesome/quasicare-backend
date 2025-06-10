@@ -1,1 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Talk | QuasiCare</title>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getDatabase, ref, set
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyDeHTQr0thvi-fBqIEZELFDI0VL70erlCE",
+      authDomain: "quasicare.firebaseapp.com",
+      databaseURL: "https://quasicare-default-rtdb.firebaseio.com",
+      projectId: "quasicare",
+      storageBucket: "quasicare.appspot.com",
+      messagingSenderId: "197366070004",
+      appId: "1:197366070004:web:2972eb9297102b6183bca1"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    function generateCode() {
+      return Math.random().toString(36).substring(2, 8).toUpperCase();
+    }
+
+    window.submitVent = async function () {
+      const input = document.getElementById("ventInput");
+      const message = input.value.trim();
+
+      if (!message) {
+        alert("Please write something before submitting.");
+        return;
+      }
+
+      const code = generateCode();
+      await set(ref(db, `vents/${code}`), {
+        message: message,
+        reply: null,
+        timestamp: Date.now()
+      });
+
+      document.getElementById("ventForm").classList.add("hidden");
+      document.getElementById("codeDisplay").innerText = `Your anonymous code: ${code}. Save this to check replies later.`;
+      document.getElementById("successMessage").classList.remove("hidden");
+    };
+  </script>
+  <style>
+    body {
+      background-color: #111;
+      color: white;
+      font-family: system-ui, sans-serif;
+      margin: 0;
+      padding: 30px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+
+    textarea {
+      width: 90%;
+      max-width: 400px;
+      height: 120px;
+      padding: 10px;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      background-color: #1e1e1e;
+      color: white;
+      margin-bottom: 10px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #333;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #555;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    #footerLinks {
+      margin-top: 40px;
+      font-size: 0.9rem;
+    }
+
+    #footerLinks a {
+      color: #aaa;
+      text-decoration: underline;
+      margin: 0 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Talk to QuasiCare</h1>
+  <p>You can write anonymously below. Your words matter.</p>
+
+  <div id="ventForm">
+    <textarea id="ventInput" placeholder="Type your message..."></textarea><br>
+    <button onclick="submitVent()">Submit</button>
+  </div>
+
+  <div id="successMessage" class="hidden">
+    <p id="codeDisplay"></p>
+    <a href="index.html"><button>Back to Home</button></a>
+  </div>
+
+  <div id="footerLinks">
+    <a href="terms.html" target="_blank">Terms</a>
+    <a href="privacy.html" target="_blank">Privacy</a>
+    <a href="disclaimer.html" target="_blank">Disclaimer</a>
+  </div>
+</body>
+</html>
