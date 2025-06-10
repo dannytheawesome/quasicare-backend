@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Your Profile | QuasiCare</title>
   <style>
     body {
@@ -10,142 +10,111 @@
       color: white;
       font-family: system-ui, sans-serif;
       text-align: center;
-      padding: 40px 20px;
+      padding: 30px;
     }
-    img {
-      border-radius: 50%;
+
+    .profile-pic {
       width: 120px;
       height: 120px;
+      border-radius: 50%;
       object-fit: cover;
-      margin-bottom: 15px;
+      border: 2px solid #555;
+      margin: 10px auto;
     }
-    input, button {
-      margin: 10px;
-      padding: 10px;
-      font-size: 16px;
-      border-radius: 6px;
-      border: none;
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 5px;
     }
-    input[type="file"] {
+
+    .username {
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+      color: #ccc;
+    }
+
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin: 20px 0;
+    }
+
+    .stat-box {
+      font-size: 1rem;
+    }
+
+    .edit-section {
+      margin: 20px 0;
+    }
+
+    input[type="text"], input[type="file"] {
+      margin: 10px auto;
+      padding: 8px;
+      background: #222;
       color: white;
+      border: 1px solid #444;
+      border-radius: 4px;
+      width: 250px;
     }
-    #logoutBtn {
+
+    button {
+      padding: 10px 20px;
       background-color: #333;
       color: white;
+      border: none;
+      border-radius: 6px;
       cursor: pointer;
+      margin-top: 10px;
     }
-    #logoutBtn:hover {
-      background-color: #555;
+
+    .badges {
+      margin-top: 20px;
+    }
+
+    .badge {
+      display: inline-block;
+      background-color: #222;
+      border: 1px solid #555;
+      padding: 6px 12px;
+      margin: 5px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+    }
+
+    .footer {
+      margin-top: 40px;
+      font-size: 0.85rem;
     }
   </style>
 </head>
 <body>
   <h1>Your Profile</h1>
-  <img id="profilePic" src="" alt="Profile Picture" />
-  <div>
-    <input type="text" id="username" placeholder="Display Name" /><br>
-    <input type="file" id="photoUpload" accept="image/*" /><br>
-    <button onclick="updateProfile()">Save Changes</button>
+
+  <img id="profilePic" src="" alt="Profile Picture" class="profile-pic" />
+  <div class="username" id="displayName">Loading...</div>
+
+  <div class="stats">
+    <div class="stat-box"><strong>Replies</strong><br><span id="replyCount">0</span></div>
+    <div class="stat-box"><strong>Badges</strong><br><span id="badgeCount">None</span></div>
   </div>
-  <p><strong>Email:</strong> <span id="userEmail">Loading...</span></p>
-  <p><strong>Total Replies:</strong> <span id="points">0</span></p>
-  <p><strong>Badges:</strong> <span id="badges">None</span></p>
-  <br>
-  <button id="logoutBtn">Logout</button>
+
+  <div class="edit-section">
+    <input type="text" id="nameInput" placeholder="Update name" /><br>
+    <input type="file" id="picInput" accept="image/*" /><br>
+    <button onclick="saveProfile()">Save Changes</button>
+  </div>
+
+  <div class="badges" id="badgeList"></div>
+
+  <button onclick="logout()">Logout</button>
+
+  <div class="footer">
+    <p><a href="index.html" style="color: #888; text-decoration: underline;">Back to Home</a></p>
+  </div>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import {
-      getAuth,
-      onAuthStateChanged,
-      signOut
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import {
-      getDatabase,
-      ref,
-      set,
-      get,
-      update
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyDeHTQr0thvi-fBqIEZELFDI0VL70erlCE",
-      authDomain: "quasicare.firebaseapp.com",
-      databaseURL: "https://quasicare-default-rtdb.firebaseio.com",
-      projectId: "quasicare",
-      storageBucket: "quasicare.appspot.com",
-      messagingSenderId: "197366070004",
-      appId: "1:197366070004:web:2972eb9297102b6183bca1"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getDatabase(app);
-
-    const profilePic = document.getElementById("profilePic");
-    const userEmail = document.getElementById("userEmail");
-    const username = document.getElementById("username");
-    const photoUpload = document.getElementById("photoUpload");
-    const points = document.getElementById("points");
-    const badges = document.getElementById("badges");
-
-    let currentUid = null;
-
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        window.location.href = "login.html";
-        return;
-      }
-
-      currentUid = user.uid;
-      userEmail.textContent = user.email;
-
-      const userRef = ref(db, "users/" + currentUid);
-      const snapshot = await get(userRef);
-
-      if (snapshot.exists()) {
-        const data = snapshot.val();
-        username.value = data.username || "";
-        profilePic.src = data.photoURL || "https://via.placeholder.com/120";
-        points.textContent = data.points || 0;
-        badges.textContent = data.badge || "None";
-      } else {
-        profilePic.src = "https://via.placeholder.com/120";
-      }
-    });
-
-    window.updateProfile = async function () {
-      const name = username.value.trim();
-      const file = photoUpload.files[0];
-      let photoURL = profilePic.src;
-
-      if (file) {
-        // For MVP, use Base64 inline image instead of uploading to storage
-        const reader = new FileReader();
-        reader.onloadend = async () => {
-          photoURL = reader.result;
-
-          await saveData(name, photoURL);
-        };
-        reader.readAsDataURL(file);
-      } else {
-        await saveData(name, photoURL);
-      }
-    };
-
-    async function saveData(name, photoURL) {
-      await update(ref(db, "users/" + currentUid), {
-        username: name,
-        photoURL: photoURL
-      });
-      alert("Profile updated!");
-      profilePic.src = photoURL;
-    }
-
-    document.getElementById("logoutBtn").addEventListener("click", async () => {
-      await signOut(auth);
-      window.location.href = "login.html";
-    });
+    // Firebase logic will go here after layout
   </script>
 </body>
 </html>
