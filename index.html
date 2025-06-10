@@ -14,20 +14,21 @@
     }
 
     h1 {
-      margin-top: 20px;
+      margin-top: 30px;
+      font-size: 2em;
     }
 
-    button, input {
+    input, button {
       padding: 12px;
       font-size: 16px;
       margin: 10px;
-      border: none;
       border-radius: 6px;
+      border: none;
     }
 
     input {
       width: 80%;
-      max-width: 300px;
+      max-width: 320px;
       background: #1e1e1e;
       color: #fff;
       border: 1px solid #444;
@@ -48,11 +49,11 @@
     }
 
     .section {
-      margin-top: 30px;
+      margin-top: 20px;
     }
 
     .stats {
-      margin-top: 20px;
+      margin-top: 40px;
       font-size: 0.95em;
       color: #ccc;
     }
@@ -78,11 +79,6 @@
       background: #222;
       padding: 20px;
     }
-
-    #authMessage {
-      color: red;
-      font-size: 0.9em;
-    }
   </style>
 </head>
 <body>
@@ -90,26 +86,34 @@
   <!-- Auth Screen -->
   <div id="authScreen">
     <h1>Welcome to QuasiCare</h1>
-    <p>A safe, anonymous space to vent your emotions or support someone who needs to be heard.</p>
-    <div>
+    <p style="margin: 0 30px;">A safe, anonymous space to vent your emotions or support someone who needs to be heard.</p>
+    <div style="margin-top: 20px;">
       <input type="email" id="authEmail" placeholder="Email" /><br>
       <input type="password" id="authPassword" placeholder="Password" /><br>
       <button onclick="register()">Register</button>
       <button onclick="login()">Login</button>
     </div>
-    <p id="authMessage"></p>
+    <p id="authMessage" style="color: red;"></p>
   </div>
 
   <!-- Main App -->
   <div id="mainApp" class="hidden">
     <h1>QuasiCare</h1>
-    <p>Welcome, <span id="userEmail"></span></p>
-    <button onclick="logout()">Logout</button>
+    <p style="margin: 0; font-size: 1.1em;">Welcome, <strong id="userEmail"></strong></p>
+
+    <div style="margin: 20px 0;">
+      <button onclick="logout()">Logout</button>
+    </div>
 
     <div class="section">
       <button onclick="submitMessage()">Talk</button>
       <button onclick="showListen()">Listen</button>
       <button onclick="alert('Coming soon')">Check Replies</button>
+    </div>
+
+    <div class="stats">
+      <p>U.S. suicides in 2025: <span id="usCount">Loading...</span></p>
+      <p>Global suicides in 2025: <span id="globalCount">Loading...</span></p>
     </div>
 
     <div id="ventBox" class="hidden section">
@@ -121,11 +125,6 @@
     <div id="responseBox" class="hidden section">
       <div id="ventDisplay"><div class="loading"></div></div>
       <button onclick="resetBoxes()">Back</button>
-    </div>
-
-    <div class="stats">
-      <p>U.S. suicides in 2025: <span id="usCount">Loading...</span></p>
-      <p>Global suicides in 2025: <span id="globalCount">Loading...</span></p>
     </div>
   </div>
 
@@ -169,47 +168,32 @@
     const authMsg = document.getElementById("authMessage");
 
     window.register = async function () {
-      const email = document.getElementById("authEmail").value.trim();
+      const email = document.getElementById("authEmail").value;
       const pass = document.getElementById("authPassword").value;
       try {
         await createUserWithEmailAndPassword(auth, email, pass);
-        authMsg.textContent = "";
+        authMsg.textContent = "Registration successful. You can now log in.";
       } catch (e) {
-        switch (e.code) {
-          case "auth/email-already-in-use":
-            authMsg.textContent = "This email is already registered.";
-            break;
-          case "auth/invalid-email":
-            authMsg.textContent = "Please enter a valid email address.";
-            break;
-          case "auth/weak-password":
-            authMsg.textContent = "Password should be at least 6 characters.";
-            break;
-          default:
-            authMsg.textContent = "Registration failed. Try again.";
+        if (e.code === "auth/email-already-in-use") {
+          authMsg.textContent = "This email is already registered.";
+        } else {
+          authMsg.textContent = "Firebase: " + e.message;
         }
       }
     };
 
     window.login = async function () {
-      const email = document.getElementById("authEmail").value.trim();
+      const email = document.getElementById("authEmail").value;
       const pass = document.getElementById("authPassword").value;
       try {
         await signInWithEmailAndPassword(auth, email, pass);
-        authMsg.textContent = "";
       } catch (e) {
-        switch (e.code) {
-          case "auth/user-not-found":
-            authMsg.textContent = "No account found with this email.";
-            break;
-          case "auth/wrong-password":
-            authMsg.textContent = "Incorrect password.";
-            break;
-          case "auth/invalid-email":
-            authMsg.textContent = "Invalid email format.";
-            break;
-          default:
-            authMsg.textContent = "Login failed. Try again.";
+        if (e.code === "auth/wrong-password" || e.code === "auth/invalid-credential") {
+          authMsg.textContent = "Wrong password. Please try again.";
+        } else if (e.code === "auth/user-not-found") {
+          authMsg.textContent = "No account found. Please register first.";
+        } else {
+          authMsg.textContent = "Firebase: " + e.message;
         }
       }
     };
@@ -253,12 +237,17 @@
       document.getElementById("responseBox").style.display = "none";
     };
 
-    // Suicide stats (simplified)
+    function formatNumber(n) {
+      return n.toLocaleString("en-US");
+    }
+
     async function fetchSuicideStats() {
       try {
         const currentMonth = new Date().getMonth() + 1;
-        document.getElementById("usCount").textContent = Math.floor(48000 * currentMonth / 12);
-        document.getElementById("globalCount").textContent = Math.floor(700000 * currentMonth / 12);
+        const us = Math.floor(48000 * currentMonth / 12);
+        const global = Math.floor(700000 * currentMonth / 12);
+        document.getElementById("usCount").textContent = formatNumber(us);
+        document.getElementById("globalCount").textContent = formatNumber(global);
       } catch (err) {
         document.getElementById("usCount").textContent = "N/A";
         document.getElementById("globalCount").textContent = "N/A";
