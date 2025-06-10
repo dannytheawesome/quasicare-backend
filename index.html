@@ -11,16 +11,11 @@
       background-color: #111;
       color: #fff;
       text-align: center;
-      transition: background-color 0.3s ease;
     }
 
     h1 {
       margin-top: 20px;
-      font-size: 2em;
-    }
-
-    p {
-      margin-top: 10px;
+      font-size: 2rem;
     }
 
     button, input, textarea {
@@ -34,7 +29,7 @@
 
     input, textarea {
       width: 80%;
-      max-width: 400px;
+      max-width: 350px;
       background: #1e1e1e;
       color: #fff;
       border: 1px solid #444;
@@ -55,13 +50,7 @@
     }
 
     .section {
-      margin-top: 30px;
-    }
-
-    .stats {
       margin-top: 20px;
-      font-size: 1em;
-      color: #ccc;
     }
 
     .loading {
@@ -79,61 +68,39 @@
       100% { transform: rotate(360deg); }
     }
 
+    .stats {
+      margin-top: 20px;
+      font-size: 1rem;
+      color: #ccc;
+    }
+
+    #footerLinks {
+      font-size: 0.8rem;
+      color: #888;
+      margin-top: 40px;
+    }
+
+    #footerLinks a {
+      color: #888;
+      margin: 0 10px;
+      text-decoration: underline;
+    }
+
+    .fade {
+      transition: all 0.4s ease-in-out;
+    }
+
     #adminPanel {
       display: none;
-      margin-top: 50px;
-      background: #222;
-      padding: 20px;
-    }
-
-    .footer {
-      margin-top: 40px;
-      font-size: 0.9em;
-    }
-
-    .footer a {
-      color: #aaa;
-      margin: 0 10px;
-      text-decoration: none;
-    }
-
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background-color: rgba(0, 0, 0, 0.85);
-      color: white;
-      padding: 20px;
-      text-align: center;
-    }
-
-    .modal-content {
-      margin-top: 15%;
-      max-width: 600px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    .modal button {
-      margin-top: 20px;
     }
   </style>
 </head>
 <body>
 
-  <div id="disclaimerModal" class="modal">
-    <div class="modal-content">
-      <h2>Disclaimer</h2>
-      <p>QuasiCare is an anonymous support tool. Do not submit harmful, illegal, or confidential information. By continuing, you agree to our <a href="#">Terms of Use</a> and <a href="#">Privacy Policy</a>.</p>
-      <button onclick="enterApp()">I Agree & Enter</button>
-    </div>
-  </div>
-
-  <!-- Auth Screen -->
-  <div id="authScreen" class="hidden">
+  <!-- Authentication -->
+  <div id="authScreen">
     <h1>Welcome to QuasiCare</h1>
-    <p>A safe, anonymous space to vent your emotions or support someone who needs to be heard.</p>
+    <p>Your voice matters. You're not alone.</p>
     <input type="email" id="authEmail" placeholder="Email" /><br>
     <input type="password" id="authPassword" placeholder="Password" /><br>
     <button onclick="register()">Register</button>
@@ -142,52 +109,69 @@
   </div>
 
   <!-- Main App -->
-  <div id="mainApp" class="hidden">
+  <div id="mainApp" class="hidden fade">
     <h1>QuasiCare</h1>
-    <p><strong>You are heard. You matter.</strong></p>
+    <p id="welcomeText">You are heard. You matter.</p>
     <button onclick="logout()">Logout</button>
 
+    <!-- Main Action Buttons -->
     <div class="section">
-      <button onclick="showTalk()">Talk</button>
-      <button onclick="showListen()">Listen</button>
-      <button onclick="alert('Coming soon')">Check Replies</button>
+      <button onclick="openVent()">Talk</button>
+      <button onclick="openListen()">Listen</button>
+      <button onclick="openReplies()">Check Replies</button>
     </div>
 
-    <div id="ventBox" class="hidden section">
+    <!-- Vent -->
+    <div id="ventBox" class="hidden section fade">
       <textarea id="ventInput" rows="4" placeholder="Type your anonymous message..."></textarea><br>
       <button onclick="submitMessage()">Submit</button>
       <button onclick="resetBoxes()">Exit</button>
     </div>
 
-    <div id="responseBox" class="hidden section">
+    <!-- Listen -->
+    <div id="responseBox" class="hidden section fade">
       <div id="ventDisplay"><div class="loading"></div></div>
       <button onclick="resetBoxes()">Back</button>
     </div>
 
-    <div class="stats">
-      <p>U.S. suicides in 2025: <span id="usCount">0</span></p>
-      <p>Global suicides in 2025: <span id="globalCount">0</span></p>
+    <!-- Reply Lookup -->
+    <div id="replyBox" class="hidden section fade">
+      <input type="text" id="lookupCode" placeholder="Enter your unique code" /><br>
+      <div id="replyResult"></div>
+      <button onclick="resetBoxes()">Back</button>
     </div>
 
-    <div class="footer">
-      <a href="#">Terms</a> | <a href="#">Privacy</a> | <a href="#">Disclaimer</a>
+    <!-- Suicide Stats -->
+    <div class="stats">
+      <p>U.S. suicides in 2025: <span id="usCount">Loading...</span></p>
+      <p>Global suicides in 2025: <span id="globalCount">Loading...</span></p>
     </div>
   </div>
 
+  <!-- Legal -->
+  <div id="footerLinks">
+    <a href="/terms" target="_blank">Terms</a>
+    <a href="/privacy" target="_blank">Privacy</a>
+    <a href="/disclaimer" target="_blank">Disclaimer</a>
+  </div>
+
+  <!-- Admin (Hidden) -->
+  <div id="adminPanel">
+    <h2>Admin Panel</h2>
+    <p>This section is hidden from users.</p>
+  </div>
+
+  <!-- Scripts -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import {
-      getDatabase, ref, push, onChildAdded
+      getDatabase, ref, push, onChildAdded, get, child
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
     import {
-      getAuth,
-      createUserWithEmailAndPassword,
-      signInWithEmailAndPassword,
-      signOut,
-      onAuthStateChanged
+      getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-    const config = {
+    const firebaseConfig = {
       apiKey: "AIzaSyDeHTQr0thvi-fBqIEZELFDI0VL70erlCE",
       authDomain: "quasicare.firebaseapp.com",
       databaseURL: "https://quasicare-default-rtdb.firebaseio.com",
@@ -197,47 +181,40 @@
       appId: "1:197366070004:web:2972eb9297102b6183bca1"
     };
 
-    const app = initializeApp(config);
-    const db = getDatabase(app);
+    const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+    const db = getDatabase(app);
 
-    const disclaimer = document.getElementById("disclaimerModal");
     const authScreen = document.getElementById("authScreen");
     const mainApp = document.getElementById("mainApp");
     const authMsg = document.getElementById("authMessage");
 
-    window.enterApp = () => {
-      disclaimer.style.display = "none";
-      authScreen.classList.remove("hidden");
-    };
-
-    window.register = async () => {
+    // Auth
+    window.register = async function () {
       const email = document.getElementById("authEmail").value;
       const pass = document.getElementById("authPassword").value;
       try {
         await createUserWithEmailAndPassword(auth, email, pass);
       } catch (e) {
-        authMsg.textContent = e.message.includes("email-already-in-use") ?
-          "Email already in use." : e.message;
+        authMsg.textContent = e.code.includes("email") ? "Invalid email" : e.message;
       }
     };
 
-    window.login = async () => {
+    window.login = async function () {
       const email = document.getElementById("authEmail").value;
       const pass = document.getElementById("authPassword").value;
       try {
         await signInWithEmailAndPassword(auth, email, pass);
       } catch (e) {
-        authMsg.textContent = e.message.includes("invalid-credential") ?
-          "Wrong email or password." : e.message;
+        authMsg.textContent = "Wrong email or password.";
       }
     };
 
-    window.logout = async () => {
+    window.logout = async function () {
       await signOut(auth);
     };
 
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, user => {
       if (user) {
         authScreen.classList.add("hidden");
         mainApp.classList.remove("hidden");
@@ -247,14 +224,15 @@
       }
     });
 
-    window.showTalk = () => {
+    // Buttons
+    window.openVent = () => {
       resetBoxes();
-      document.getElementById("ventBox").style.display = "block";
+      document.getElementById("ventBox").classList.remove("hidden");
     };
 
-    window.showListen = () => {
+    window.openListen = () => {
       resetBoxes();
-      document.getElementById("responseBox").style.display = "block";
+      document.getElementById("responseBox").classList.remove("hidden");
       const display = document.getElementById("ventDisplay");
       display.innerHTML = "<div class='loading'></div>";
       const messagesRef = ref(db, "vents");
@@ -264,39 +242,64 @@
       });
     };
 
-    window.submitMessage = async () => {
+    window.openReplies = () => {
+      resetBoxes();
+      document.getElementById("replyBox").classList.remove("hidden");
+    };
+
+    window.resetBoxes = () => {
+      ["ventBox", "responseBox", "replyBox"].forEach(id => {
+        document.getElementById(id).classList.add("hidden");
+      });
+    };
+
+    window.submitMessage = async function () {
       const input = document.getElementById("ventInput");
       const message = input.value.trim();
-      if (!message) return alert("Please write something.");
-      await push(ref(db, "vents"), {
+      if (!message) return alert("Please enter a message.");
+
+      const newPostRef = push(ref(db, "vents"));
+      const code = newPostRef.key;
+
+      await push(ref(db, "replies/" + code), {
         message: message,
         timestamp: Date.now()
       });
+
+      alert("Message submitted. Your code is: " + code);
       input.value = "";
       resetBoxes();
     };
 
-    window.resetBoxes = () => {
-      document.getElementById("ventBox").style.display = "none";
-      document.getElementById("responseBox").style.display = "none";
+    // Replies
+    const replyResult = document.getElementById("replyResult");
+    document.getElementById("lookupCode").addEventListener("change", async (e) => {
+      const code = e.target.value.trim();
+      if (!code) return;
+      const snap = await get(child(ref(db), "replies/" + code));
+      if (snap.exists()) {
+        replyResult.innerHTML = `<p>"${snap.val()[Object.keys(snap.val())[0]].message}"</p>`;
+      } else {
+        replyResult.innerHTML = "<p>No replies found.</p>";
+      }
+    });
+
+    // Stats with animation
+    const animateCount = (id, target) => {
+      let count = 0;
+      const inc = target / 60;
+      const interval = setInterval(() => {
+        count += inc;
+        if (count >= target) {
+          count = target;
+          clearInterval(interval);
+        }
+        document.getElementById(id).textContent = Math.floor(count).toLocaleString();
+      }, 50);
     };
 
-    function formatNum(num) {
-      return num.toLocaleString("en-US");
-    }
-
-    function updateStats() {
-      const now = new Date();
-      const day = now.getMonth() * 30 + now.getDate();
-      const us = Math.round(48000 * day / 365);
-      const global = Math.round(700000 * day / 365);
-      document.getElementById("usCount").textContent = formatNum(us);
-      document.getElementById("globalCount").textContent = formatNum(global);
-    }
-
-    disclaimer.style.display = "block";
-    updateStats();
-    setInterval(updateStats, 60000);
+    animateCount("usCount", 21172);
+    animateCount("globalCount", 308767);
   </script>
 </body>
 </html>
