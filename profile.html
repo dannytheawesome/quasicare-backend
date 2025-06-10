@@ -1,1 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Your Profile | QuasiCare</title>
+  <style>
+    body {
+      background-color: #111;
+      color: white;
+      font-family: system-ui, sans-serif;
+      text-align: center;
+      padding: 50px 20px;
+    }
+    img {
+      border-radius: 50%;
+      width: 120px;
+      height: 120px;
+      object-fit: cover;
+      margin-bottom: 20px;
+    }
+    .info {
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #333;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 30px;
+    }
+    button:hover {
+      background-color: #555;
+    }
+  </style>
+</head>
+<body>
+  <h1>Your QuasiCare Profile</h1>
+  <div id="profileSection">
+    <img id="profilePic" src="" alt="Profile Picture" style="display:none" />
+    <div class="info"><strong>Username:</strong> <span id="username">Loading...</span></div>
+    <div class="info"><strong>People Helped:</strong> <span id="points">0</span></div>
+  </div>
+  <button onclick="logout()">Log Out</button>
 
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getAuth,
+      onAuthStateChanged,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import {
+      getDatabase,
+      ref,
+      get
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDeHTQr0thvi-fBqIEZELFDI0VL70erlCE",
+      authDomain: "quasicare.firebaseapp.com",
+      databaseURL: "https://quasicare-default-rtdb.firebaseio.com",
+      projectId: "quasicare",
+      storageBucket: "quasicare.appspot.com",
+      messagingSenderId: "197366070004",
+      appId: "1:197366070004:web:2972eb9297102b6183bca1"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      const uid = user.uid;
+      const userRef = ref(db, `users/${uid}`);
+
+      try {
+        const snapshot = await get(userRef);
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          document.getElementById("username").textContent = data.username || "(no username)";
+          document.getElementById("points").textContent = data.points || 0;
+
+          if (data.profilePic) {
+            const pic = document.getElementById("profilePic");
+            pic.src = data.profilePic;
+            pic.style.display = "block";
+          }
+        } else {
+          document.getElementById("username").textContent = "(profile not found)";
+        }
+      } catch (error) {
+        console.error("Error loading profile:", error);
+      }
+    });
+
+    window.logout = async function () {
+      await signOut(auth);
+      window.location.href = "login.html";
+    };
+  </script>
+</body>
+</html>
