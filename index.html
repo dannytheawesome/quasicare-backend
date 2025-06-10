@@ -171,12 +171,12 @@
 
   <aside class="sidebar">
     <nav>
-      <a href="index.html">Home</a>
-      <a href="#">Search</a>
-      <a href="#">Explore</a>
-      <a href="talk.html">Talk</a>
-      <a href="replies.html">Check Replies</a>
-      <a href="profile.html" class="active">Profile</a>
+      <a href="index.html"    id="nav-home">Home</a>
+      <a href="#"             id="nav-search">Search</a>
+      <a href="#"             id="nav-explore">Explore</a>
+      <a href="talk.html"     id="nav-talk">Talk</a>
+      <a href="replies.html"  id="nav-replies">Check Replies</a>
+      <a href="profile.html"  id="nav-profile">Profile</a>
     </nav>
     <button onclick="logout()">Logout</button>
   </aside>
@@ -300,10 +300,10 @@
       loadSection(uid, "journals");
     });
 
+    // Avatar picker
     avatarEl.addEventListener("click", () => {
       pickerOverlay.style.display = "flex";
     });
-
     pickable.forEach(img => {
       img.addEventListener("click", async () => {
         const idx = Number(img.dataset.index);
@@ -315,11 +315,8 @@
         }
       });
     });
-
     pickerOverlay.addEventListener("click", e => {
-      if (e.target === pickerOverlay) {
-        pickerOverlay.style.display = "none";
-      }
+      if (e.target === pickerOverlay) pickerOverlay.style.display = "none";
     });
 
     window.logout = async () => {
@@ -327,6 +324,7 @@
       window.location.href = "login.html";
     };
 
+    // tabs functionality
     tabs.forEach(tab => {
       tab.addEventListener("click", () => {
         document.querySelector(".tabs .active").classList.remove("active");
@@ -336,6 +334,20 @@
         });
       });
     });
+
+    // highlight active sidebar link
+    const page = window.location.pathname.split("/").pop();
+    const navMap = {
+      "index.html":    "nav-home",
+      "":              "nav-home",
+      "talk.html":     "nav-talk",
+      "replies.html":  "nav-replies",
+      "profile.html":  "nav-profile"
+    };
+    const activeId = navMap[page];
+    if (activeId) {
+      document.getElementById(activeId).classList.add("active");
+    }
   </script>
 </body>
 </html>
