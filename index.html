@@ -17,7 +17,7 @@
       margin-top: 20px;
     }
 
-    button, input {
+    button, input, textarea {
       padding: 12px;
       font-size: 16px;
       margin: 10px;
@@ -25,7 +25,7 @@
       border-radius: 6px;
     }
 
-    input {
+    input, textarea {
       width: 80%;
       max-width: 300px;
       background: #1e1e1e;
@@ -78,6 +78,18 @@
       background: #222;
       padding: 20px;
     }
+
+    #authMessage {
+      color: red;
+      margin-top: 10px;
+    }
+
+    .description {
+      font-size: 0.95em;
+      color: #bbb;
+      margin: 10px auto;
+      max-width: 80%;
+    }
   </style>
 </head>
 <body>
@@ -85,13 +97,12 @@
   <!-- Auth Screen -->
   <div id="authScreen">
     <h1>Welcome to QuasiCare</h1>
-    <div>
-      <input type="email" id="authEmail" placeholder="Email" /><br>
-      <input type="password" id="authPassword" placeholder="Password" /><br>
-      <button onclick="login()">Login</button>
-      <button onclick="register()">Register</button>
-    </div>
-    <p id="authMessage" style="color: red;"></p>
+    <p class="description">A safe, anonymous space to vent your emotions or support someone who needs to be heard.</p>
+    <input type="email" id="authEmail" placeholder="Email" /><br>
+    <input type="password" id="authPassword" placeholder="Password" /><br>
+    <button onclick="login()">Login</button>
+    <button onclick="register()">Register</button>
+    <p id="authMessage"></p>
   </div>
 
   <!-- Main App -->
