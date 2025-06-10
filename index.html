@@ -7,168 +7,121 @@
   <style>
     body {
       margin: 0;
-      font-family: system-ui, sans-serif;
+      padding: 0;
       background-color: #111;
-      color: #fff;
+      color: white;
+      font-family: system-ui, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
       text-align: center;
+      padding-top: 60px;
     }
 
     h1 {
-      margin-top: 20px;
-      font-size: 2rem;
+      font-size: 2.2rem;
+      margin-bottom: 10px;
     }
 
-    button, input, textarea {
+    p {
+      font-size: 1rem;
+      color: #ccc;
+      margin-bottom: 30px;
+    }
+
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 30px;
+    }
+
+    .button-group button {
+      width: 200px;
       padding: 12px;
       font-size: 16px;
-      margin: 10px;
-      border: none;
-      border-radius: 6px;
-      transition: background-color 0.3s ease;
-    }
-
-    input, textarea {
-      width: 80%;
-      max-width: 350px;
-      background: #1e1e1e;
-      color: #fff;
-      border: 1px solid #444;
-    }
-
-    button {
       background-color: #333;
       color: white;
+      border: none;
+      border-radius: 6px;
       cursor: pointer;
     }
 
-    button:hover {
+    .button-group button:hover {
       background-color: #555;
     }
 
-    .hidden {
-      display: none;
+    .logout-button {
+      margin-bottom: 20px;
+      padding: 8px 16px;
+      font-size: 15px;
+      background-color: #222;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
     }
 
-    .section {
-      margin-top: 20px;
-    }
-
-    .loading {
-      border: 4px solid #333;
-      border-top: 4px solid #00f2ff;
-      border-radius: 50%;
-      width: 36px;
-      height: 36px;
-      margin: 20px auto;
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+    .logout-button:hover {
+      background-color: #444;
     }
 
     .stats {
       margin-top: 20px;
-      font-size: 1rem;
+      font-size: 0.95rem;
       color: #ccc;
     }
 
     #footerLinks {
-      font-size: 0.8rem;
-      color: #888;
-      margin-top: 40px;
+      margin-top: auto;
+      padding: 30px 0;
+      font-size: 0.85rem;
     }
 
     #footerLinks a {
-      color: #888;
-      margin: 0 10px;
+      color: #aaa;
+      margin: 0 12px;
       text-decoration: underline;
     }
 
-    .fade {
-      transition: all 0.4s ease-in-out;
-    }
-
-    #adminPanel {
-      display: none;
+    @media (min-width: 600px) {
+      .button-group {
+        flex-direction: row;
+        justify-content: center;
+      }
     }
   </style>
 </head>
 <body>
 
-  <!-- Authentication -->
-  <div id="authScreen">
-    <h1>Welcome to QuasiCare</h1>
-    <p>Your voice matters. You're not alone.</p>
-    <input type="email" id="authEmail" placeholder="Email" /><br>
-    <input type="password" id="authPassword" placeholder="Password" /><br>
-    <button onclick="register()">Register</button>
-    <button onclick="login()">Login</button>
-    <p id="authMessage" style="color: red;"></p>
+  <h1>QuasiCare</h1>
+  <p>You are heard. You matter.</p>
+
+  <button class="logout-button" onclick="logout()">Logout</button>
+
+  <div class="button-group">
+    <button onclick="location.href='talk.html'">Talk</button>
+    <button onclick="location.href='listen.html'">Listen</button>
+    <button onclick="location.href='replies.html'">Check Replies</button>
   </div>
 
-  <!-- Main App -->
-  <div id="mainApp" class="hidden fade">
-    <h1>QuasiCare</h1>
-    <p id="welcomeText">You are heard. You matter.</p>
-    <button onclick="logout()">Logout</button>
-
-    <!-- Main Action Buttons -->
-    <div class="section">
-      <button onclick="openVent()">Talk</button>
-      <button onclick="openListen()">Listen</button>
-      <button onclick="openReplies()">Check Replies</button>
-    </div>
-
-    <!-- Vent -->
-    <div id="ventBox" class="hidden section fade">
-      <textarea id="ventInput" rows="4" placeholder="Type your anonymous message..."></textarea><br>
-      <button onclick="submitMessage()">Submit</button>
-      <button onclick="resetBoxes()">Exit</button>
-    </div>
-
-    <!-- Listen -->
-    <div id="responseBox" class="hidden section fade">
-      <div id="ventDisplay"><div class="loading"></div></div>
-      <button onclick="resetBoxes()">Back</button>
-    </div>
-
-    <!-- Reply Lookup -->
-    <div id="replyBox" class="hidden section fade">
-      <input type="text" id="lookupCode" placeholder="Enter your unique code" /><br>
-      <div id="replyResult"></div>
-      <button onclick="resetBoxes()">Back</button>
-    </div>
-
-    <!-- Suicide Stats -->
-    <div class="stats">
-      <p>U.S. suicides in 2025: <span id="usCount">Loading...</span></p>
-      <p>Global suicides in 2025: <span id="globalCount">Loading...</span></p>
-    </div>
+  <div class="stats">
+    <p>U.S. suicides in 2025: <span id="usCount">Loading...</span></p>
+    <p>Global suicides in 2025: <span id="globalCount">Loading...</span></p>
   </div>
 
-  <!-- Legal -->
   <div id="footerLinks">
-    <a href="/terms" target="_blank">Terms</a>
-    <a href="/privacy" target="_blank">Privacy</a>
-    <a href="/disclaimer" target="_blank">Disclaimer</a>
+    <a href="terms.html" target="_blank">Terms</a>
+    <a href="privacy.html" target="_blank">Privacy</a>
+    <a href="disclaimer.html" target="_blank">Disclaimer</a>
   </div>
 
-  <!-- Admin (Hidden) -->
-  <div id="adminPanel">
-    <h2>Admin Panel</h2>
-    <p>This section is hidden from users.</p>
-  </div>
-
-  <!-- Scripts -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import {
-      getDatabase, ref, push, onChildAdded, get, child
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-    import {
-      getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged
+      getAuth, signOut, onAuthStateChanged
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
     const firebaseConfig = {
@@ -183,108 +136,18 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    const db = getDatabase(app);
-
-    const authScreen = document.getElementById("authScreen");
-    const mainApp = document.getElementById("mainApp");
-    const authMsg = document.getElementById("authMessage");
-
-    // Auth
-    window.register = async function () {
-      const email = document.getElementById("authEmail").value;
-      const pass = document.getElementById("authPassword").value;
-      try {
-        await createUserWithEmailAndPassword(auth, email, pass);
-      } catch (e) {
-        authMsg.textContent = e.code.includes("email") ? "Invalid email" : e.message;
-      }
-    };
-
-    window.login = async function () {
-      const email = document.getElementById("authEmail").value;
-      const pass = document.getElementById("authPassword").value;
-      try {
-        await signInWithEmailAndPassword(auth, email, pass);
-      } catch (e) {
-        authMsg.textContent = "Wrong email or password.";
-      }
-    };
 
     window.logout = async function () {
       await signOut(auth);
+      location.href = "index.html";
     };
 
-    onAuthStateChanged(auth, user => {
-      if (user) {
-        authScreen.classList.add("hidden");
-        mainApp.classList.remove("hidden");
-      } else {
-        authScreen.classList.remove("hidden");
-        mainApp.classList.add("hidden");
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.href = "index.html";
       }
     });
 
-    // Buttons
-    window.openVent = () => {
-      resetBoxes();
-      document.getElementById("ventBox").classList.remove("hidden");
-    };
-
-    window.openListen = () => {
-      resetBoxes();
-      document.getElementById("responseBox").classList.remove("hidden");
-      const display = document.getElementById("ventDisplay");
-      display.innerHTML = "<div class='loading'></div>";
-      const messagesRef = ref(db, "vents");
-      onChildAdded(messagesRef, (data) => {
-        const post = data.val().message;
-        display.innerHTML = `<strong>Anonymous Post:</strong><br>"${post}"`;
-      });
-    };
-
-    window.openReplies = () => {
-      resetBoxes();
-      document.getElementById("replyBox").classList.remove("hidden");
-    };
-
-    window.resetBoxes = () => {
-      ["ventBox", "responseBox", "replyBox"].forEach(id => {
-        document.getElementById(id).classList.add("hidden");
-      });
-    };
-
-    window.submitMessage = async function () {
-      const input = document.getElementById("ventInput");
-      const message = input.value.trim();
-      if (!message) return alert("Please enter a message.");
-
-      const newPostRef = push(ref(db, "vents"));
-      const code = newPostRef.key;
-
-      await push(ref(db, "replies/" + code), {
-        message: message,
-        timestamp: Date.now()
-      });
-
-      alert("Message submitted. Your code is: " + code);
-      input.value = "";
-      resetBoxes();
-    };
-
-    // Replies
-    const replyResult = document.getElementById("replyResult");
-    document.getElementById("lookupCode").addEventListener("change", async (e) => {
-      const code = e.target.value.trim();
-      if (!code) return;
-      const snap = await get(child(ref(db), "replies/" + code));
-      if (snap.exists()) {
-        replyResult.innerHTML = `<p>"${snap.val()[Object.keys(snap.val())[0]].message}"</p>`;
-      } else {
-        replyResult.innerHTML = "<p>No replies found.</p>";
-      }
-    });
-
-    // Stats with animation
     const animateCount = (id, target) => {
       let count = 0;
       const inc = target / 60;
@@ -301,5 +164,6 @@
     animateCount("usCount", 21172);
     animateCount("globalCount", 308767);
   </script>
+
 </body>
 </html>
