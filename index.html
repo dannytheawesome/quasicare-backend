@@ -100,7 +100,6 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import {
       getAuth,
-      signOut,
       onAuthStateChanged
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
@@ -117,22 +116,20 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    // Handle logout
-    document.getElementById("logoutBtn").addEventListener("click", async () => {
-  await signOut(auth);
-  alert("You’ve been logged out.");
-  window.location.reload(); // or redirect to a login page if you create one
-});
+    // Redirect to logout.html (handles proper signOut)
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      window.location.href = "logout.html";
+    });
 
-    // Protect route: redirect if not logged in
-   onAuthStateChanged(auth, (user) => {
-  if (!user) {
-    console.warn("User not logged in.");
-    // Do nothing — you're already on the homepage.
-  }
-});
+    // Optional: Warn if not logged in (but do NOT redirect to same page)
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        console.warn("User not authenticated.");
+        // Optionally show a message or redirect to a separate login.html if you build one
+      }
+    });
 
-    // Animate stats
+    // Suicide counter animation
     const animateCount = (id, target) => {
       let count = 0;
       const inc = target / 60;
