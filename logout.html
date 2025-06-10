@@ -4,23 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Logging Out...</title>
-  <style>
-    body {
-      background-color: #111;
-      color: white;
-      font-family: system-ui, sans-serif;
-      text-align: center;
-      padding: 60px 20px;
-    }
-    h1 {
-      font-size: 1.8rem;
-      margin-bottom: 10px;
-    }
-    p {
-      font-size: 1rem;
-      color: #aaa;
-    }
-  </style>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -40,17 +23,15 @@
 
     signOut(auth)
       .then(() => {
-        console.log("User signed out.");
         window.location.href = "index.html";
       })
       .catch((error) => {
-        console.error("Error signing out:", error);
+        alert("Logout failed: " + error.message);
         window.location.href = "index.html";
       });
   </script>
 </head>
-<body>
-  <h1>Logging you out...</h1>
-  <p>Please wait a moment.</p>
+<body style="background-color:#111; color:white; font-family:system-ui; text-align:center; padding-top:60px;">
+  <h2>Logging you out...</h2>
 </body>
 </html>
