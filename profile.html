@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Your Profile | QuasiCare</title>
   <style>
@@ -12,62 +12,60 @@
       text-align: center;
       padding: 40px 20px;
     }
-    input {
-      padding: 10px;
-      margin: 10px;
-      background-color: #222;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      width: 80%;
-      max-width: 300px;
+    img {
+      border-radius: 50%;
+      width: 120px;
+      height: 120px;
+      object-fit: cover;
+      margin-bottom: 15px;
     }
-    button {
-      padding: 10px 20px;
+    input, button {
+      margin: 10px;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: none;
+    }
+    input[type="file"] {
+      color: white;
+    }
+    #logoutBtn {
       background-color: #333;
       color: white;
-      border: none;
-      border-radius: 6px;
-      margin-top: 10px;
       cursor: pointer;
     }
-    button:hover {
+    #logoutBtn:hover {
       background-color: #555;
-    }
-    img {
-      width: 100px;
-      height: 100px;
-      border-radius: 50%;
-      margin-top: 20px;
     }
   </style>
 </head>
 <body>
   <h1>Your Profile</h1>
-  <p>Email: <span id="email">Loading...</span></p>
-  <img id="profilePic" src="" alt="Profile Photo" style="display: none;" />
-  
-  <p>Username: <span id="username">Loading...</span></p>
-  <p>Points: <span id="points">0</span></p>
-  <p>Badges: <span id="badges">None</span></p>
-
-  <h3>Edit Profile</h3>
-  <input type="text" id="newUsername" placeholder="New username" /><br>
-  <input type="text" id="newPhotoURL" placeholder="Profile photo URL (optional)" /><br>
-  <button onclick="saveProfile()">Save Changes</button><br><br>
-  <button onclick="location.href='index.html'">⬅ Back to Home</button>
+  <img id="profilePic" src="" alt="Profile Picture" />
+  <div>
+    <input type="text" id="username" placeholder="Display Name" /><br>
+    <input type="file" id="photoUpload" accept="image/*" /><br>
+    <button onclick="updateProfile()">Save Changes</button>
+  </div>
+  <p><strong>Email:</strong> <span id="userEmail">Loading...</span></p>
+  <p><strong>Total Replies:</strong> <span id="points">0</span></p>
+  <p><strong>Badges:</strong> <span id="badges">None</span></p>
+  <br>
+  <button id="logoutBtn">Logout</button>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import {
       getAuth,
-      onAuthStateChanged
+      onAuthStateChanged,
+      signOut
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import {
       getDatabase,
       ref,
+      set,
       get,
-      set
+      update
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
     const firebaseConfig = {
@@ -84,58 +82,70 @@
     const auth = getAuth(app);
     const db = getDatabase(app);
 
-    let uid = null;
+    const profilePic = document.getElementById("profilePic");
+    const userEmail = document.getElementById("userEmail");
+    const username = document.getElementById("username");
+    const photoUpload = document.getElementById("photoUpload");
+    const points = document.getElementById("points");
+    const badges = document.getElementById("badges");
+
+    let currentUid = null;
 
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
-        alert("You must be logged in to view this page.");
         window.location.href = "login.html";
         return;
       }
 
-      uid = user.uid;
-      document.getElementById("email").textContent = user.email;
+      currentUid = user.uid;
+      userEmail.textContent = user.email;
 
-      const profileRef = ref(db, "users/" + uid);
-      const snapshot = await get(profileRef);
+      const userRef = ref(db, "users/" + currentUid);
+      const snapshot = await get(userRef);
 
       if (snapshot.exists()) {
         const data = snapshot.val();
-        document.getElementById("username").textContent = data.username || "Anonymous";
-        document.getElementById("points").textContent = data.points || 0;
-        document.getElementById("badges").textContent = (data.badges && data.badges.length > 0)
-          ? data.badges.join(", ") : "None";
-
-        if (data.photoURL) {
-          const img = document.getElementById("profilePic");
-          img.src = data.photoURL;
-          img.style.display = "block";
-        }
+        username.value = data.username || "";
+        profilePic.src = data.photoURL || "https://via.placeholder.com/120";
+        points.textContent = data.points || 0;
+        badges.textContent = data.badge || "None";
+      } else {
+        profilePic.src = "https://via.placeholder.com/120";
       }
     });
 
-    window.saveProfile = async function () {
-      const username = document.getElementById("newUsername").value.trim();
-      const photoURL = document.getElementById("newPhotoURL").value.trim();
-      if (!username) return alert("Username cannot be empty.");
+    window.updateProfile = async function () {
+      const name = username.value.trim();
+      const file = photoUpload.files[0];
+      let photoURL = profilePic.src;
 
-      const updates = { username: username };
-      if (photoURL) updates.photoURL = photoURL;
+      if (file) {
+        // For MVP, use Base64 inline image instead of uploading to storage
+        const reader = new FileReader();
+        reader.onloadend = async () => {
+          photoURL = reader.result;
 
-      try {
-        await set(ref(db, "users/" + uid), {
-          ...updates,
-          points: parseInt(document.getElementById("points").textContent),
-          badges: document.getElementById("badges").textContent === "None"
-            ? [] : document.getElementById("badges").textContent.split(", ")
-        });
-        alert("Profile updated.");
-        window.location.reload();
-      } catch (err) {
-        console.error(err);
-        alert("Failed to save profile.");
+          await saveData(name, photoURL);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        await saveData(name, photoURL);
       }
     };
+
+    async function saveData(name, photoURL) {
+      await update(ref(db, "users/" + currentUid), {
+        username: name,
+        photoURL: photoURL
+      });
+      alert("Profile updated!");
+      profilePic.src = photoURL;
+    }
+
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+      await signOut(auth);
+      window.location.href = "login.html";
+    });
   </script>
 </body>
 </html>
