@@ -5,13 +5,38 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Profile • QuasiCare</title>
   <style>
+    :root {
+      --accent: #4fb8a0;
+      --muted: #aaa;
+      --bg: #111;
+      --fg: #eee;
+      --bg-secondary: #1c1c1c;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
+      font-family: system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--fg);
       margin: 0;
       display: flex;
-      background: #111;
-      color: #eee;
-      font-family: system-ui, sans-serif;
+      flex-direction: column;
+      min-height: 100vh;
     }
+
+    header {
+      display: none;
+      background: #000;
+      color: #ccc;
+      padding: 10px;
+      justify-content: space-around;
+    }
+
     .sidebar {
       width: 220px;
       background: #000;
@@ -19,70 +44,88 @@
       display: flex;
       flex-direction: column;
     }
-    .sidebar nav a {
-      display: block;
-      margin: 8px 0;
+
+    .sidebar nav a,
+    header a {
       color: #ccc;
       text-decoration: none;
+      margin: 8px 0;
+      display: block;
     }
-    .sidebar nav a.active {
-      color: #4fb8a0;
-      font-weight: 600;
+
+    .sidebar nav a.active,
+    header a.active {
+      color: var(--accent);
+      font-weight: bold;
     }
+
     .main {
       flex: 1;
       padding: 20px;
-      overflow-y: auto;
+      margin-left: 220px;
     }
+
     .profile-header {
       display: flex;
       flex-direction: column;
       align-items: center;
-      margin-bottom: 20px;
+      text-align: center;
+      margin-bottom: 30px;
     }
+
     .avatar {
       width: 120px;
       height: 120px;
       border-radius: 50%;
-      border: 3px solid #4fb8a0;
+      border: 4px solid var(--accent);
       object-fit: cover;
+      background: var(--bg-secondary);
+      transition: opacity 0.2s ease-in;
     }
-    #verified {
-      color: #4fb8a0;
+
+    .verified {
+      color: var(--accent);
       font-weight: 700;
-      margin-top: 5px;
+      margin-top: 6px;
     }
+
     .stats {
       display: flex;
       gap: 24px;
       margin: 10px 0;
     }
+
     .tabs {
       display: flex;
-      gap: 24px;
       justify-content: center;
+      gap: 30px;
       border-bottom: 1px solid #333;
       margin: 20px 0;
     }
+
     .tabs div {
       padding: 10px;
       cursor: pointer;
       color: #ccc;
     }
+
     .tabs .active {
-      color: #4fb8a0;
-      border-bottom: 2px solid #4fb8a0;
+      color: var(--accent);
+      border-bottom: 2px solid var(--accent);
     }
+
     #tabContent {
       max-width: 600px;
       margin: auto;
     }
+
     .journal-entry {
-      background: #1a1a1a;
+      background: var(--bg-secondary);
       padding: 10px;
       margin-bottom: 10px;
       border-radius: 6px;
     }
+
     #newJournalInput {
       width: 100%;
       padding: 10px;
@@ -92,18 +135,40 @@
       border: none;
       border-radius: 6px;
     }
+
     #submitJournalBtn {
       padding: 8px 16px;
-      background: #4fb8a0;
+      background: var(--accent);
       color: white;
       border: none;
       border-radius: 6px;
       cursor: pointer;
-      margin-bottom: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        display: none;
+      }
+      header {
+        display: flex;
+      }
+      .main {
+        margin: 0;
+        padding-top: 10px;
+      }
     }
   </style>
 </head>
 <body>
+  <header>
+    <a href="index.html">Home</a>
+    <a href="#">Search</a>
+    <a href="#">Explore</a>
+    <a href="talk.html">Talk</a>
+    <a href="replies.html">Check Replies</a>
+    <a class="active" href="profile.html">Profile</a>
+  </header>
+
   <aside class="sidebar">
     <nav>
       <a href="index.html">Home</a>
@@ -119,8 +184,8 @@
   <main class="main">
     <section class="profile-header">
       <img id="avatar" class="avatar" src="" alt="Profile Picture" />
-      <h2 id="encouragement">You are heard. You matter.</h2>
-      <div id="verified" style="display:none;">Verified ✓</div>
+      <h2>You are heard. You matter.</h2>
+      <div id="verified" class="verified" style="display:none;">Verified ✓</div>
       <div class="stats">
         <div><span id="journalCount">0</span> Journals</div>
         <div><span id="helpedCount">0</span> Helped</div>
