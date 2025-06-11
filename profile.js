@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getDatabase, ref, get, push, set, child, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { getDatabase, ref, get, set, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 const config = {
   apiKey: "AIzaSyDeHTQr0thvi-fBqIEZELFDI0VL70erlCE",
@@ -17,100 +17,100 @@ const auth = getAuth(app);
 const db = getDatabase(app);
 
 const avatars = [
-  "avatars/animal1.png",
-  "avatars/animal2.png",
-  "avatars/animal3.png",
-  "avatars/animal4.png",
-  "avatars/animal5.png"
+  "birdavatar.png",
+  "catavatar.png",
+  "elephantavatar.png",
+  "foxavatar.png",
+  "monkeyavatar.png"
 ];
 
 const avatarEl = document.getElementById("avatar");
 const encouragementEl = document.getElementById("encouragement");
 const verifiedEl = document.getElementById("verified");
 const journalCountEl = document.getElementById("journalCount");
-const helpedEl = document.getElementById("helpedCount");
-const badgeEl = document.getElementById("badgeCount");
+const helpedCountEl = document.getElementById("helpedCount");
+const badgeCountEl = document.getElementById("badgeCount");
 const feelingEl = document.getElementById("feeling");
-
-const tabs = document.querySelectorAll(".tabs div");
-const content = document.getElementById("tabContent");
-const journalInput = document.getElementById("newJournalInput");
+const newJournalInput = document.getElementById("newJournalInput");
+const submitJournalBtn = document.getElementById("submitJournalBtn");
 const journalList = document.getElementById("journalList");
-const submitBtn = document.getElementById("submitJournalBtn");
+const tabContent = document.getElementById("tabContent");
+const tabs = document.querySelectorAll(".tabs div");
+const picker = document.getElementById("avatarPicker");
 
-function renderSection(items) {
-  journalList.innerHTML = "";
-  if (!items || items.length === 0) {
-    journalList.innerHTML = `<div style="color:#888;text-align:center;margin-top:10px;">No journals yet.</div>`;
-    return;
-  }
-  items.forEach(entry => {
-    const div = document.createElement("div");
-    div.className = "journal-entry";
-    div.textContent = entry.text || entry;
-    journalList.appendChild(div);
-  });
-}
-
-async function loadJournals(uid) {
-  const snap = await get(child(ref(db), `users/${uid}/journals`));
-  renderSection(snap.exists() ? Object.values(snap.val()) : []);
-}
+let currentTab = "journals";
+let uid = null;
 
 onAuthStateChanged(auth, async user => {
   if (!user) return location.href = "login.html";
+  uid = user.uid;
 
-  const uid = user.uid;
   const snap = await get(ref(db, `users/${uid}`));
   const data = snap.exists() ? snap.val() : {};
 
-  // Avatar and encouragement
   avatarEl.src = avatars[data.avatarIndex || 0];
-  if (user.email === "sherneonbusy@gmail.com") {
-    verifiedEl.style.display = "block";
-  }
+  encouragementEl.textContent = "You are heard. You matter.";
+  if (user.email === "sherneonbusy@gmail.com") verifiedEl.style.display = "block";
 
-  encouragementEl.textContent = data.encouragement || "You are heard. You matter.";
   journalCountEl.textContent = data.journals ? Object.keys(data.journals).length : 0;
-  helpedEl.textContent = data.replies || 0;
-  badgeEl.textContent = data.badges ? data.badges.length : 0;
-  feelingEl.textContent = data.todayFeeling || "—";
+  helpedCountEl.textContent = data.replies || 0;
+  badgeCountEl.textContent = data.badges ? data.badges.length : 0;
+  feelingEl.textContent = data.todayFeeling || "---";
 
-  loadJournals(uid);
+  loadSection("journals");
 });
 
-submitBtn.addEventListener("click", async () => {
-  const user = auth.currentUser;
-  if (!user) return;
+submitJournalBtn.onclick = async () => {
+  const text = newJournalInput.value.trim();
+  if (!text || !uid) return;
 
-  const text = journalInput.value.trim();
-  if (!text) return;
-
-  const uid = user.uid;
-  const newRef = push(ref(db, `users/${uid}/journals`));
-  await set(newRef, { text });
-
-  journalInput.value = "";
-  loadJournals(uid);
-});
+  const journalRef = ref(db, `users/${uid}/journals/${Date.now()}`);
+  await set(journalRef, { text });
+  newJournalInput.value = "";
+  loadSection("journals");
+};
 
 tabs.forEach(tab => {
   tab.addEventListener("click", () => {
     document.querySelector(".tabs .active").classList.remove("active");
     tab.classList.add("active");
-
-    const section = tab.dataset.tab;
-    onAuthStateChanged(auth, async user => {
-      if (!user) return;
-      const snap = await get(child(ref(db), `users/${user.uid}/${section}`));
-      const data = snap.exists() ? Object.values(snap.val()) : [];
-      journalList.innerHTML = section === "journals"
-        ? ""
-        : `<div style="color:#888;text-align:center;margin-top:10px;">No ${section} yet.</div>`;
-      if (section === "journals") renderSection(data);
-    });
+    currentTab = tab.dataset.tab;
+    loadSection(currentTab);
   });
 });
+
+async function loadSection(section) {
+  const snap = await get(ref(db, `users/${uid}/${section}`));
+  const data = snap.exists() ? Object.values(snap.val()) : [];
+  tabContent.innerHTML = section === "journals"
+    ? `
+      <textarea id="newJournalInput" placeholder="Write your journal..."></textarea>
+      <button id="submitJournalBtn">Submit</button>
+      <div id="journalList">${data.map(d => `<div class="journal-entry">${d.text || d}</div>`).join("")}</div>
+    `
+    : data.length
+      ? data.map(d => `<div class="journal-entry">${d.text || d}</div>`).join("")
+      : `<div class="journal-entry">No ${section} yet.</div>`;
+
+  if (section === "journals") {
+    document.getElementById("submitJournalBtn").onclick = submitJournalBtn.onclick;
+  }
+}
+
+avatarEl.onclick = () => picker.style.display = "flex";
+
+document.querySelectorAll(".picker-container img").forEach(img => {
+  img.addEventListener("click", async () => {
+    const index = Number(img.dataset.index);
+    avatarEl.src = avatars[index];
+    picker.style.display = "none";
+    if (uid) await update(ref(db, `users/${uid}`), { avatarIndex: index });
+  });
+});
+
+picker.onclick = e => {
+  if (e.target === picker) picker.style.display = "none";
+};
 
 window.logout = async () => {
   await signOut(auth);
