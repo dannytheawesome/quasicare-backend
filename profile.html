@@ -63,12 +63,12 @@
       flex: 1;
       padding: 20px;
       margin-left: 220px;
-    }
-
-    .profile-header {
       display: flex;
       flex-direction: column;
       align-items: center;
+    }
+
+    .profile-header {
       text-align: center;
       margin-bottom: 30px;
     }
@@ -80,7 +80,7 @@
       border: 4px solid var(--accent);
       object-fit: cover;
       background: var(--bg-secondary);
-      transition: opacity 0.2s ease-in;
+      transition: opacity 0.1s linear;
     }
 
     .verified {
@@ -93,6 +93,7 @@
       display: flex;
       gap: 24px;
       margin: 10px 0;
+      justify-content: center;
     }
 
     .tabs {
@@ -115,8 +116,8 @@
     }
 
     #tabContent {
+      width: 100%;
       max-width: 600px;
-      margin: auto;
     }
 
     .journal-entry {
@@ -143,6 +144,7 @@
       border: none;
       border-radius: 6px;
       cursor: pointer;
+      margin-bottom: 20px;
     }
 
     @media (max-width: 768px) {
@@ -153,8 +155,13 @@
         display: flex;
       }
       .main {
-        margin: 0;
-        padding-top: 10px;
+        margin-left: 0;
+        padding: 16px;
+        align-items: center;
+      }
+      .tabs {
+        flex-wrap: wrap;
+        gap: 20px;
       }
     }
   </style>
@@ -183,7 +190,7 @@
 
   <main class="main">
     <section class="profile-header">
-      <img id="avatar" class="avatar" src="" alt="Profile Picture" />
+      <img id="avatar" class="avatar" src="" alt="Profile Picture" style="opacity: 0;" onload="this.style.opacity=1" />
       <h2>You are heard. You matter.</h2>
       <div id="verified" class="verified" style="display:none;">Verified ✓</div>
       <div class="stats">
