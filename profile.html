@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profile • QuasiCare</title>
+  <style>
+    :root {
+      --accent: #4fb8a0;
+      --muted: #aaa;
+      --bg: #111;
+      --fg: #eee;
+      --bg-secondary: #1c1c1c;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      display: none;
+      background: #000;
+      color: #ccc;
+      padding: 10px;
+      justify-content: space-around;
+    }
+
+    .sidebar {
+      width: 220px;
+      background: #000;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar nav a,
+    header a {
+      color: #ccc;
+      text-decoration: none;
+      margin: 8px 0;
+      display: block;
+    }
+
+    .sidebar nav a.active,
+    header a.active {
+      color: var(--accent);
+      font-weight: bold;
+    }
+
+    .main {
+      flex: 1;
+      padding: 20px;
+      margin-left: 220px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .profile-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 4px solid var(--accent);
+      object-fit: cover;
+      background: var(--bg-secondary);
+      transition: opacity 0.1s linear;
+    }
+
+    .verified {
+      color: var(--accent);
+      font-weight: 700;
+      margin-top: 6px;
+    }
+
+    .stats {
+      display: flex;
+      gap: 24px;
+      margin: 10px 0;
+      justify-content: center;
+    }
+
+    .tabs {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      border-bottom: 1px solid #333;
+      margin: 20px 0;
+    }
+
+    .tabs div {
+      padding: 10px;
+      cursor: pointer;
+      color: #ccc;
+    }
+
+    .tabs .active {
+      color: var(--accent);
+      border-bottom: 2px solid var(--accent);
+    }
+
+    #tabContent {
+      width: 100%;
+      max-width: 600px;
+    }
+
+    .journal-entry {
+      background: var(--bg-secondary);
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 6px;
+    }
+
+    #newJournalInput {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      background: #222;
+      color: white;
+      border: none;
+      border-radius: 6px;
+    }
+
+    #submitJournalBtn {
+      padding: 8px 16px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        display: none;
+      }
+      header {
+        display: flex;
+      }
+      .main {
+        margin-left: 0;
+        padding: 16px;
+        align-items: center;
+      }
+      .tabs {
+        flex-wrap: wrap;
+        gap: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="index.html">Home</a>
+    <a href="#">Search</a>
+    <a href="#">Explore</a>
+    <a href="talk.html">Talk</a>
+    <a href="replies.html">Check Replies</a>
+    <a class="active" href="profile.html">Profile</a>
+  </header>
+
+  <aside class="sidebar">
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="#">Search</a>
+      <a href="#">Explore</a>
+      <a href="talk.html">Talk</a>
+      <a href="replies.html">Check Replies</a>
+      <a class="active" href="profile.html">Profile</a>
+    </nav>
+    <button onclick="logout()">Logout</button>
+  </aside>
+
+  <main class="main">
+    <section class="profile-header">
+      <img id="avatar" class="avatar" src="" alt="Profile Picture" style="opacity: 0;" onload="this.style.opacity=1" />
+      <h2>You are heard. You matter.</h2>
+      <div id="verified" class="verified" style="display:none;">Verified ✓</div>
+      <div class="stats">
+        <div><span id="journalCount">0</span> Journals</div>
+        <div><span id="helpedCount">0</span> Helped</div>
+        <div><span id="badgeCount">0</span> Badges</div>
+      </div>
+      <div><em>Today I feel: <span id="feeling">---</span></em></div>
+    </section>
+
+    <section class="tabs">
+      <div class="active" data-tab="journals">JOURNALS</div>
+      <div data-tab="favorites">FAVORITES</div>
+      <div data-tab="reflections">REFLECTIONS</div>
+    </section>
+
+    <div id="tabContent">
+      <textarea id="newJournalInput" placeholder="Write your journal..."></textarea>
+      <button id="submitJournalBtn">Submit</button>
+      <div id="journalList"></div>
+    </div>
+  </main>
+
+  <script type="module" src="profile.js"></script>
+</body>
+</html>

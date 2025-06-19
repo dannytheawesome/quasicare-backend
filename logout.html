@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Logging Out...</title>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDeHTQr0thvi-fBqIEZELFDI0VL70erlCE",
+      authDomain: "quasicare.firebaseapp.com",
+      databaseURL: "https://quasicare-default-rtdb.firebaseio.com",
+      projectId: "quasicare",
+      storageBucket: "quasicare.appspot.com",
+      messagingSenderId: "197366070004",
+      appId: "1:197366070004:web:2972eb9297102b6183bca1"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    signOut(auth)
+      .then(() => {
+        window.location.href = "index.html";
+      })
+      .catch((error) => {
+        alert("Logout failed: " + error.message);
+        window.location.href = "index.html";
+      });
+  </script>
+</head>
+<body style="background-color:#111; color:white; font-family:system-ui; text-align:center; padding-top:60px;">
+  <h2>Logging you out...</h2>
+</body>
+</html>

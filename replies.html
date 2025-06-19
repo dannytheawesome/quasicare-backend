@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Check Replies | QuasiCare</title>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getDatabase, ref, get
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyDeHTQr0thvi-fBqIEZELFDI0VL70erlCE",
+      authDomain: "quasicare.firebaseapp.com",
+      databaseURL: "https://quasicare-default-rtdb.firebaseio.com",
+      projectId: "quasicare",
+      storageBucket: "quasicare.appspot.com",
+      messagingSenderId: "197366070004",
+      appId: "1:197366070004:web:2972eb9297102b6183bca1"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    window.lookupReplies = async function () {
+      const code = document.getElementById("lookupCode").value.trim().toUpperCase();
+      const output = document.getElementById("repliesOutput");
+
+      if (!code) {
+        output.innerText = "Please enter your code.";
+        return;
+      }
+
+      output.innerHTML = "Searching...";
+
+      const snapshot = await get(ref(db, `vents/${code}`));
+      if (!snapshot.exists()) {
+        output.innerText = "No vent found with that code.";
+        return;
+      }
+
+      const data = snapshot.val();
+      if (data.reply && data.reply.trim().length > 0) {
+        output.innerHTML = `<strong>Your Message:</strong><br>${data.message}<br><br><strong>Reply:</strong><br>${data.reply}`;
+      } else {
+        output.innerText = "No replies yet. Please check back later.";
+      }
+    };
+  </script>
+  <style>
+    body {
+      background-color: #111;
+      color: white;
+      font-family: system-ui, sans-serif;
+      margin: 0;
+      padding: 30px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 80%;
+      max-width: 300px;
+      padding: 10px;
+      font-size: 16px;
+      background-color: #1e1e1e;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #333;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #555;
+    }
+
+    #repliesOutput {
+      margin-top: 20px;
+      font-size: 1rem;
+      color: #ccc;
+    }
+
+    #footerLinks {
+      margin-top: 40px;
+      font-size: 0.9rem;
+    }
+
+    #footerLinks a {
+      color: #aaa;
+      text-decoration: underline;
+      margin: 0 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Check for Replies</h1>
+  <p>Enter the code you received after submitting your message.</p>
+
+  <input type="text" id="lookupCode" placeholder="Enter your code" /><br>
+  <button onclick="lookupReplies()">Check</button>
+
+  <div id="repliesOutput"></div>
+
+  <div id="footerLinks">
+    <a href="terms.html" target="_blank">Terms</a>
+    <a href="privacy.html" target="_blank">Privacy</a>
+    <a href="disclaimer.html" target="_blank">Disclaimer</a>
+    <div style="margin-top: 40px;">
+  <a href="index.html">
+    <button style="padding: 10px 20px; font-size: 16px; background-color: #333; color: white; border: none; border-radius: 6px; cursor: pointer;">
+      ⬅ Back to Home
+    </button>
+  </a>
+</div>
+  </div>
+</body>
+</html>
