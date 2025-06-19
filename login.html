@@ -46,6 +46,10 @@
       color: red;
       margin-top: 20px;
     }
+
+    #authButtons {
+      margin-top: 20px;
+    }
   </style>
 </head>
 <body>
@@ -54,7 +58,11 @@
 
   <input type="email" id="email" placeholder="Email" /><br>
   <input type="password" id="password" placeholder="Password" /><br>
-  <button id="loginBtn">Login</button>
+
+  <div id="authButtons">
+    <button id="loginBtn">Login</button>
+    <button id="signupBtn">Sign Up</button>
+  </div>
 
   <div id="orLine">— or —</div>
 
@@ -68,6 +76,7 @@
       getAuth,
       signInWithEmailAndPassword,
       signInAnonymously,
+      createUserWithEmailAndPassword,
       onAuthStateChanged
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
@@ -84,34 +93,47 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    document.getElementById("loginBtn").addEventListener("click", async () => {
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value.trim();
-      const error = document.getElementById("error");
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+    const errorBox = document.getElementById("error");
 
+    document.getElementById("loginBtn").addEventListener("click", async () => {
+      const email = emailInput.value.trim();
+      const password = passwordInput.value.trim();
       try {
         await signInWithEmailAndPassword(auth, email, password);
         window.location.href = "index.html";
       } catch (err) {
-        error.textContent = "Invalid email or password.";
+        errorBox.textContent = "Login failed. Please check your email or password.";
+        console.error(err);
+      }
+    });
+
+    document.getElementById("signupBtn").addEventListener("click", async () => {
+      const email = emailInput.value.trim();
+      const password = passwordInput.value.trim();
+      try {
+        await createUserWithEmailAndPassword(auth, email, password);
+        window.location.href = "index.html";
+      } catch (err) {
+        errorBox.textContent = "Sign-up failed. Use a valid email and a strong password.";
         console.error(err);
       }
     });
 
     document.getElementById("anonBtn").addEventListener("click", async () => {
-      const error = document.getElementById("error");
       try {
         await signInAnonymously(auth);
         window.location.href = "index.html";
       } catch (err) {
-        error.textContent = "Anonymous login failed.";
+        errorBox.textContent = "Anonymous login failed.";
         console.error(err);
       }
     });
 
-    // Optional: if already logged in, redirect
     onAuthStateChanged(auth, (user) => {
       if (user) {
+        // Already logged in? Redirect.
         window.location.href = "index.html";
       }
     });
