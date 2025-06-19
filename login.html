@@ -12,6 +12,7 @@
       text-align: center;
       padding: 80px 20px;
     }
+
     input, button {
       padding: 10px;
       font-size: 16px;
@@ -19,19 +20,23 @@
       border-radius: 6px;
       border: none;
     }
+
     input {
       width: 250px;
       background-color: #222;
       color: white;
     }
+
     button {
       background-color: #444;
       color: white;
       cursor: pointer;
     }
+
     button:hover {
       background-color: #666;
     }
+
     #error {
       color: red;
       margin-top: 20px;
@@ -127,11 +132,9 @@
       }
     });
 
-    // Optional: auto-redirect if logged in
     onAuthStateChanged(auth, user => {
       if (user) {
         console.log("User already signed in:", user.uid);
-        // window.location.href = "index.html";
       }
     });
   </script>

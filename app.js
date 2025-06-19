@@ -1,6 +1,19 @@
 // Firebase SDK imports
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import {
+  getDatabase,
+  ref,
+  push,
+  onChildAdded,
+  set,
+  get,
+  child
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+import {
+  getAuth,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 // Firebase config
 const firebaseConfig = {
@@ -17,8 +30,9 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+const auth = getAuth(app);
 
-// Local moderation keyword list
+// Banned keyword list
 const bannedWords = [
   "kill", "suicide", "die", "murder", "bomb", "shoot",
   "stab", "rape", "torture", "abuse", "hate", "terrorist",
@@ -26,13 +40,13 @@ const bannedWords = [
   "threaten", "destroy", "violence", "blow up", "gun"
 ];
 
-// Function to check if a message contains flagged content
+// Check message for dangerous words
 function isFlagged(message) {
   const lower = message.toLowerCase();
   return bannedWords.some(word => lower.includes(word));
 }
 
-// Submit anonymous message
+// Submit anonymous message (Talk Page)
 window.submitMessage = async function () {
   const input = document.getElementById("ventInput");
   const message = input.value.trim();
@@ -42,35 +56,30 @@ window.submitMessage = async function () {
     return;
   }
 
-  // Check for unsafe language locally
   if (isFlagged(message)) {
-    alert("This message was flagged as potentially unsafe. Please revise it.");
+    alert("This message contains language that may be unsafe. Please revise it.");
     return;
   }
 
   try {
-    // Save safe message to Firebase
     await push(ref(db, "vents"), {
       message: message,
+      reply: null,
       timestamp: Date.now()
     });
 
-    alert("Your message has been submitted anonymously.");
+    alert("Message submitted anonymously. You will receive a code shortly.");
     input.value = "";
-    document.getElementById("ventBox").style.display = "none";
   } catch (err) {
-    alert("Something went wrong while saving your message.");
+    alert("Failed to submit your message.");
     console.error(err);
   }
 };
 
-// Show latest anonymous message
+// Show latest anonymous message (Listen Page)
 window.showListen = function () {
-  resetBoxes();
-  document.getElementById("responseBox").style.display = "block";
-
   const display = document.getElementById("ventDisplay");
-  display.innerHTML = "<em>Loading latest messages...</em>";
+  display.innerHTML = "<em>Loading messages...</em>";
 
   const messagesRef = ref(db, "vents");
   onChildAdded(messagesRef, (data) => {
@@ -79,8 +88,15 @@ window.showListen = function () {
   });
 };
 
-// Reset both sections
-window.resetBoxes = function () {
-  document.getElementById("ventBox").style.display = "none";
-  document.getElementById("responseBox").style.display = "none";
+// Optional: add support points when replying
+window.incrementPoints = async function () {
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) return;
+    const userId = user.uid;
+    const userPointsRef = ref(db, `users/${userId}/points`);
+
+    const snap = await get(userPointsRef);
+    const current = snap.exists() ? snap.val() : 0;
+    await set(userPointsRef, current + 1);
+  });
 };

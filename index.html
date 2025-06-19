@@ -13,9 +13,7 @@
       padding: 0;
       text-align: center;
     }
-    .hidden {
-      display: none;
-    }
+    .hidden { display: none; }
     button {
       margin: 10px;
       padding: 12px 24px;
@@ -25,9 +23,7 @@
       border-radius: 6px;
       cursor: pointer;
     }
-    button:hover {
-      background-color: #444;
-    }
+    button:hover { background-color: #444; }
     textarea {
       width: 80%;
       height: 120px;
@@ -58,21 +54,18 @@
 </head>
 <body>
 
-  <!-- Disclaimer Modal -->
   <div id="disclaimerModal">
     <h2>Disclaimer</h2>
     <p>QuasiCare is an anonymous support tool. Do not submit harmful, illegal, or confidential information. By continuing, you agree to our Terms of Use and Privacy Policy.</p>
     <button onclick="enterApp()">I Agree & Enter</button>
   </div>
 
-  <!-- Home Screen -->
   <div id="homeScreen" class="hidden">
     <h1>QuasiCare</h1>
     <button onclick="showSection('talkScreen')">Talk</button>
     <button onclick="showSection('listenScreen')">Listen</button>
   </div>
 
-  <!-- Talk Screen -->
   <div id="talkScreen" class="hidden">
     <h2>Vent Anonymously</h2>
     <textarea id="ventInput" placeholder="Type your message..."></textarea><br>
@@ -83,7 +76,6 @@
     </div>
   </div>
 
-  <!-- Listen Screen -->
   <div id="listenScreen" class="hidden">
     <h2>Support Someone</h2>
     <div id="ventFeed"></div>
@@ -97,23 +89,22 @@
     </div>
   </div>
 
-  <!-- Firebase + App JS -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-  <script>
-    // REPLACE these values locally; do not commit actual keys
-    const firebaseConfig = {
-      apiKey: "REPLACE_WITH_YOUR_API_KEY",
-      authDomain: "REPLACE_WITH_YOUR_AUTH_DOMAIN",
-      databaseURL: "REPLACE_WITH_YOUR_DATABASE_URL",
-      projectId: "REPLACE_WITH_YOUR_PROJECT_ID",
-      storageBucket: "REPLACE_WITH_YOUR_STORAGE_BUCKET",
-      messagingSenderId: "REPLACE_WITH_YOUR_SENDER_ID",
-      appId: "REPLACE_WITH_YOUR_APP_ID"
-    };
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+  <script>
+    let db;
+
+    fetch("https://us-central1-YOUR_PROJECT_ID.cloudfunctions.net/getFirebaseConfig")
+      .then(res => res.json())
+      .then(config => {
+        firebase.initializeApp(config);
+        db = firebase.database();
+      })
+      .catch(err => {
+        alert("Failed to load Firebase configuration securely.");
+        console.error(err);
+      });
 
     function enterApp() {
       document.getElementById('disclaimerModal').style.display = 'none';

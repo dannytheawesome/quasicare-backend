@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Check Replies | QuasiCare</title>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getDatabase, ref, get, push
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyDeHTQr0thvi-fBqIEZELFDI0VL70erlCE",
+      authDomain: "quasicare.firebaseapp.com",
+      databaseURL: "https://quasicare-default-rtdb.firebaseio.com",
+      projectId: "quasicare",
+      storageBucket: "quasicare.appspot.com",
+      messagingSenderId: "197366070004",
+      appId: "1:197366070004:web:2972eb9297102b6183bca1"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const bannedWords = [
+      "fuck", "shit", "bitch", "nigger", "cunt", "asshole", "fag", "retard",
+      "kill", "suicide", "rape", "hate", "die", "murder", "blow up"
+    ];
+
+    function sanitize(message) {
+      if (!message) return "";
+      let filtered = message;
+      bannedWords.forEach(word => {
+        const regex = new RegExp(`\\b${word}\\b`, 'gi');
+        filtered = filtered.replace(regex, "*".repeat(word.length));
+      });
+      return filtered;
+    }
+
+    async function checkCode() {
+      const code = document.getElementById("codeInput").value.trim().toUpperCase();
+      if (!code) {
+        alert("Please enter a code.");
+        return;
+      }
+
+      const snap = await get(ref(db, `vents/${code}`));
+      const result = document.getElementById("result");
+
+      if (!snap.exists()) {
+        result.innerHTML = `<p style="color: red;">No message found for that code.</p>`;
+        return;
+      }
+
+      const data = snap.val();
+      const flagged = [];
+
+      if (bannedWords.some(w => data.message?.toLowerCase().includes(w))) {
+        flagged.push("message");
+      }
+      if (bannedWords.some(w => data.reply?.toLowerCase().includes(w))) {
+        flagged.push("reply");
+      }
+
+      if (flagged.length) {
+        await push(ref(db, "flagged_check_results"), {
+          code,
+          flagged,
+          message: data.message,
+          reply: data.reply,
+          timestamp: Date.now()
+        });
+      }
+
+      result.innerHTML = `
+        <p><strong>Your Message:</strong><br>${sanitize(data.message)}</p>
+        <p><strong>Reply:</strong><br>${sanitize(data.reply)}</p>
+      `;
+    }
+
+    window.checkCode = checkCode;
+  </script>
+  <style>
+    body {
+      background-color: #111;
+      color: white;
+      font-family: system-ui, sans-serif;
+      margin: 0;
+      padding: 30px;
+      text-align: center;
+    }
+
+    input {
+      padding: 10px;
+      font-size: 16px;
+      width: 250px;
+      max-width: 80%;
+      margin-bottom: 10px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #333;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #555;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-size: 1.1rem;
+    }
+
+    a {
+      color: #ccc;
+      text-decoration: underline;
+      margin: 0 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Check for Replies</h1>
+  <p>Enter the code you received after submitting your message.</p>
+  <input type="text" id="codeInput" placeholder="Your Code" />
+  <br />
+  <button onclick="checkCode()">Check</button>
+
+  <div id="result"></div>
+
+  <div style="margin-top: 30px;">
+    <a href="index.html">⬅ Back to Home</a>
+    <div style="margin-top: 20px;">
+      <a href="terms.html">Terms</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="disclaimer.html">Disclaimer</a>
+    </div>
+  </div>
+</body>
+</html>

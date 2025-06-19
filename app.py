@@ -3,9 +3,9 @@ from flask_cors import CORS
 import re
 
 app = Flask(__name__)
-CORS(app, resources={r"/moderate": {"origins": "*"}})  # ← FIXED: CORS for Carrd
+CORS(app)  # Enable CORS for all routes
 
-# Expanded keyword list with phrases
+# List of banned patterns (basic moderation logic)
 banned_patterns = [
     r"\bhate\b", r"\bkill\b", r"\bdie\b", r"\bpunch\b", r"\bhurt\b",
     r"\bsuicide\b", r"\bshoot\b", r"\bstab\b", r"\battack\b", r"\bexplode\b",
@@ -19,7 +19,7 @@ def moderate():
     data = request.get_json()
     message = data.get("message", "").lower()
 
-    matched = [pat for pat in banned_patterns if re.search(pat, message)]
+    matched = [pattern for pattern in banned_patterns if re.search(pattern, message)]
     flagged = bool(matched)
 
     return jsonify({
