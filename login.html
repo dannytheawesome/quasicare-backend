@@ -12,6 +12,7 @@
       text-align: center;
       padding: 80px 20px;
     }
+
     input, button {
       padding: 10px;
       font-size: 16px;
@@ -19,18 +20,31 @@
       border-radius: 6px;
       border: none;
     }
+
     input {
       width: 250px;
       background-color: #222;
       color: white;
     }
+
     button {
       background-color: #444;
       color: white;
       cursor: pointer;
     }
+
     button:hover {
       background-color: #666;
+    }
+
+    #orLine {
+      margin: 20px 0;
+      color: #aaa;
+    }
+
+    #error {
+      color: red;
+      margin-top: 20px;
     }
   </style>
 </head>
@@ -42,13 +56,19 @@
   <input type="password" id="password" placeholder="Password" /><br>
   <button id="loginBtn">Login</button>
 
-  <p id="error" style="color: red; margin-top: 20px;"></p>
+  <div id="orLine">— or —</div>
+
+  <button id="anonBtn">Continue Anonymously</button>
+
+  <p id="error"></p>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import {
       getAuth,
-      signInWithEmailAndPassword
+      signInWithEmailAndPassword,
+      signInAnonymously,
+      onAuthStateChanged
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
     const firebaseConfig = {
@@ -75,6 +95,24 @@
       } catch (err) {
         error.textContent = "Invalid email or password.";
         console.error(err);
+      }
+    });
+
+    document.getElementById("anonBtn").addEventListener("click", async () => {
+      const error = document.getElementById("error");
+      try {
+        await signInAnonymously(auth);
+        window.location.href = "index.html";
+      } catch (err) {
+        error.textContent = "Anonymous login failed.";
+        console.error(err);
+      }
+    });
+
+    // Optional: if already logged in, redirect
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        window.location.href = "index.html";
       }
     });
   </script>
