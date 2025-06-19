@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Your Profile | QuasiCare</title>
+  <style>
+    body {
+      background-color: #111;
+      color: white;
+      font-family: system-ui, sans-serif;
+      padding: 40px;
+      text-align: center;
+    }
+
+    .profile-box {
+      background-color: #1e1e1e;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    .profile-box img {
+      border-radius: 50%;
+      margin-bottom: 10px;
+    }
+
+    .profile-box p {
+      margin: 8px 0;
+    }
+
+    .logout-btn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #333;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .logout-btn:hover {
+      background-color: #555;
+    }
+  </style>
+</head>
+<body>
+  <h1>Your Profile</h1>
+  <div id="profile" class="profile-box">
+    <p>Loading your profile...</p>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getAuth,
+      onAuthStateChanged,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    import {
+      getDatabase,
+      ref,
+      get,
+      child
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCbrPC0NZDr8yZ4xTTBayBbOnESETg9xuw",
+      authDomain: "quasicare.firebaseapp.com",
+      databaseURL: "https://quasicare-default-rtdb.firebaseio.com",
+      projectId: "quasicare",
+      storageBucket: "quasicare.appspot.com",
+      messagingSenderId: "197366070004",
+      appId: "1:197366070004:web:2972eb9297102b6183bca1"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    const profileBox = document.getElementById("profile");
+
+    function formatDate(timestamp) {
+      if (!timestamp) return "Unknown";
+      return new Date(timestamp).toLocaleDateString();
+    }
+
+    async function loadUserStats(uid) {
+      const dbRef = ref(db);
+
+      const [ventsSnap, userSnap] = await Promise.all([
+        get(child(dbRef, "vents")),
+        get(child(dbRef, `users/${uid}`))
+      ]);
+
+      const vents = ventsSnap.exists() ? ventsSnap.val() : {};
+      const userData = userSnap.exists() ? userSnap.val() : {};
+
+      // Count vents by looping through keys
+      const totalVents = Object.values(vents).filter(v => v && v.uid === uid).length;
+      const replyCount = userData.replyCount || 0;
+      const joined = formatDate(userData.joined || auth.currentUser.metadata.creationTime);
+
+      return { totalVents, replyCount, joined };
+    }
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        profileBox.innerHTML = "<p>You are not signed in.</p><a href='login.html'>Go to Login</a>";
+        return;
+      }
+
+      const name = user.displayName || "(No display name)";
+      const email = user.email || "(No email)";
+      const photo = user.photoURL || "https://ui-avatars.com/api/?name=User";
+
+      const { totalVents, replyCount, joined } = await loadUserStats(user.uid);
+
+      profileBox.innerHTML = `
+        <img src="${photo}" alt="Profile Picture" width="80" height="80">
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Joined:</strong> ${joined}</p>
+        <p><strong>Total Vents:</strong> ${totalVents}</p>
+        <p><strong>Replies Sent:</strong> ${replyCount}</p>
+        <p><strong>Badges:</strong> (coming soon)</p>
+        <button class="logout-btn" onclick="logout()">Log Out</button>
+      `;
+    });
+
+    window.logout = function () {
+      signOut(auth).then(() => {
+        window.location.href = "login.html";
+      });
+    };
+  </script>
+</body>
+</html>

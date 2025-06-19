@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Flagged Messages | Admin Only</title>
+  <style>
+    body {
+      background-color: #111;
+      color: white;
+      font-family: system-ui, sans-serif;
+      padding: 30px;
+      text-align: center;
+    }
+
+    table {
+      width: 100%;
+      max-width: 800px;
+      margin: 20px auto;
+      border-collapse: collapse;
+      background-color: #1e1e1e;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid #333;
+      text-align: left;
+    }
+
+    th {
+      background-color: #222;
+    }
+
+    .restricted {
+      color: red;
+      font-size: 1.2rem;
+      margin-top: 50px;
+    }
+  </style>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDeHTQr0thvi-fBqIEZELFDI0VL70erlCE",
+      authDomain: "quasicare.firebaseapp.com",
+      databaseURL: "https://quasicare-default-rtdb.firebaseio.com",
+      projectId: "quasicare",
+      storageBucket: "quasicare.appspot.com",
+      messagingSenderId: "197366070004",
+      appId: "1:197366070004:web:2972eb9297102b6183bca1"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const auth = getAuth(app);
+
+    onAuthStateChanged(auth, async (user) => {
+      console.log("Logged in as:", user?.email); // Debug output
+
+      const adminEmail = "sherneonbusy@gmail.com";
+      if (!user || user.email !== adminEmail) {
+        document.body.innerHTML = "<p class='restricted'>Access denied. This page is restricted.</p>";
+        return;
+      }
+
+      const flaggedRef = ref(db, "moderationLogs"); // <- Updated path
+      const snapshot = await get(flaggedRef);
+
+      if (!snapshot.exists()) {
+        document.body.innerHTML += "<p>No flagged messages found.</p>";
+        return;
+      }
+
+      const data = snapshot.val();
+      const table = document.createElement("table");
+
+      table.innerHTML = `
+        <thead>
+          <tr>
+            <th>Message</th>
+            <th>Matched Keywords</th>
+            <th>Timestamp</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${Object.values(data).map(entry => `
+            <tr>
+              <td>${entry.message || "(no message)"}</td>
+              <td>${(entry.matched_keywords || []).join(", ")}</td>
+              <td>${new Date(entry.timestamp || 0).toLocaleString()}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      `;
+
+      document.body.innerHTML = "<h1>Flagged Messages</h1>";
+      document.body.appendChild(table);
+    });
+  </script>
+</head>
+<body>
+  <h1>Loading...</h1>
+</body>
+</html>
