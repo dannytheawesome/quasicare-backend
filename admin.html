@@ -38,7 +38,30 @@
       font-size: 1.2rem;
       margin-top: 50px;
     }
+
+    .matchRow {
+      background-color: #181818;
+      font-size: 0.95rem;
+    }
+
+    button.matchBtn {
+      padding: 4px 10px;
+      font-size: 0.85rem;
+      margin-left: 10px;
+      background-color: #333;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button.matchBtn:hover {
+      background-color: #555;
+    }
   </style>
+</head>
+<body>
+  <h1>Loading...</h1>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -46,7 +69,7 @@
     import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
     const firebaseConfig = {
-      apiKey: "AIzaSyDeHTQr0thvi-fBqIEZELFDI0VL70erlCE",
+      apiKey: "AIzaSyCbrPC0NZDr8yZ4xTTBayBbOnESETg9xuw",
       authDomain: "quasicare.firebaseapp.com",
       databaseURL: "https://quasicare-default-rtdb.firebaseio.com",
       projectId: "quasicare",
@@ -59,16 +82,52 @@
     const db = getDatabase(app);
     const auth = getAuth(app);
 
-    onAuthStateChanged(auth, async (user) => {
-      console.log("Logged in as:", user?.email); // Debug output
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.innerText = text;
+      return div.innerHTML;
+    }
 
-      const adminEmail = "sherneonbusy@gmail.com";
-      if (!user || user.email !== adminEmail) {
-        document.body.innerHTML = "<p class='restricted'>Access denied. This page is restricted.</p>";
+    async function fetchSimilarVents(message, row) {
+      const endpoint = "https://us-central1-quasicare.cloudfunctions.net/matchVents";
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message })
+      });
+
+      if (!response.ok) {
+        alert("Error fetching matches.");
         return;
       }
 
-      const flaggedRef = ref(db, "moderationLogs"); // <- Updated path
+      const matches = await response.json();
+      matches.forEach(similar => {
+        const newRow = document.createElement("tr");
+        newRow.className = "matchRow";
+        newRow.innerHTML = `
+          <td colspan="3">Similar: ${escapeHtml(similar.message)}</td>
+        `;
+        row.parentNode.insertBefore(newRow, row.nextSibling);
+      });
+    }
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        document.body.innerHTML = "<p class='restricted'>Access denied. Please log in.</p>";
+        return;
+      }
+
+      const uid = user.uid;
+      const adminRef = ref(db, `users/${uid}/isAdmin`);
+      const adminSnap = await get(adminRef);
+
+      if (!adminSnap.exists() || adminSnap.val() !== true) {
+        document.body.innerHTML = "<p class='restricted'>Access denied. This page is admin-only.</p>";
+        return;
+      }
+
+      const flaggedRef = ref(db, "moderationLogs");
       const snapshot = await get(flaggedRef);
 
       if (!snapshot.exists()) {
@@ -88,10 +147,13 @@
           </tr>
         </thead>
         <tbody>
-          ${Object.values(data).map(entry => `
-            <tr>
-              <td>${entry.message || "(no message)"}</td>
-              <td>${(entry.matched_keywords || []).join(", ")}</td>
+          ${Object.entries(data).map(([key, entry]) => `
+            <tr data-key="${key}">
+              <td>
+                ${escapeHtml(entry.message || "(no message)")}
+                <button class="matchBtn" data-message="${escapeHtml(entry.message || "")}">Find Matches</button>
+              </td>
+              <td>${(entry.matched_keywords || []).map(escapeHtml).join(", ")}</td>
               <td>${new Date(entry.timestamp || 0).toLocaleString()}</td>
             </tr>
           `).join("")}
@@ -100,10 +162,14 @@
 
       document.body.innerHTML = "<h1>Flagged Messages</h1>";
       document.body.appendChild(table);
+
+      document.querySelectorAll(".matchBtn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const row = btn.closest("tr");
+          fetchSimilarVents(btn.getAttribute("data-message"), row);
+        });
+      });
     });
   </script>
-</head>
-<body>
-  <h1>Loading...</h1>
 </body>
 </html>

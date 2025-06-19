@@ -12,6 +12,7 @@
       text-align: center;
       padding: 80px 20px;
     }
+
     input, button {
       padding: 10px;
       font-size: 16px;
@@ -19,18 +20,26 @@
       border-radius: 6px;
       border: none;
     }
+
     input {
       width: 250px;
       background-color: #222;
       color: white;
     }
+
     button {
       background-color: #444;
       color: white;
       cursor: pointer;
     }
+
     button:hover {
       background-color: #666;
+    }
+
+    #error {
+      color: red;
+      margin-top: 20px;
     }
   </style>
 </head>
@@ -40,19 +49,29 @@
 
   <input type="email" id="email" placeholder="Email" /><br>
   <input type="password" id="password" placeholder="Password" /><br>
-  <button id="loginBtn">Login</button>
 
-  <p id="error" style="color: red; margin-top: 20px;"></p>
+  <button id="loginBtn">Login</button>
+  <button id="signupBtn">Sign Up</button>
+  <p>— or —</p>
+  <button id="googleBtn">Sign in with Google</button><br>
+  <button id="anonBtn">Continue Anonymously</button>
+
+  <p id="error"></p>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import {
       getAuth,
-      signInWithEmailAndPassword
+      signInWithEmailAndPassword,
+      createUserWithEmailAndPassword,
+      signInWithPopup,
+      GoogleAuthProvider,
+      signInAnonymously,
+      onAuthStateChanged
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
     const firebaseConfig = {
-      apiKey: "AIzaSyDeHTQr0thvi-fBqIEZELFDI0VL70erlCE",
+      apiKey: "AIzaSyCbrPC0NZDr8yZ4xTTBayBbOnESETg9xuw",
       authDomain: "quasicare.firebaseapp.com",
       databaseURL: "https://quasicare-default-rtdb.firebaseio.com",
       projectId: "quasicare",
@@ -63,18 +82,59 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+    const errorBox = document.getElementById("error");
 
     document.getElementById("loginBtn").addEventListener("click", async () => {
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value.trim();
-      const error = document.getElementById("error");
-
       try {
-        await signInWithEmailAndPassword(auth, email, password);
+        await signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
         window.location.href = "index.html";
       } catch (err) {
-        error.textContent = "Invalid email or password.";
+        errorBox.textContent = "Login failed. Please check your email or password.";
+        alert("Login Error: " + err.code);
         console.error(err);
+      }
+    });
+
+    document.getElementById("signupBtn").addEventListener("click", async () => {
+      try {
+        await createUserWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
+        window.location.href = "index.html";
+      } catch (err) {
+        errorBox.textContent = "Sign-up failed. Use a valid email and strong password.";
+        alert("Signup Error: " + err.code);
+        console.error(err);
+      }
+    });
+
+    document.getElementById("googleBtn").addEventListener("click", async () => {
+      try {
+        await signInWithPopup(auth, provider);
+        window.location.href = "index.html";
+      } catch (err) {
+        errorBox.textContent = "Google sign-in failed.";
+        alert("Google Login Error: " + err.code);
+        console.error(err);
+      }
+    });
+
+    document.getElementById("anonBtn").addEventListener("click", async () => {
+      try {
+        await signInAnonymously(auth);
+        window.location.href = "index.html";
+      } catch (err) {
+        errorBox.textContent = "Anonymous login failed.";
+        alert("Anonymous Login Error: " + err.code);
+        console.error(err);
+      }
+    });
+
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        console.log("User already signed in:", user.uid);
       }
     });
   </script>

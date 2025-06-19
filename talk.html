@@ -12,9 +12,12 @@
     import {
       getDatabase, ref, set, get, child, push
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    import {
+      getAuth, signInAnonymously, onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
     const firebaseConfig = {
-      apiKey: "AIzaSyDeHTQr0thvi-fBqIEZELFDI0VL70erlCE",
+      apiKey: "AIzaSyCbrPC0NZDr8yZ4xTTBayBbOnESETg9xuw",
       authDomain: "quasicare.firebaseapp.com",
       databaseURL: "https://quasicare-default-rtdb.firebaseio.com",
       projectId: "quasicare",
@@ -25,6 +28,11 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
+    const auth = getAuth(app);
+
+    signInAnonymously(auth)
+      .then(() => console.log("Signed in anonymously"))
+      .catch((error) => console.error("Anonymous login failed:", error));
 
     const bannedWords = [
       "kill", "suicide", "die", "murder", "bomb", "shoot", "stab", "rape",
@@ -34,8 +42,27 @@
 
     function checkForFlags(message) {
       const lower = message.toLowerCase();
-      const matched = bannedWords.filter(word => lower.includes(word));
-      return matched;
+      return bannedWords.filter(word => lower.includes(word));
+    }
+
+    async function checkWithPerspective(message) {
+      const response = await fetch("https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze?key=AIzaSyCbrPC0NZDr8yZ4xTTBayBbOnESETg9xuw", {
+        method: "POST",
+        body: JSON.stringify({
+          comment: { text: message },
+          languages: ["en"],
+          requestedAttributes: {
+            TOXICITY: {},
+            INSULT: {},
+            PROFANITY: {},
+            IDENTITY_ATTACK: {}
+          }
+        }),
+        headers: { "Content-Type": "application/json" }
+      });
+      const result = await response.json();
+      const scores = result.attributeScores;
+      return Object.values(scores).some(score => score.summaryScore.value >= 0.75);
     }
 
     async function generateUniqueCode() {
@@ -43,10 +70,16 @@
       while (true) {
         const code = Math.random().toString(36).substring(2, 8).toUpperCase();
         const exists = await get(child(ventsRef, code));
-        if (!exists.exists()) {
-          return code;
-        }
+        if (!exists.exists()) return code;
       }
+    }
+
+    async function tooSoonToPost(uid) {
+      const snapshot = await get(ref(db, `users/${uid}/lastPostTime`));
+      if (!snapshot.exists()) return false;
+      const lastTime = snapshot.val();
+      const now = Date.now();
+      return now - lastTime < 60000; // 1-minute cooldown
     }
 
     window.submitVent = async function () {
@@ -58,33 +91,57 @@
         return;
       }
 
-      // ✳️ AI-Driven Profanity Check (client-side)
+      const user = auth.currentUser;
+      if (!user) {
+        alert("You must be signed in to submit.");
+        return;
+      }
+
+      const uid = user.uid;
+
+      if (await tooSoonToPost(uid)) {
+        alert("Please wait at least a minute before submitting again.");
+        return;
+      }
+
       if (window.leoProfanity && leoProfanity.check(message)) {
         alert("Your message contains inappropriate language. Please revise it.");
         return;
       }
 
-      // ✅ Manual Flag Word Check
       const matched = checkForFlags(message);
       if (matched.length > 0) {
-        alert("This message contains sensitive keywords and has been flagged for review.");
-
+        alert("This message contains sensitive keywords and has been flagged.");
         await push(ref(db, "flagged"), {
-          message: message,
+          message,
           matched_keywords: matched,
-          timestamp: Date.now()
+          timestamp: Date.now(),
+          uid
         });
+        return;
+      }
 
+      const isToxic = await checkWithPerspective(message);
+      if (isToxic) {
+        alert("This message may be harmful or offensive. Please revise it.");
+        await push(ref(db, "flagged"), {
+          message,
+          source: "Perspective API",
+          timestamp: Date.now(),
+          uid
+        });
         return;
       }
 
       const code = await generateUniqueCode();
-
       await set(ref(db, `vents/${code}`), {
-        message: message,
+        message,
         reply: null,
-        timestamp: Date.now()
+        timestamp: Date.now(),
+        uid
       });
+
+      await set(ref(db, `users/${uid}/lastPostTime`), Date.now());
 
       document.getElementById("ventForm").classList.add("hidden");
       document.getElementById("codeDisplay").innerText = `Your anonymous code: ${code}`;
@@ -165,7 +222,6 @@
     }
   </style>
 </head>
-
 <body>
   <h1>Talk to QuasiCare</h1>
   <p>You can write anonymously below. Your words matter.</p>
@@ -181,9 +237,7 @@
   </div>
 
   <div style="margin-top: 40px;">
-    <a href="index.html">
-      <button style="padding: 10px 20px;">⬅ Back to Home</button>
-    </a>
+    <a href="index.html"><button>⬅ Back to Home</button></a>
   </div>
 
   <div id="footerLinks">
