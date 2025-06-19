@@ -3,216 +3,172 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>QuasiCare • Home</title>
+  <title>QuasiCare</title>
   <style>
-    :root {
-      --accent: #4fb8a0;
-      --muted: #aaa;
-      --bg: #111;
-      --fg: #eee;
-    }
-
-    * {
-      box-sizing: border-box;
+    body {
+      background-color: #111;
+      color: #fff;
+      font-family: Arial, sans-serif;
       margin: 0;
       padding: 0;
-    }
-
-    body {
-      display: flex;
-      min-height: 100vh;
-      font-family: system-ui, sans-serif;
-      background: var(--bg);
-      color: var(--fg);
-    }
-
-    .sidebar {
-      width: 220px;
-      background: #000;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .sidebar nav a {
-      color: #ccc;
-      font-size: 0.95rem;
-      padding: 8px 0;
-      text-decoration: none;
-    }
-
-    .sidebar nav a.active {
-      color: var(--accent);
-      font-weight: 600;
-    }
-
-    .sidebar button {
-      margin-top: auto;
-      background: #1a1a1a;
-      border: none;
-      color: #ccc;
-      padding: 8px;
-      cursor: pointer;
-    }
-
-    .main {
-      flex: 1;
-      padding: 40px 20px;
       text-align: center;
     }
-
-    h1 {
-      font-size: 2.4rem;
-      margin-bottom: 10px;
-    }
-
-    p.subtext {
-      font-size: 1rem;
-      color: var(--muted);
-      margin-bottom: 30px;
-    }
-
-    .counter {
-      display: flex;
-      justify-content: center;
-      gap: 40px;
-      margin-bottom: 30px;
-      font-size: 1rem;
-    }
-
-    .counter span {
-      font-size: 1.2rem;
-      color: var(--accent);
-      display: block;
-    }
-
-    .buttons {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 16px;
-      margin-bottom: 40px;
-    }
-
-    .buttons button {
-      background: #222;
+    .hidden { display: none; }
+    button {
+      margin: 10px;
+      padding: 12px 24px;
+      background-color: #222;
       color: white;
-      padding: 12px 20px;
-      font-size: 1rem;
       border: none;
       border-radius: 6px;
       cursor: pointer;
     }
-
-    .buttons button:hover {
-      background: #444;
+    button:hover { background-color: #444; }
+    textarea {
+      width: 80%;
+      height: 120px;
+      margin: 20px 0;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #333;
+      background-color: #1a1a1a;
+      color: #fff;
     }
-
-    @media (max-width: 768px) {
-      body {
-        flex-direction: column;
-      }
-
-      .sidebar {
-        width: 100%;
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: space-around;
-        padding: 10px;
-        position: fixed;
-        top: 0;
-        z-index: 1000;
-      }
-
-      .main {
-        margin-top: 100px;
-        padding: 20px;
-      }
+    .footer {
+      margin-top: 20px;
+      font-size: 14px;
+    }
+    .footer a {
+      color: #999;
+      margin: 0 10px;
+      text-decoration: none;
+    }
+    .vent-box {
+      background-color: #1e1e1e;
+      margin: 10px auto;
+      padding: 10px;
+      width: 80%;
+      border-radius: 8px;
     }
   </style>
 </head>
 <body>
 
-  <!-- Sidebar Navigation -->
-  <aside class="sidebar">
-    <nav>
-      <a href="index.html" class="active">Home</a>
-      <a href="#">Search</a>
-      <a href="#">Explore</a>
-      <a href="talk.html">Talk</a>
-      <a href="replies.html">Check Replies</a>
-      <a href="profile.html">Profile</a>
-    </nav>
-    <button onclick="logout()">Logout</button>
-  </aside>
+  <div id="disclaimerModal">
+    <h2>Disclaimer</h2>
+    <p>QuasiCare is an anonymous support tool. Do not submit harmful, illegal, or confidential information. By continuing, you agree to our Terms of Use and Privacy Policy.</p>
+    <button onclick="enterApp()">I Agree & Enter</button>
+  </div>
 
-  <!-- Main Content -->
-  <main class="main">
+  <div id="homeScreen" class="hidden">
     <h1>QuasiCare</h1>
-    <p class="subtext">You are heard. You matter.</p>
+    <button onclick="showSection('talkScreen')">Talk</button>
+    <button onclick="showSection('listenScreen')">Listen</button>
+  </div>
 
-    <div class="counter">
-      <div>
-        <span id="usCount">0</span>
-        U.S. Suicides (2025)
-      </div>
-      <div>
-        <span id="globalCount">0</span>
-        Global Suicides (2025)
-      </div>
+  <div id="talkScreen" class="hidden">
+    <h2>Vent Anonymously</h2>
+    <textarea id="ventInput" placeholder="Type your message..."></textarea><br>
+    <button onclick="submitVent()">Submit</button>
+    <button onclick="goHome()">Exit</button>
+    <div class="footer">
+      <a href="#">Terms</a> | <a href="#">Privacy</a> | <a href="#">Disclaimer</a>
     </div>
+  </div>
 
-    <div class="buttons">
-      <button onclick="location.href='talk.html'">Talk</button>
-      <button onclick="location.href='listen.html'">Listen</button>
-      <button onclick="location.href='replies.html'">Check Replies</button>
-      <button onclick="location.href='profile.html'">Profile</button>
+  <div id="listenScreen" class="hidden">
+    <h2>Support Someone</h2>
+    <div id="ventFeed"></div>
+    <h3>Reply to a Vent</h3>
+    <input type="text" id="replyCode" placeholder="Enter vent code"/><br><br>
+    <textarea id="replyInput" placeholder="Type your reply..."></textarea><br>
+    <button onclick="submitReply()">Send Reply</button>
+    <button onclick="goHome()">Exit</button>
+    <div class="footer">
+      <a href="#">Terms</a> | <a href="#">Privacy</a> | <a href="#">Disclaimer</a>
     </div>
-  </main>
+  </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyDeHTQr0thvi-fBqIEZELFDI0VL70erlCE",
-      authDomain: "quasicare.firebaseapp.com",
-      databaseURL: "https://quasicare-default-rtdb.firebaseio.com",
-      projectId: "quasicare",
-      storageBucket: "quasicare.appspot.com",
-      messagingSenderId: "197366070004",
-      appId: "1:197366070004:web:2972eb9297102b6183bca1"
-    };
+  <script>
+    let db;
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
+    fetch("https://us-central1-YOUR_PROJECT_ID.cloudfunctions.net/getFirebaseConfig")
+      .then(res => res.json())
+      .then(config => {
+        firebase.initializeApp(config);
+        db = firebase.database();
+      })
+      .catch(err => {
+        alert("Failed to load Firebase configuration securely.");
+        console.error(err);
+      });
 
-    onAuthStateChanged(auth, user => {
-      if (!user) window.location.href = "login.html";
-    });
-
-    window.logout = async () => {
-      await signOut(auth);
-      window.location.href = "login.html";
-    };
-
-    function animateCount(id, target) {
-      let count = 0;
-      const step = target / 60;
-      const el = document.getElementById(id);
-      const interval = setInterval(() => {
-        count += step;
-        if (count >= target) {
-          count = target;
-          clearInterval(interval);
-        }
-        el.textContent = Math.floor(count).toLocaleString();
-      }, 40);
+    function enterApp() {
+      document.getElementById('disclaimerModal').style.display = 'none';
+      document.getElementById('homeScreen').classList.remove('hidden');
     }
 
-    animateCount("usCount", 21172);
-    animateCount("globalCount", 308767);
+    function showSection(id) {
+      document.getElementById('homeScreen').classList.add('hidden');
+      document.getElementById('talkScreen').classList.add('hidden');
+      document.getElementById('listenScreen').classList.add('hidden');
+      document.getElementById(id).classList.remove('hidden');
+    }
+
+    function goHome() {
+      showSection('homeScreen');
+    }
+
+    function generateCode() {
+      return Math.random().toString(36).substring(2, 8).toUpperCase();
+    }
+
+    function submitVent() {
+      const text = document.getElementById('ventInput').value.trim();
+      if (!text) return alert("Please write something first.");
+      const code = generateCode();
+      db.ref('vents/' + code).set({ message: text });
+      alert("Your anonymous code: " + code + ". Save this to view replies later.");
+      document.getElementById('ventInput').value = '';
+    }
+
+    function loadVents() {
+      const container = document.getElementById('ventFeed');
+      container.innerHTML = '';
+      db.ref('vents').on('value', snapshot => {
+        container.innerHTML = '';
+        const data = snapshot.val();
+        for (let code in data) {
+          const vent = data[code].message;
+          const reply = data[code].reply || "No reply yet.";
+          const box = document.createElement('div');
+          box.className = 'vent-box';
+          box.innerHTML = `<strong>Code:</strong> ${code}<br><strong>Message:</strong> ${vent}<br><strong>Reply:</strong> ${reply}`;
+          container.appendChild(box);
+        }
+      });
+    }
+
+    function submitReply() {
+      const code = document.getElementById('replyCode').value.trim().toUpperCase();
+      const reply = document.getElementById('replyInput').value.trim();
+      if (!code || !reply) return alert("Please enter a code and a reply.");
+      db.ref('vents/' + code + '/reply').set(reply)
+        .then(() => {
+          alert("Reply sent.");
+          document.getElementById('replyInput').value = '';
+        })
+        .catch(() => alert("Error: Invalid code."));
+    }
+
+    setInterval(() => {
+      if (!document.getElementById('listenScreen').classList.contains('hidden')) {
+        loadVents();
+      }
+    }, 4000);
   </script>
 </body>
 </html>
