@@ -3,172 +3,38 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>QuasiCare</title>
+  <title>Welcome to QuasiCare</title>
   <style>
     body {
       background-color: #111;
-      color: #fff;
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
+      color: white;
+      font-family: system-ui, sans-serif;
       text-align: center;
+      padding: 50px;
     }
-    .hidden { display: none; }
+
     button {
-      margin: 10px;
       padding: 12px 24px;
-      background-color: #222;
+      margin: 10px;
+      background-color: #333;
       color: white;
       border: none;
       border-radius: 6px;
       cursor: pointer;
     }
-    button:hover { background-color: #444; }
-    textarea {
-      width: 80%;
-      height: 120px;
-      margin: 20px 0;
-      padding: 10px;
-      border-radius: 6px;
-      border: 1px solid #333;
-      background-color: #1a1a1a;
-      color: #fff;
-    }
-    .footer {
-      margin-top: 20px;
-      font-size: 14px;
-    }
-    .footer a {
-      color: #999;
-      margin: 0 10px;
-      text-decoration: none;
-    }
-    .vent-box {
-      background-color: #1e1e1e;
-      margin: 10px auto;
-      padding: 10px;
-      width: 80%;
-      border-radius: 8px;
+
+    button:hover {
+      background-color: #555;
     }
   </style>
 </head>
 <body>
+  <h1>Welcome to QuasiCare</h1>
+  <p>Please choose an option:</p>
 
-  <div id="disclaimerModal">
-    <h2>Disclaimer</h2>
-    <p>QuasiCare is an anonymous support tool. Do not submit harmful, illegal, or confidential information. By continuing, you agree to our Terms of Use and Privacy Policy.</p>
-    <button onclick="enterApp()">I Agree & Enter</button>
-  </div>
-
-  <div id="homeScreen" class="hidden">
-    <h1>QuasiCare</h1>
-    <button onclick="showSection('talkScreen')">Talk</button>
-    <button onclick="showSection('listenScreen')">Listen</button>
-  </div>
-
-  <div id="talkScreen" class="hidden">
-    <h2>Vent Anonymously</h2>
-    <textarea id="ventInput" placeholder="Type your message..."></textarea><br>
-    <button onclick="submitVent()">Submit</button>
-    <button onclick="goHome()">Exit</button>
-    <div class="footer">
-      <a href="#">Terms</a> | <a href="#">Privacy</a> | <a href="#">Disclaimer</a>
-    </div>
-  </div>
-
-  <div id="listenScreen" class="hidden">
-    <h2>Support Someone</h2>
-    <div id="ventFeed"></div>
-    <h3>Reply to a Vent</h3>
-    <input type="text" id="replyCode" placeholder="Enter vent code"/><br><br>
-    <textarea id="replyInput" placeholder="Type your reply..."></textarea><br>
-    <button onclick="submitReply()">Send Reply</button>
-    <button onclick="goHome()">Exit</button>
-    <div class="footer">
-      <a href="#">Terms</a> | <a href="#">Privacy</a> | <a href="#">Disclaimer</a>
-    </div>
-  </div>
-
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
-  <script>
-    let db;
-
-    fetch("https://us-central1-YOUR_PROJECT_ID.cloudfunctions.net/getFirebaseConfig")
-      .then(res => res.json())
-      .then(config => {
-        firebase.initializeApp(config);
-        db = firebase.database();
-      })
-      .catch(err => {
-        alert("Failed to load Firebase configuration securely.");
-        console.error(err);
-      });
-
-    function enterApp() {
-      document.getElementById('disclaimerModal').style.display = 'none';
-      document.getElementById('homeScreen').classList.remove('hidden');
-    }
-
-    function showSection(id) {
-      document.getElementById('homeScreen').classList.add('hidden');
-      document.getElementById('talkScreen').classList.add('hidden');
-      document.getElementById('listenScreen').classList.add('hidden');
-      document.getElementById(id).classList.remove('hidden');
-    }
-
-    function goHome() {
-      showSection('homeScreen');
-    }
-
-    function generateCode() {
-      return Math.random().toString(36).substring(2, 8).toUpperCase();
-    }
-
-    function submitVent() {
-      const text = document.getElementById('ventInput').value.trim();
-      if (!text) return alert("Please write something first.");
-      const code = generateCode();
-      db.ref('vents/' + code).set({ message: text });
-      alert("Your anonymous code: " + code + ". Save this to view replies later.");
-      document.getElementById('ventInput').value = '';
-    }
-
-    function loadVents() {
-      const container = document.getElementById('ventFeed');
-      container.innerHTML = '';
-      db.ref('vents').on('value', snapshot => {
-        container.innerHTML = '';
-        const data = snapshot.val();
-        for (let code in data) {
-          const vent = data[code].message;
-          const reply = data[code].reply || "No reply yet.";
-          const box = document.createElement('div');
-          box.className = 'vent-box';
-          box.innerHTML = `<strong>Code:</strong> ${code}<br><strong>Message:</strong> ${vent}<br><strong>Reply:</strong> ${reply}`;
-          container.appendChild(box);
-        }
-      });
-    }
-
-    function submitReply() {
-      const code = document.getElementById('replyCode').value.trim().toUpperCase();
-      const reply = document.getElementById('replyInput').value.trim();
-      if (!code || !reply) return alert("Please enter a code and a reply.");
-      db.ref('vents/' + code + '/reply').set(reply)
-        .then(() => {
-          alert("Reply sent.");
-          document.getElementById('replyInput').value = '';
-        })
-        .catch(() => alert("Error: Invalid code."));
-    }
-
-    setInterval(() => {
-      if (!document.getElementById('listenScreen').classList.contains('hidden')) {
-        loadVents();
-      }
-    }, 4000);
-  </script>
+  <a href="talk.html"><button>🗣 Talk</button></a>
+  <a href="listen.html"><button>👂 Listen</button></a>
+  <a href="profile.html"><button>👤 Profile</button></a>
+  <a href="login.html"><button>🔑 Login</button></a>
 </body>
 </html>
