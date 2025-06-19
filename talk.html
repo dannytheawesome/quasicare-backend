@@ -12,6 +12,9 @@
     import {
       getDatabase, ref, set, get, child, push
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    import {
+      getAuth, signInAnonymously, onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDeHTQr0thvi-fBqIEZELFDI0VL70erlCE",
@@ -25,6 +28,11 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
+    const auth = getAuth(app);
+
+    signInAnonymously(auth)
+      .then(() => console.log("Signed in anonymously"))
+      .catch((error) => console.error("Login error:", error));
 
     const bannedWords = [
       "kill", "suicide", "die", "murder", "bomb", "shoot", "stab", "rape",
@@ -68,11 +76,32 @@
       }
     }
 
+    async function tooSoonToPost(uid) {
+      const snapshot = await get(ref(db, `users/${uid}/lastPostTime`));
+      if (!snapshot.exists()) return false;
+      const lastTime = snapshot.val();
+      const now = Date.now();
+      return now - lastTime < 60000; // 60 seconds
+    }
+
     window.submitVent = async function () {
       const input = document.getElementById("ventInput");
       const message = input.value.trim();
       if (!message) {
         alert("Please write something before submitting.");
+        return;
+      }
+
+      const user = auth.currentUser;
+      if (!user) {
+        alert("You must be signed in to submit.");
+        return;
+      }
+
+      const uid = user.uid;
+
+      if (await tooSoonToPost(uid)) {
+        alert("Please wait at least a minute before submitting again.");
         return;
       }
 
@@ -87,7 +116,8 @@
         await push(ref(db, "flagged"), {
           message,
           matched_keywords: matched,
-          timestamp: Date.now()
+          timestamp: Date.now(),
+          uid
         });
         return;
       }
@@ -98,7 +128,8 @@
         await push(ref(db, "flagged"), {
           message,
           source: "Perspective API",
-          timestamp: Date.now()
+          timestamp: Date.now(),
+          uid
         });
         return;
       }
@@ -107,8 +138,11 @@
       await set(ref(db, `vents/${code}`), {
         message,
         reply: null,
-        timestamp: Date.now()
+        timestamp: Date.now(),
+        uid
       });
+
+      await set(ref(db, `users/${uid}/lastPostTime`), Date.now());
 
       document.getElementById("ventForm").classList.add("hidden");
       document.getElementById("codeDisplay").innerText = `Your anonymous code: ${code}`;
