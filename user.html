@@ -3,40 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>QuasiCare Profile</title>
-  <style>
-    body {
-      background-color: #111;
-      color: white;
-      font-family: system-ui, sans-serif;
-      text-align: center;
-      padding: 50px 20px;
-    }
-    img {
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      object-fit: cover;
-      margin-bottom: 15px;
-    }
-    .label {
-      color: #888;
-    }
-  </style>
-</head>
-<body>
-  <h1>Public Profile</h1>
-  <img id="profilePic" src="https://via.placeholder.com/120" alt="Profile Picture" />
-  <h2 id="displayName">Loading...</h2>
-  <p><span class="label">Total Replies:</span> <span id="points">0</span></p>
-  <p><span class="label">Badges:</span> <span id="badges">None</span></p>
+  <title>User Dashboard | QuasiCare</title>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    import {
+      getAuth,
+      onAuthStateChanged,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
     const firebaseConfig = {
-      apiKey: "AIzaSyDeHTQr0thvi-fBqIEZELFDI0VL70erlCE",
+      apiKey: "AIzaSyCbrPC0NZDr8yZ4xTTBayBbOnESETg9xuw",
       authDomain: "quasicare.firebaseapp.com",
       databaseURL: "https://quasicare-default-rtdb.firebaseio.com",
       projectId: "quasicare",
@@ -46,30 +24,80 @@
     };
 
     const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
+    const auth = getAuth(app);
 
-    function getQueryParam(name) {
-      return new URLSearchParams(window.location.search).get(name);
-    }
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        document.getElementById("userId").innerText = user.uid;
+      } else {
+        window.location.href = "login.html"; // Redirect if not signed in
+      }
+    });
 
-    const uid = getQueryParam("uid");
-    if (!uid) {
-      document.body.innerHTML = "<p style='color:red;'>No user ID specified.</p>";
-    } else {
-      const userRef = ref(db, "users/" + uid);
-      get(userRef).then(snapshot => {
-        if (!snapshot.exists()) {
-          document.body.innerHTML = "<p style='color:red;'>User not found.</p>";
-          return;
-        }
-
-        const data = snapshot.val();
-        document.getElementById("displayName").textContent = data.username || "Unnamed User";
-        document.getElementById("profilePic").src = data.photoURL || "https://via.placeholder.com/120";
-        document.getElementById("points").textContent = data.points || 0;
-        document.getElementById("badges").textContent = data.badge || "None";
+    window.logoutUser = function () {
+      signOut(auth).then(() => {
+        window.location.href = "logout.html";
       });
-    }
+    };
   </script>
+
+  <style>
+    body {
+      background-color: #111;
+      color: white;
+      font-family: system-ui, sans-serif;
+      text-align: center;
+      padding: 40px;
+    }
+
+    .container {
+      background-color: #1e1e1e;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 500px;
+      margin: auto;
+    }
+
+    button {
+      margin: 10px;
+      padding: 12px 24px;
+      font-size: 16px;
+      background-color: #333;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #555;
+    }
+
+    .footer {
+      margin-top: 40px;
+      font-size: 0.9rem;
+    }
+
+    .footer a {
+      color: #aaa;
+      text-decoration: underline;
+      margin: 0 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Welcome to Your Dashboard</h1>
+  <div class="container">
+    <p><strong>User ID:</strong> <span id="userId">Loading...</span></p>
+    <button onclick="window.location.href='profile.html'">View Profile</button>
+    <button onclick="window.location.href='listen.html'">Support Vents</button>
+    <button onclick="logoutUser()">Logout</button>
+  </div>
+
+  <div class="footer">
+    <a href="terms.html">Terms</a>
+    <a href="privacy.html">Privacy</a>
+    <a href="disclaimer.html">Disclaimer</a>
+  </div>
 </body>
 </html>
