@@ -3,62 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Your Profile | QuasiCare</title>
-  <style>
-    body {
-      background-color: #111;
-      color: white;
-      font-family: system-ui, sans-serif;
-      padding: 40px;
-      text-align: center;
-    }
-
-    .profile-box {
-      background-color: #1e1e1e;
-      padding: 20px;
-      border-radius: 10px;
-      max-width: 400px;
-      margin: 0 auto;
-    }
-
-    .profile-box img {
-      border-radius: 50%;
-      margin-bottom: 10px;
-    }
-
-    .profile-box p {
-      margin: 8px 0;
-    }
-
-    .logout-btn {
-      margin-top: 20px;
-      padding: 10px 20px;
-      background-color: #333;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    .logout-btn:hover {
-      background-color: #555;
-    }
-  </style>
-</head>
-<body>
-  <h1>Your Profile</h1>
-  <div id="profile" class="profile-box">
-    <p>Loading your profile...</p>
-  </div>
+  <title>Profile | QuasiCare</title>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import {
       getAuth,
-      onAuthStateChanged,
-      signOut
+      onAuthStateChanged
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
     import {
       getDatabase,
       ref,
@@ -79,60 +31,79 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getDatabase(app);
-    const profileBox = document.getElementById("profile");
-
-    function formatDate(timestamp) {
-      if (!timestamp) return "Unknown";
-      return new Date(timestamp).toLocaleDateString();
-    }
-
-    async function loadUserStats(uid) {
-      const dbRef = ref(db);
-
-      const [ventsSnap, userSnap] = await Promise.all([
-        get(child(dbRef, "vents")),
-        get(child(dbRef, `users/${uid}`))
-      ]);
-
-      const vents = ventsSnap.exists() ? ventsSnap.val() : {};
-      const userData = userSnap.exists() ? userSnap.val() : {};
-
-      const totalVents = Object.values(vents).filter(v => v && v.uid === uid).length;
-      const replyCount = userData.replyCount || 0;
-      const joined = formatDate(userData.joined || auth.currentUser.metadata.creationTime);
-
-      return { totalVents, replyCount, joined };
-    }
 
     onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        profileBox.innerHTML = "<p>You are not signed in.</p><a href='login.html'>Go to Login</a>";
-        return;
+      if (user) {
+        const uid = user.uid;
+        document.getElementById("uid").innerText = uid;
+
+        const userRef = ref(db, `users/${uid}`);
+        const snapshot = await get(userRef);
+
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          document.getElementById("joined").innerText = new Date(data.createdAt).toLocaleString() || "N/A";
+          document.getElementById("replyCount").innerText = data.replies || 0;
+          document.getElementById("journalCount").innerText = data.journals || 0;
+          document.getElementById("badges").innerText = data.badges?.join(", ") || "None";
+        } else {
+          document.getElementById("info").innerText = "⚠️ No user data found in database.";
+        }
+      } else {
+        document.getElementById("info").innerText = "⚠️ You are not logged in.";
       }
-
-      const name = user.displayName || "(No display name)";
-      const email = user.email || "(No email)";
-      const photo = user.photoURL || "https://ui-avatars.com/api/?name=User";
-
-      const { totalVents, replyCount, joined } = await loadUserStats(user.uid);
-
-      profileBox.innerHTML = `
-        <img src="${photo}" alt="Profile Picture" width="80" height="80">
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Joined:</strong> ${joined}</p>
-        <p><strong>Total Vents:</strong> ${totalVents}</p>
-        <p><strong>Replies Sent:</strong> ${replyCount}</p>
-        <p><strong>Badges:</strong> (coming soon)</p>
-        <button class="logout-btn" onclick="logout()">Log Out</button>
-      `;
     });
-
-    window.logout = function () {
-      signOut(auth).then(() => {
-        window.location.href = "login.html";
-      });
-    };
   </script>
+
+  <style>
+    body {
+      background-color: #111;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 40px;
+    }
+    .info-box {
+      margin-top: 20px;
+      background-color: #1e1e1e;
+      padding: 20px;
+      border-radius: 8px;
+      display: inline-block;
+      text-align: left;
+    }
+    h1 {
+      font-size: 2rem;
+    }
+    .footer a {
+      color: #aaa;
+      text-decoration: underline;
+      margin: 0 10px;
+    }
+    .footer {
+      margin-top: 40px;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Your Profile</h1>
+  <div class="info-box">
+    <p><strong>User ID:</strong> <span id="uid">Loading...</span></p>
+    <p><strong>Joined:</strong> <span id="joined">Loading...</span></p>
+    <p><strong>Total Replies Sent:</strong> <span id="replyCount">0</span></p>
+    <p><strong>Journal Count:</strong> <span id="journalCount">0</span></p>
+    <p><strong>Badges:</strong> <span id="badges">None</span></p>
+    <p id="info" style="color: #f77;"></p>
+  </div>
+
+  <div style="margin-top: 30px;">
+    <a href="index.html"><button>⬅ Back to Home</button></a>
+  </div>
+
+  <div class="footer">
+    <a href="terms.html">Terms</a>
+    <a href="privacy.html">Privacy</a>
+    <a href="disclaimer.html">Disclaimer</a>
+  </div>
 </body>
 </html>
