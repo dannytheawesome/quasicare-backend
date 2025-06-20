@@ -1,118 +1,142 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Welcome to QuasiCare</title>
+  <title>QuasiCare | Dashboard</title>
   <style>
     body {
       margin: 0;
-      font-family: system-ui, sans-serif;
       background-color: #111;
-      color: white;
-      text-align: center;
+      color: #fff;
+      font-family: system-ui, sans-serif;
       display: flex;
       flex-direction: column;
-      justify-content: center;
-      height: 100vh;
+      align-items: center;
+      justify-content: start;
+      padding-top: 60px;
     }
 
-    h1 {
-      font-size: 2rem;
-      margin-bottom: 10px;
-    }
-
-    .hidden {
-      display: none;
-    }
-
-    #loader {
-      font-size: 1.2rem;
-      margin-bottom: 20px;
-      animation: pulse 1s infinite;
+    .logo-animation {
+      width: 100px;
+      height: 100px;
+      background: url('3f2e9965-d914-427b-bd62-5ed435eb9bc7.png') center/contain no-repeat;
+      animation: pulse 2.5s ease-in-out;
     }
 
     @keyframes pulse {
-      0% { opacity: 0.4; }
-      50% { opacity: 1; }
-      100% { opacity: 0.4; }
+      0% { transform: scale(0.2); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
     }
 
-    .container {
-      display: none;
+    h1 {
+      margin-top: 20px;
+      font-size: 1.8rem;
+    }
+
+    .buttons {
+      margin: 30px 0;
+      display: flex;
       flex-direction: column;
-      align-items: center;
       gap: 15px;
+      width: 80%;
+      max-width: 300px;
     }
 
-    .btn {
-      padding: 12px 24px;
-      background: #333;
+    .buttons a button {
+      padding: 14px;
+      background-color: #222;
       color: white;
       border: none;
-      border-radius: 6px;
-      font-size: 1rem;
+      border-radius: 8px;
+      font-size: 16px;
       cursor: pointer;
     }
 
-    .btn:hover {
-      background: #555;
+    .buttons a button:hover {
+      background-color: #444;
     }
 
-    .disclaimer-box {
-      background-color: #222;
-      padding: 20px;
-      border-radius: 8px;
-      max-width: 90%;
-      margin: 0 auto 20px;
+    #suicideCounters {
+      margin-top: 20px;
+      text-align: center;
     }
 
-    label {
+    footer {
+      margin-top: 40px;
       font-size: 0.9rem;
+      color: #aaa;
+    }
+
+    footer a {
+      color: #aaa;
+      margin: 0 10px;
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
+  <div class="logo-animation"></div>
+  <h1>Welcome to QuasiCare</h1>
 
-  <div id="loader">Loading QuasiCare...</div>
-
-  <div class="container" id="disclaimerScreen">
-    <div class="disclaimer-box">
-      <h2>Disclaimer & Terms</h2>
-      <p>Please read and agree to the terms and data usage before proceeding.</p>
-      <label>
-        <input type="checkbox" id="agreeCheckbox" />
-        I agree to the <a href="terms.html" target="_blank">Terms</a>, <a href="privacy.html" target="_blank">Privacy Policy</a>, and <a href="disclaimer.html" target="_blank">Disclaimer</a>.
-      </label>
-    </div>
-    <button class="btn" onclick="proceed()" id="agreeBtn" disabled>Agree and Continue</button>
+  <div class="buttons">
+    <a href="talk.html"><button>🗣️ Talk</button></a>
+    <a href="listen.html"><button>👂 Listen</button></a>
+    <a href="profile.html"><button>👤 Profile</button></a>
   </div>
 
-  <div class="container hidden" id="entryOptions">
-    <h1>Welcome to QuasiCare</h1>
-    <p>Choose how you'd like to continue:</p>
-    <button class="btn" onclick="location.href='signup.html'">Sign Up</button>
-    <button class="btn" onclick="location.href='login.html'">Sign In</button>
-    <button class="btn" onclick="location.href='index.html'">Enter Anonymously</button>
-    <p style="font-size: 0.8rem; color: #aaa;">Note: Anonymous users have limited access for safety and accountability.</p>
+  <div id="suicideCounters">
+    <h2 id="usCount">Souls lost in the U.S.: <span>0</span></h2>
+    <h2 id="globalCount">Souls lost globally: <span>0</span></h2>
   </div>
 
-  <script>
-    setTimeout(() => {
-      document.getElementById("loader").style.display = "none";
-      document.getElementById("disclaimerScreen").style.display = "flex";
-    }, 1500);
+  <footer>
+    <a href="terms.html" target="_blank">Terms</a>
+    <a href="privacy.html" target="_blank">Privacy</a>
+    <a href="disclaimer.html" target="_blank">Disclaimer</a>
+  </footer>
 
-    document.getElementById("agreeCheckbox").addEventListener("change", function() {
-      document.getElementById("agreeBtn").disabled = !this.checked;
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCbrPC0NZDr8yZ4xTTBayBbOnESETg9xuw",
+      authDomain: "quasicare.firebaseapp.com",
+      projectId: "quasicare",
+      storageBucket: "quasicare.appspot.com",
+      messagingSenderId: "197366070004",
+      appId: "1:197366070004:web:2972eb9297102b6183bca1"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.href = "login.html";
+      }
     });
 
-    function proceed() {
-      document.getElementById("disclaimerScreen").classList.add("hidden");
-      document.getElementById("entryOptions").classList.remove("hidden");
-    }
-  </script>
+    // Suicide counter logic
+    const usBase = 15173;
+    const globalBase = 221283;
+    const usRate = 60 * 11; // seconds per U.S. suicide
+    const globalRate = 40;
 
+    let startTime = Date.now();
+
+    function updateCounters() {
+      const seconds = Math.floor((Date.now() - startTime) / 1000);
+      const usCount = usBase + Math.floor(seconds / usRate);
+      const globalCount = globalBase + Math.floor(seconds / globalRate);
+
+      document.querySelector("#usCount span").innerText = usCount.toLocaleString();
+      document.querySelector("#globalCount span").innerText = globalCount.toLocaleString();
+    }
+
+    updateCounters();
+    setInterval(updateCounters, 3000);
+  </script>
 </body>
 </html>
