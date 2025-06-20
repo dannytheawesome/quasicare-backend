@@ -2,96 +2,20 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sign Up | QuasiCare</title>
-  <style>
-    body {
-      background-color: #0f0f0f;
-      color: white;
-      font-family: system-ui, sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 30px;
-      text-align: center;
-    }
-
-    h1 {
-      font-size: 1.6rem;
-      margin-bottom: 8px;
-    }
-
-    p {
-      font-size: 0.9rem;
-      margin-bottom: 24px;
-    }
-
-    input {
-      width: 100%;
-      max-width: 300px;
-      padding: 10px;
-      margin-bottom: 12px;
-      border: none;
-      border-radius: 6px;
-      background-color: #1f1f1f;
-      color: white;
-      font-size: 1rem;
-    }
-
-    button {
-      padding: 10px 20px;
-      font-size: 1rem;
-      background-color: #333;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-
-    button:hover {
-      background-color: #555;
-    }
-
-    #errorMsg {
-      color: #f77;
-      margin-top: 10px;
-      font-size: 0.9rem;
-    }
-
-    .alt {
-      margin-top: 20px;
-      font-size: 0.85rem;
-    }
-
-    .alt a {
-      color: #7dd3fc;
-      text-decoration: underline;
-    }
-  </style>
-</head>
-<body>
-  <h1>Create Account</h1>
-  <p>Sign up to begin your journey with QuasiCare.</p>
-
-  <input type="email" id="email" placeholder="Email" required />
-  <input type="password" id="password" placeholder="Password" required />
-  <button onclick="signUp()">Sign Up</button>
-  <div id="errorMsg"></div>
-
-  <div class="alt">
-    Already have an account? <a href="login.html">Log in here</a>
-  </div>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign Up / Login | QuasiCare</title>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import {
+      getAuth,
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCbrPC0NZDr8yZ4xTTBayBbOnESETg9xuw",
       authDomain: "quasicare.firebaseapp.com",
+      databaseURL: "https://quasicare-default-rtdb.firebaseio.com",
       projectId: "quasicare",
       storageBucket: "quasicare.appspot.com",
       messagingSenderId: "197366070004",
@@ -101,20 +25,112 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    window.signUp = async function () {
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value.trim();
-      const errorMsg = document.getElementById("errorMsg");
+    window.switchForm = (mode) => {
+      document.getElementById("loginForm").style.display = mode === "login" ? "block" : "none";
+      document.getElementById("signupForm").style.display = mode === "signup" ? "block" : "none";
+    };
 
-      errorMsg.innerText = "";
+    window.login = async () => {
+      const email = document.getElementById("loginEmail").value;
+      const password = document.getElementById("loginPassword").value;
+      const message = document.getElementById("message");
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        window.location.href = "index.html";
+      } catch (error) {
+        message.innerText = error.message;
+      }
+    };
+
+    window.signup = async () => {
+      const email = document.getElementById("signupEmail").value;
+      const password = document.getElementById("signupPassword").value;
+      const message = document.getElementById("message");
 
       try {
         await createUserWithEmailAndPassword(auth, email, password);
-        window.location.href = "index.html"; // Redirect on success
+        window.location.href = "index.html";
       } catch (error) {
-        errorMsg.innerText = error.message.replace("Firebase:", "").trim();
+        message.innerText = error.message;
       }
     };
   </script>
+
+  <style>
+    body {
+      background-color: #111;
+      color: white;
+      font-family: system-ui, sans-serif;
+      padding: 30px;
+      text-align: center;
+    }
+
+    h1 {
+      color: #3399ff;
+      font-size: 1.8rem;
+    }
+
+    input {
+      display: block;
+      width: 90%;
+      max-width: 300px;
+      margin: 10px auto;
+      padding: 10px;
+      font-size: 16px;
+      background-color: #222;
+      color: white;
+      border: none;
+      border-radius: 6px;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: #3399ff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 10px;
+    }
+
+    .tabs button {
+      background-color: #222;
+      border: 1px solid #333;
+    }
+
+    .tabs button.active {
+      background-color: #3399ff;
+      color: white;
+    }
+
+    #message {
+      color: #f77;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Welcome to QuasiCare</h1>
+
+  <div class="tabs">
+    <button class="active" onclick="switchForm('login')">Log In</button>
+    <button onclick="switchForm('signup')">Sign Up</button>
+  </div>
+
+  <div id="loginForm">
+    <input type="email" id="loginEmail" placeholder="Email" />
+    <input type="password" id="loginPassword" placeholder="Password" />
+    <button onclick="login()">Log In</button>
+  </div>
+
+  <div id="signupForm" style="display: none;">
+    <input type="email" id="signupEmail" placeholder="Email" />
+    <input type="password" id="signupPassword" placeholder="Password" />
+    <button onclick="signup()">Sign Up</button>
+  </div>
+
+  <div id="message"></div>
 </body>
 </html>
