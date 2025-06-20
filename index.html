@@ -13,70 +13,76 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: start;
-      padding-top: 60px;
+      padding-top: 40px;
+      text-align: center;
     }
 
     .logo-animation {
       width: 100px;
       height: 100px;
       background: url('3f2e9965-d914-427b-bd62-5ed435eb9bc7.png') center/contain no-repeat;
-      animation: pulse 2.5s ease-in-out;
+      animation: pulse 2s ease-in-out;
     }
 
     @keyframes pulse {
-      0% { transform: scale(0.2); opacity: 0; }
+      0% { transform: scale(0.3); opacity: 0; }
       100% { transform: scale(1); opacity: 1; }
     }
 
     h1 {
-      margin-top: 20px;
-      font-size: 1.8rem;
+      font-size: 1.7rem;
+      margin: 20px 0 10px;
+    }
+
+    .tagline {
+      font-size: 1.1rem;
+      color: #bbb;
+      margin-bottom: 30px;
+      font-weight: 400;
     }
 
     .buttons {
-      margin: 30px 0;
       display: flex;
       flex-direction: column;
-      gap: 15px;
+      gap: 14px;
       width: 80%;
       max-width: 300px;
     }
 
     .buttons a button {
       padding: 14px;
-      background-color: #222;
+      background-color: #1d1d1d;
       color: white;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       font-size: 16px;
       cursor: pointer;
+      transition: background 0.2s ease;
     }
 
     .buttons a button:hover {
-      background-color: #444;
+      background-color: #333;
     }
 
     #suicideCounters {
-      margin-top: 20px;
-      text-align: center;
+      margin-top: 35px;
     }
 
     #suicideCounters h2 {
-      font-size: 1.1rem;
-      font-weight: normal;
+      font-size: 1rem;
       color: #ccc;
+      margin: 6px 0;
     }
 
     #suicideCounters span {
-      color: #00ffcc;
-      font-weight: bold;
+      color: #00ffc3;
+      font-weight: 600;
     }
 
     footer {
-      margin-top: 40px;
-      font-size: 0.9rem;
-      color: #aaa;
+      margin-top: 50px;
+      font-size: 0.85rem;
+      color: #888;
     }
 
     footer a {
@@ -89,6 +95,7 @@
 <body>
   <div class="logo-animation"></div>
   <h1>Welcome to QuasiCare</h1>
+  <div class="tagline">You are loved. You matter.</div>
 
   <div class="buttons">
     <a href="talk.html"><button>Talk</button></a>
@@ -123,43 +130,39 @@
     const auth = getAuth(app);
 
     onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        window.location.href = "login.html";
-      }
+      if (!user) window.location.href = "login.html";
     });
 
     // Suicide counter logic
     const usBase = 15173;
     const globalBase = 221283;
-    const usRate = 60 * 11;
-    const globalRate = 40;
-    const startTime = new Date("2025-01-01T00:00:00Z").getTime(); // New year start
+    const usRate = 60 * 11; // ~1 U.S. suicide every 11 min
+    const globalRate = 40;  // ~1 global suicide every 40s
 
-    const now = Date.now();
-    const elapsed = Math.floor((now - startTime) / 1000);
-    const targetUS = usBase + Math.floor(elapsed / usRate);
-    const targetGlobal = globalBase + Math.floor(elapsed / globalRate);
+    const startTime = Date.now();
 
-    function animateCounter(id, target) {
-      const el = document.getElementById(id);
+    function animateCountUp(id, target) {
       let current = 0;
-      const steps = 30;
-      const increment = Math.ceil(target / steps);
-      const interval = 1200 / steps;
+      const duration = 1000;
+      const stepTime = Math.max(Math.floor(duration / target), 20);
 
-      const countUp = setInterval(() => {
-        current += increment;
-        if (current >= target) {
-          el.innerText = target.toLocaleString();
-          clearInterval(countUp);
-        } else {
-          el.innerText = current.toLocaleString();
-        }
-      }, interval);
+      const timer = setInterval(() => {
+        current += 1;
+        document.getElementById(id).innerText = current.toLocaleString();
+        if (current >= target) clearInterval(timer);
+      }, stepTime);
     }
 
-    animateCounter("usCount", targetUS);
-    animateCounter("globalCount", targetGlobal);
+    function updateCounters() {
+      const seconds = Math.floor((Date.now() - startTime) / 1000);
+      const usCount = usBase + Math.floor(seconds / usRate);
+      const globalCount = globalBase + Math.floor(seconds / globalRate);
+
+      animateCountUp("usCount", usCount);
+      animateCountUp("globalCount", globalCount);
+    }
+
+    updateCounters();
   </script>
 </body>
 </html>
