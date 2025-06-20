@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>QuasiCare | Dashboard</title>
+  <title>QuasiCare | Home</title>
   <style>
     body {
       margin: 0;
@@ -62,6 +62,17 @@
       text-align: center;
     }
 
+    #suicideCounters h2 {
+      font-size: 1.1rem;
+      font-weight: normal;
+      color: #ccc;
+    }
+
+    #suicideCounters span {
+      color: #00ffcc;
+      font-weight: bold;
+    }
+
     footer {
       margin-top: 40px;
       font-size: 0.9rem;
@@ -80,14 +91,14 @@
   <h1>Welcome to QuasiCare</h1>
 
   <div class="buttons">
-    <a href="talk.html"><button>🗣️ Talk</button></a>
-    <a href="listen.html"><button>👂 Listen</button></a>
-    <a href="profile.html"><button>👤 Profile</button></a>
+    <a href="talk.html"><button>Talk</button></a>
+    <a href="listen.html"><button>Listen</button></a>
+    <a href="profile.html"><button>Profile</button></a>
   </div>
 
   <div id="suicideCounters">
-    <h2 id="usCount">Souls lost in the U.S.: <span>0</span></h2>
-    <h2 id="globalCount">Souls lost globally: <span>0</span></h2>
+    <h2>Souls lost in the U.S.: <span id="usCount">0</span></h2>
+    <h2>Souls lost globally: <span id="globalCount">0</span></h2>
   </div>
 
   <footer>
@@ -121,8 +132,8 @@
     // Suicide counter logic
     const usBase = 15173;
     const globalBase = 221283;
-    const usRate = 60 * 11; // seconds per U.S. suicide
-    const globalRate = 40;
+    const usRate = 60 * 11; // ~1 suicide per 11 min in U.S.
+    const globalRate = 40;  // ~1 every 40s globally
 
     let startTime = Date.now();
 
@@ -131,8 +142,8 @@
       const usCount = usBase + Math.floor(seconds / usRate);
       const globalCount = globalBase + Math.floor(seconds / globalRate);
 
-      document.querySelector("#usCount span").innerText = usCount.toLocaleString();
-      document.querySelector("#globalCount span").innerText = globalCount.toLocaleString();
+      document.getElementById("usCount").innerText = usCount.toLocaleString();
+      document.getElementById("globalCount").innerText = globalCount.toLocaleString();
     }
 
     updateCounters();
