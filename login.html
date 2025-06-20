@@ -6,86 +6,88 @@
   <title>Login | QuasiCare</title>
   <style>
     body {
-      background-color: #0f0f0f;
+      background-color: #111;
       color: white;
       font-family: system-ui, sans-serif;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      min-height: 100vh;
-      padding: 30px;
-      text-align: center;
+      height: 100vh;
+      margin: 0;
+      padding: 20px;
     }
 
     h1 {
-      font-size: 1.6rem;
-      margin-bottom: 8px;
-    }
-
-    p {
-      font-size: 0.9rem;
-      margin-bottom: 24px;
+      color: #3399ff;
+      margin-bottom: 20px;
     }
 
     input {
-      width: 100%;
+      padding: 12px;
+      margin: 10px;
+      width: 90%;
       max-width: 300px;
-      padding: 10px;
-      margin-bottom: 12px;
       border: none;
       border-radius: 6px;
-      background-color: #1f1f1f;
+      font-size: 16px;
+      background-color: #1e1e1e;
       color: white;
-      font-size: 1rem;
     }
 
     button {
-      padding: 10px 20px;
-      font-size: 1rem;
-      background-color: #333;
-      color: white;
+      padding: 12px 20px;
+      margin: 10px;
+      background-color: #3399ff;
       border: none;
+      color: white;
       border-radius: 6px;
+      font-size: 1rem;
       cursor: pointer;
-      margin-top: 10px;
     }
 
     button:hover {
-      background-color: #555;
+      background-color: #4aa3ff;
     }
 
-    #errorMsg {
+    #error {
       color: #f77;
       margin-top: 10px;
+    }
+
+    .links {
+      margin-top: 30px;
       font-size: 0.9rem;
+      text-align: center;
     }
 
-    .alt {
-      margin-top: 20px;
-      font-size: 0.85rem;
-    }
-
-    .alt a {
-      color: #7dd3fc;
+    .links a {
+      color: #aaa;
       text-decoration: underline;
+      margin: 0 10px;
     }
   </style>
 </head>
 <body>
-  <h1>Login to QuasiCare</h1>
-  <p>Please sign in to access the app.</p>
+  <h1>Log In to QuasiCare</h1>
 
-  <input type="email" id="email" placeholder="Email" required />
-  <input type="password" id="password" placeholder="Password" required />
-  <button onclick="logIn()">Login</button>
-  <div id="errorMsg"></div>
+  <input type="email" id="email" placeholder="Email" />
+  <input type="password" id="password" placeholder="Password" />
+  <button onclick="login()">Log In</button>
+  <button onclick="window.location.href='signup.html'">Sign Up</button>
+  <div id="error"></div>
 
-  <div class="alt">
-    Don't have an account? <a href="signup.html">Sign up</a>
+  <div class="links">
+    <a href="terms.html" target="_blank">Terms</a>
+    <a href="privacy.html" target="_blank">Privacy</a>
+    <a href="disclaimer.html" target="_blank">Disclaimer</a>
   </div>
 
   <script type="module">
+    if (!localStorage.getItem("acceptedDisclaimer")) {
+      window.location.href = "disclaimer.html";
+    }
+
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
@@ -101,19 +103,18 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    window.logIn = async function () {
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value.trim();
-      const errorMsg = document.getElementById("errorMsg");
+    window.login = () => {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const errorDiv = document.getElementById("error");
 
-      errorMsg.innerText = "";
-
-      try {
-        await signInWithEmailAndPassword(auth, email, password);
-        window.location.href = "index.html";
-      } catch (error) {
-        errorMsg.innerText = error.message.replace("Firebase:", "").trim();
-      }
+      signInWithEmailAndPassword(auth, email, password)
+        .then(() => {
+          window.location.href = "index.html";
+        })
+        .catch((error) => {
+          errorDiv.innerText = "⚠️ " + error.message;
+        });
     };
   </script>
 </body>
