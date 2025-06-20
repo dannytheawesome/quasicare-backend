@@ -17,7 +17,6 @@
       font-family: system-ui, sans-serif;
       color: white;
       overflow: hidden;
-      transition: background 0.3s ease;
     }
 
     .heart-container {
@@ -66,10 +65,15 @@
   <div class="logo-text">QuasiCare</div>
 
   <script>
-    // Redirect to consent screen after animation finishes
+    // Check if disclaimer was already accepted
+    const accepted = localStorage.getItem("acceptedDisclaimer");
     setTimeout(() => {
-      window.location.href = "consent.html";
-    }, 4000);
+      if (accepted === "true") {
+        window.location.href = "login.html";
+      } else {
+        window.location.href = "disclaimer.html";
+      }
+    }, 3500);
   </script>
 </body>
 </html>
