@@ -3,76 +3,90 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Profile | QuasiCare</title>
+  <title>Your Profile | QuasiCare</title>
   <style>
     body {
+      margin: 0;
       background-color: #111;
-      color: white;
+      color: #fff;
       font-family: system-ui, sans-serif;
-      text-align: center;
-      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px 20px;
     }
 
     h1 {
-      font-size: 1.8rem;
+      margin-bottom: 10px;
+      font-size: 1.6rem;
+      color: #00ccff;
     }
 
-    .info-box {
+    p {
+      margin-bottom: 20px;
+      font-size: 1rem;
+      text-align: center;
+      color: #ccc;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    li {
       background-color: #1e1e1e;
-      border-radius: 10px;
-      padding: 20px;
-      margin: 20px auto;
-      max-width: 500px;
-      text-align: left;
-    }
-
-    .info-box p {
-      margin: 10px 0;
-    }
-
-    button {
-      padding: 10px 20px;
-      background-color: #333;
-      border: none;
-      color: white;
+      padding: 12px 16px;
+      margin-bottom: 12px;
       border-radius: 6px;
+      font-size: 0.95rem;
+      word-break: break-word;
+      color: #eee;
+    }
+
+    .actions {
+      margin-top: 30px;
+      display: flex;
+      gap: 15px;
+      flex-direction: column;
+      width: 100%;
+      max-width: 300px;
+    }
+
+    .actions button {
+      padding: 12px;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
       cursor: pointer;
-      margin-top: 10px;
+      background-color: #333;
+      color: white;
+      transition: background 0.3s;
     }
 
-    button:hover {
-      background-color: #555;
+    .actions button:hover {
+      background-color: #444;
     }
 
-    #footerLinks {
-      margin-top: 40px;
-      font-size: 0.9rem;
-    }
-
-    #footerLinks a {
+    .actions a {
+      text-align: center;
       color: #aaa;
+      font-size: 0.9rem;
       text-decoration: underline;
-      margin: 0 10px;
     }
   </style>
 </head>
 <body>
   <h1>Your Profile</h1>
-  <div class="info-box" id="profileBox">
-    <p><strong>User ID:</strong> <span id="uid">Loading...</span></p>
-    <p><strong>Last Post Time:</strong> <span id="lastPost">Loading...</span></p>
-    <p><strong>Submitted Vents:</strong></p>
-    <ul id="ventList"></ul>
-  </div>
+  <p>These are your submitted vent codes. Keep them safe.</p>
+  <ul id="ventCodes"></ul>
 
-  <div>
-    <a href="index.html"><button>⬅ Back to Home</button></a>
-  </div>
-
-  <div id="footerLinks">
-    <a href="terms.html" target="_blank">Terms</a>
-    <a href="privacy.html" target="_blank">Privacy</a>
-    <a href="disclaimer.html" target="_blank">Disclaimer</a>
+  <div class="actions">
+    <button onclick="logout()">🚪 Log Out</button>
+    <a href="index.html">⬅ Back to Home</a>
   </div>
 
   <script type="module">
@@ -81,7 +95,7 @@
       getDatabase, ref, get, child
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
     import {
-      getAuth, signInAnonymously, onAuthStateChanged
+      getAuth, onAuthStateChanged, signOut
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
     const firebaseConfig = {
@@ -98,39 +112,41 @@
     const db = getDatabase(app);
     const auth = getAuth(app);
 
-    signInAnonymously(auth).catch(console.error);
+    const ventList = document.getElementById("ventCodes");
 
     onAuthStateChanged(auth, async (user) => {
-      if (!user) return;
+      if (!user) {
+        window.location.href = "login.html";
+        return;
+      }
 
       const uid = user.uid;
-      document.getElementById("uid").innerText = uid;
+      const snapshot = await get(ref(db, "vents"));
+      if (snapshot.exists()) {
+        const vents = snapshot.val();
+        const userCodes = Object.entries(vents)
+          .filter(([_, v]) => v.uid === uid)
+          .map(([code]) => code);
 
-      const lastPostRef = ref(db, `users/${uid}/lastPostTime`);
-      const lastPostSnap = await get(lastPostRef);
-      if (lastPostSnap.exists()) {
-        const date = new Date(lastPostSnap.val());
-        document.getElementById("lastPost").innerText = date.toLocaleString();
-      } else {
-        document.getElementById("lastPost").innerText = "No posts yet.";
-      }
-
-      const ventsSnap = await get(ref(db, "vents"));
-      const list = document.getElementById("ventList");
-      if (ventsSnap.exists()) {
-        const data = ventsSnap.val();
-        for (let code in data) {
-          if (data[code].uid === uid) {
+        if (userCodes.length === 0) {
+          ventList.innerHTML = "<li>You haven’t submitted any vents yet.</li>";
+        } else {
+          userCodes.forEach(code => {
             const li = document.createElement("li");
-            li.innerText = code;
-            list.appendChild(li);
-          }
+            li.textContent = `Vent Code: ${code}`;
+            ventList.appendChild(li);
+          });
         }
-        if (list.childElementCount === 0) {
-          list.innerHTML = "<li>No vents found.</li>";
-        }
+      } else {
+        ventList.innerHTML = "<li>No vents found.</li>";
       }
     });
+
+    window.logout = function () {
+      signOut(auth).then(() => {
+        window.location.href = "login.html";
+      });
+    };
   </script>
 </body>
 </html>
