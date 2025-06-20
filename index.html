@@ -13,38 +13,24 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: start;
+      justify-content: center;
       padding-top: 60px;
     }
 
-    .logo-animation {
-      width: 100px;
-      height: 100px;
-      background: url('3f2e9965-d914-427b-bd62-5ed435eb9bc7.png') center/contain no-repeat;
-      animation: pulse 2.5s ease-in-out;
-    }
-
-    @keyframes pulse {
-      0% { transform: scale(0.2); opacity: 0; }
-      100% { transform: scale(1); opacity: 1; }
-    }
-
     h1 {
-      margin-top: 20px;
       font-size: 1.8rem;
+      margin-bottom: 20px;
     }
 
     .buttons {
-      margin: 30px 0;
+      margin-bottom: 40px;
       display: flex;
       flex-direction: column;
       gap: 15px;
-      width: 80%;
-      max-width: 300px;
     }
 
     .buttons a button {
-      padding: 14px;
+      padding: 14px 20px;
       background-color: #222;
       color: white;
       border: none;
@@ -58,14 +44,15 @@
     }
 
     #suicideCounters {
-      margin-top: 20px;
       text-align: center;
+      margin-top: 20px;
     }
 
     #suicideCounters h2 {
       font-size: 1.1rem;
       font-weight: normal;
       color: #ccc;
+      margin: 5px 0;
     }
 
     #suicideCounters span {
@@ -87,7 +74,6 @@
   </style>
 </head>
 <body>
-  <div class="logo-animation"></div>
   <h1>Welcome to QuasiCare</h1>
 
   <div class="buttons">
@@ -97,8 +83,8 @@
   </div>
 
   <div id="suicideCounters">
-    <h2>Souls lost in the U.S.: <span id="usCount">0</span></h2>
-    <h2>Souls lost globally: <span id="globalCount">0</span></h2>
+    <h2>Souls lost in the U.S. (2025): <span id="usCount">0</span></h2>
+    <h2>Souls lost globally (2025): <span id="globalCount">0</span></h2>
   </div>
 
   <footer>
@@ -122,59 +108,58 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    const accepted = localStorage.getItem("quasicareGuestAccepted");
-    if (!accepted) {
-      window.location.href = "disclaimer.html";
-    }
-
     onAuthStateChanged(auth, (user) => {
       if (!user) {
         window.location.href = "login.html";
       }
     });
 
-    // Animated Suicide Counters
-    const usBase = 15173;
-    const globalBase = 221283;
-    const usRate = 60 * 11;
-    const globalRate = 40;
+    // ---------- Suicide Counter (2025 & On) ----------
+    const usRateSec = 11 * 60; // 1 US suicide every 11 min
+    const globalRateSec = 40; // 1 global suicide every 40s
+    const startOfYear = new Date("2025-01-01T00:00:00Z").getTime();
+
+    const getCounts = () => {
+      const now = Date.now();
+      const secondsPassed = Math.floor((now - startOfYear) / 1000);
+      return {
+        us: Math.floor(secondsPassed / usRateSec),
+        global: Math.floor(secondsPassed / globalRateSec)
+      };
+    };
+
+    const animateCount = (element, to) => {
+      let start = 0;
+      const duration = 1500;
+      const startTime = performance.now();
+
+      const update = (time) => {
+        const elapsed = time - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const current = Math.floor(progress * to);
+        element.innerText = current.toLocaleString();
+        if (progress < 1) {
+          requestAnimationFrame(update);
+        }
+      };
+
+      requestAnimationFrame(update);
+    };
 
     const usEl = document.getElementById("usCount");
     const globalEl = document.getElementById("globalCount");
 
-    let startTime = Date.now();
+    const { us, global } = getCounts();
+    animateCount(usEl, us);
+    animateCount(globalEl, global);
 
-    function getCounts() {
-      const elapsed = Math.floor((Date.now() - startTime) / 1000);
-      return {
-        us: usBase + Math.floor(elapsed / usRate),
-        global: globalBase + Math.floor(elapsed / globalRate)
-      };
-    }
+    setInterval(() => {
+      usEl.innerText = (++us).toLocaleString();
+    }, usRateSec * 1000);
 
-    function animateCounter(el, finalValue, duration = 1000) {
-      let start = 0;
-      const startTime = performance.now();
-
-      function update(now) {
-        const elapsed = now - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        const value = Math.floor(progress * finalValue);
-        el.textContent = value.toLocaleString();
-        if (progress < 1) requestAnimationFrame(update);
-      }
-
-      requestAnimationFrame(update);
-    }
-
-    function updateCounters() {
-      const counts = getCounts();
-      animateCounter(usEl, counts.us);
-      animateCounter(globalEl, counts.global);
-    }
-
-    updateCounters();
-    setInterval(updateCounters, 3000);
+    setInterval(() => {
+      globalEl.innerText = (++global).toLocaleString();
+    }, globalRateSec * 1000);
   </script>
 </body>
 </html>
