@@ -10,104 +10,93 @@
       color: white;
       font-family: system-ui, sans-serif;
       padding: 30px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      line-height: 1.6;
     }
 
-    h2 {
-      color: #3498db;
+    h1 {
+      color: #3399ff;
+      font-size: 1.8rem;
       text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .checkbox-group {
+      margin-bottom: 20px;
     }
 
     label {
       display: block;
       margin: 12px 0;
-      font-size: 16px;
-    }
-
-    input[type="checkbox"] {
-      margin-right: 10px;
-    }
-
-    .buttons {
-      margin-top: 20px;
-      display: flex;
-      gap: 20px;
-      justify-content: center;
-    }
-
-    .buttons button {
-      padding: 10px 20px;
-      font-size: 16px;
-      border: none;
-      background-color: #3498db;
-      color: white;
-      border-radius: 6px;
       cursor: pointer;
     }
 
-    .buttons button:hover {
-      background-color: #2980b9;
+    button {
+      padding: 12px 20px;
+      margin: 10px;
+      background-color: #3399ff;
+      border: none;
+      color: white;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
     }
 
-    footer {
-      margin-top: 30px;
+    button:disabled {
+      background-color: #444;
+      cursor: not-allowed;
+    }
+
+    .links {
+      margin-top: 20px;
+      font-size: 0.9rem;
       text-align: center;
     }
 
-    footer a {
+    .links a {
       color: #ccc;
       text-decoration: underline;
-      margin: 0 8px;
+      margin: 0 10px;
     }
   </style>
 </head>
 <body>
-  <h2>Before You Continue</h2>
-  <p>Please read and accept the following to continue using QuasiCare.</p>
+  <h1>Before You Continue</h1>
+  <p>Please read and accept the following to use QuasiCare.</p>
 
-  <label><input type="checkbox" id="terms" /> I accept the <a href="terms.html" target="_blank">Terms of Service</a>.</label>
-  <label><input type="checkbox" id="privacy" /> I agree to the <a href="privacy.html" target="_blank">Privacy Policy</a>.</label>
-  <label><input type="checkbox" id="understand" /> I understand how my data will be collected and used.</label>
-
-  <div class="buttons">
-    <button id="signupBtn">Sign Up / Log In</button>
-    <button id="guestBtn">Continue as Guest</button>
+  <div class="checkbox-group">
+    <label><input type="checkbox" id="terms" /> I accept the <a href="terms.html" target="_blank">Terms of Service</a>.</label>
+    <label><input type="checkbox" id="privacy" /> I agree to the <a href="privacy.html" target="_blank">Privacy Policy</a>.</label>
+    <label><input type="checkbox" id="data" /> I understand how my data will be collected and used.</label>
   </div>
 
-  <footer>
+  <div style="text-align: center;">
+    <button id="signupBtn" disabled>Sign Up / Log In</button>
+    <button id="guestBtn" disabled>Continue as Guest</button>
+  </div>
+
+  <div class="links">
     <a href="terms.html" target="_blank">Terms</a>
     <a href="privacy.html" target="_blank">Privacy</a>
-  </footer>
+  </div>
 
   <script>
-    const signupBtn = document.getElementById("signupBtn");
-    const guestBtn = document.getElementById("guestBtn");
+    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    const signupBtn = document.getElementById('signupBtn');
+    const guestBtn = document.getElementById('guestBtn');
 
-    function allChecked() {
-      return (
-        document.getElementById("terms").checked &&
-        document.getElementById("privacy").checked &&
-        document.getElementById("understand").checked
-      );
+    function updateButtons() {
+      const allChecked = [...checkboxes].every(cb => cb.checked);
+      signupBtn.disabled = !allChecked;
+      guestBtn.disabled = !allChecked;
     }
 
+    checkboxes.forEach(cb => cb.addEventListener("change", updateButtons));
+
     signupBtn.addEventListener("click", () => {
-      if (!allChecked()) {
-        alert("Please check all boxes to continue.");
-        return;
-      }
-      localStorage.setItem("quasicareGuestAccepted", "true");
       window.location.href = "login.html";
     });
 
     guestBtn.addEventListener("click", () => {
-      if (!allChecked()) {
-        alert("Please check all boxes to continue.");
-        return;
-      }
-      localStorage.setItem("quasicareGuestAccepted", "true");
       window.location.href = "index.html";
     });
   </script>
