@@ -71,14 +71,13 @@
   </div>
 
   <div style="text-align: center;">
-    <button id="signupBtn" disabled onclick="window.location.href='login.html'">Sign Up / Log In</button>
-    <button id="guestBtn" disabled onclick="window.location.href='index.html'">Continue as Guest</button>
+    <button id="signupBtn" disabled>Sign Up / Log In</button>
+    <button id="guestBtn" disabled>Continue as Guest</button>
   </div>
 
   <div class="links">
     <a href="terms.html" target="_blank">Terms</a>
     <a href="privacy.html" target="_blank">Privacy</a>
-    <a href="disclaimer.html" target="_blank">Disclaimer</a>
   </div>
 
   <script>
@@ -86,12 +85,22 @@
     const signupBtn = document.getElementById('signupBtn');
     const guestBtn = document.getElementById('guestBtn');
 
+    // Enable buttons only when all checkboxes are checked
     checkboxes.forEach(cb => {
       cb.addEventListener('change', () => {
         const allChecked = [...checkboxes].every(c => c.checked);
         signupBtn.disabled = !allChecked;
         guestBtn.disabled = !allChecked;
       });
+    });
+
+    // Redirect properly
+    signupBtn.addEventListener('click', () => {
+      window.location.href = 'login.html';
+    });
+
+    guestBtn.addEventListener('click', () => {
+      window.location.href = 'index.html';
     });
   </script>
 </body>
