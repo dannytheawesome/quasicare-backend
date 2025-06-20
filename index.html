@@ -10,26 +10,29 @@
       background-color: #111;
       color: #fff;
       font-family: system-ui, sans-serif;
+      overflow: hidden;
+    }
+
+    .swipe-container {
       display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding-top: 60px;
+      width: 300vw;
+      transition: transform 0.3s ease-in-out;
+      height: 100vh;
     }
 
-    h1 {
-      font-size: 1.8rem;
-      margin-bottom: 20px;
+    .swipe-panel {
+      flex: 0 0 100vw;
+      padding: 30px 20px;
+      box-sizing: border-box;
+      overflow-y: auto;
+      text-align: center;
     }
 
-    .buttons {
-      margin-bottom: 40px;
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
+    h1, h2 {
+      margin: 0.5em 0;
     }
 
-    .buttons a button {
+    button {
       padding: 14px 20px;
       background-color: #222;
       color: white;
@@ -37,31 +40,15 @@
       border-radius: 8px;
       font-size: 16px;
       cursor: pointer;
+      margin: 8px 0;
     }
 
-    .buttons a button:hover {
+    button:hover {
       background-color: #444;
     }
 
-    #suicideCounters {
-      text-align: center;
-      margin-top: 20px;
-    }
-
-    #suicideCounters h2 {
-      font-size: 1.1rem;
-      font-weight: normal;
-      color: #ccc;
-      margin: 5px 0;
-    }
-
-    #suicideCounters span {
-      color: #00ffcc;
-      font-weight: bold;
-    }
-
     footer {
-      margin-top: 40px;
+      margin-top: 30px;
       font-size: 0.9rem;
       color: #aaa;
     }
@@ -71,20 +58,55 @@
       margin: 0 10px;
       text-decoration: underline;
     }
+
+    .nav-dots {
+      text-align: center;
+      margin: 10px 0;
+    }
+
+    .dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      margin: 4px;
+      border-radius: 50%;
+      background-color: #777;
+    }
+
+    .dot.active {
+      background-color: #00ffcc;
+    }
+
+    .counter {
+      color: #00ffcc;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
-  <h1>Welcome to QuasiCare</h1>
+  <div class="swipe-container" id="swipeContainer">
+    <div class="swipe-panel">
+      <h1>Talk</h1>
+      <p>Share what you're feeling.</p>
+      <button onclick="location.href='talk.html'">Open Talk</button>
+    </div>
 
-  <div class="buttons">
-    <a href="talk.html"><button>Talk</button></a>
-    <a href="listen.html"><button>Listen</button></a>
-    <a href="profile.html"><button>Profile</button></a>
+    <div class="swipe-panel">
+      <h1>Souls Lost (2025)</h1>
+      <h2>U.S.: <span id="usCount" class="counter">0</span></h2>
+      <h2>Global: <span id="globalCount" class="counter">0</span></h2>
+    </div>
+
+    <div class="swipe-panel">
+      <h1>Profile</h1>
+      <button onclick="location.href='profile.html'">View Profile</button>
+    </div>
   </div>
 
-  <div id="suicideCounters">
-    <h2>Souls lost in the U.S. (2025): <span id="usCount">0</span></h2>
-    <h2>Souls lost globally (2025): <span id="globalCount">0</span></h2>
+  <div class="nav-dots">
+    <span class="dot active"></span>
+    <span class="dot"></span>
+    <span class="dot"></span>
   </div>
 
   <footer>
@@ -114,52 +136,86 @@
       }
     });
 
-    // ---------- Suicide Counter (2025 & On) ----------
-    const usRateSec = 11 * 60; // 1 US suicide every 11 min
-    const globalRateSec = 40; // 1 global suicide every 40s
+    // Animate Counter from 0 to current count
+    const usRateSec = 660;
+    const globalRateSec = 40;
     const startOfYear = new Date("2025-01-01T00:00:00Z").getTime();
 
     const getCounts = () => {
       const now = Date.now();
-      const secondsPassed = Math.floor((now - startOfYear) / 1000);
+      const seconds = Math.floor((now - startOfYear) / 1000);
       return {
-        us: Math.floor(secondsPassed / usRateSec),
-        global: Math.floor(secondsPassed / globalRateSec)
+        us: Math.floor(seconds / usRateSec),
+        global: Math.floor(seconds / globalRateSec)
       };
     };
 
-    const animateCount = (element, to) => {
+    const animateCount = (el, to) => {
       let start = 0;
-      const duration = 1500;
+      const duration = 1200;
       const startTime = performance.now();
 
-      const update = (time) => {
-        const elapsed = time - startTime;
+      const animate = (now) => {
+        const elapsed = now - startTime;
         const progress = Math.min(elapsed / duration, 1);
-        const current = Math.floor(progress * to);
-        element.innerText = current.toLocaleString();
-        if (progress < 1) {
-          requestAnimationFrame(update);
-        }
+        const value = Math.floor(progress * to);
+        el.textContent = value.toLocaleString();
+        if (progress < 1) requestAnimationFrame(animate);
       };
 
-      requestAnimationFrame(update);
+      requestAnimationFrame(animate);
     };
 
     const usEl = document.getElementById("usCount");
     const globalEl = document.getElementById("globalCount");
 
-    const { us, global } = getCounts();
+    let { us, global } = getCounts();
     animateCount(usEl, us);
     animateCount(globalEl, global);
 
     setInterval(() => {
-      usEl.innerText = (++us).toLocaleString();
+      us++;
+      usEl.textContent = us.toLocaleString();
     }, usRateSec * 1000);
 
     setInterval(() => {
-      globalEl.innerText = (++global).toLocaleString();
+      global++;
+      globalEl.textContent = global.toLocaleString();
     }, globalRateSec * 1000);
+  </script>
+
+  <script>
+    // Swipe handling
+    const container = document.getElementById("swipeContainer");
+    const dots = document.querySelectorAll(".dot");
+    let index = 0;
+
+    function updateDots(i) {
+      dots.forEach((d, j) => d.classList.toggle("active", j === i));
+    }
+
+    function showPanel(i) {
+      container.style.transform = `translateX(-${i * 100}vw)`;
+      updateDots(i);
+    }
+
+    let startX = null;
+    container.addEventListener("touchstart", (e) => {
+      startX = e.touches[0].clientX;
+    });
+
+    container.addEventListener("touchend", (e) => {
+      if (startX === null) return;
+      const endX = e.changedTouches[0].clientX;
+      const diff = startX - endX;
+
+      if (Math.abs(diff) > 50) {
+        if (diff > 0 && index < 2) index++;
+        else if (diff < 0 && index > 0) index--;
+        showPanel(index);
+      }
+      startX = null;
+    });
   </script>
 </body>
 </html>
