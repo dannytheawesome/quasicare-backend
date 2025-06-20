@@ -3,15 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>User Dashboard | QuasiCare</title>
+  <title>User Info | QuasiCare</title>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import {
-      getAuth,
-      onAuthStateChanged,
-      signOut
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCbrPC0NZDr8yZ4xTTBayBbOnESETg9xuw",
@@ -27,18 +23,17 @@
     const auth = getAuth(app);
 
     onAuthStateChanged(auth, (user) => {
+      const info = document.getElementById("userInfo");
       if (user) {
-        document.getElementById("userId").innerText = user.uid;
+        info.innerHTML = `
+          <p><strong>UID:</strong> ${user.uid}</p>
+          <p><strong>Anonymous:</strong> ${user.isAnonymous}</p>
+          <p><strong>Signed in at:</strong> ${new Date(user.metadata.creationTime).toLocaleString()}</p>
+        `;
       } else {
-        window.location.href = "login.html"; // Redirect if not signed in
+        info.innerText = "❌ No user signed in.";
       }
     });
-
-    window.logoutUser = function () {
-      signOut(auth).then(() => {
-        window.location.href = "logout.html";
-      });
-    };
   </script>
 
   <style>
@@ -46,58 +41,33 @@
       background-color: #111;
       color: white;
       font-family: system-ui, sans-serif;
+      padding: 30px;
       text-align: center;
-      padding: 40px;
     }
 
-    .container {
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    #userInfo {
       background-color: #1e1e1e;
       padding: 20px;
-      border-radius: 10px;
-      max-width: 500px;
-      margin: auto;
+      border-radius: 8px;
+      display: inline-block;
+      text-align: left;
     }
 
-    button {
-      margin: 10px;
-      padding: 12px 24px;
-      font-size: 16px;
-      background-color: #333;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background-color: #555;
-    }
-
-    .footer {
-      margin-top: 40px;
-      font-size: 0.9rem;
-    }
-
-    .footer a {
+    a {
       color: #aaa;
       text-decoration: underline;
-      margin: 0 10px;
+      display: block;
+      margin-top: 20px;
     }
   </style>
 </head>
 <body>
-  <h1>Welcome to Your Dashboard</h1>
-  <div class="container">
-    <p><strong>User ID:</strong> <span id="userId">Loading...</span></p>
-    <button onclick="window.location.href='profile.html'">View Profile</button>
-    <button onclick="window.location.href='listen.html'">Support Vents</button>
-    <button onclick="logoutUser()">Logout</button>
-  </div>
-
-  <div class="footer">
-    <a href="terms.html">Terms</a>
-    <a href="privacy.html">Privacy</a>
-    <a href="disclaimer.html">Disclaimer</a>
-  </div>
+  <h1>User Details</h1>
+  <div id="userInfo">Loading...</div>
+  <a href="index.html">⬅ Back to Home</a>
 </body>
 </html>
