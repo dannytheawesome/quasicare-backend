@@ -1,0 +1,73 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>QuasiCare Loading</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #111;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+      font-family: system-ui, sans-serif;
+      color: white;
+      overflow: hidden;
+    }
+
+    .heart-container {
+      width: 100px;
+      height: 100px;
+    }
+
+    svg {
+      stroke: #3399ff;
+      stroke-width: 4;
+      fill: none;
+      stroke-dasharray: 400;
+      stroke-dashoffset: 400;
+      animation: draw 2s ease forwards;
+    }
+
+    @keyframes draw {
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+
+    .logo-text {
+      opacity: 0;
+      font-size: 1.6rem;
+      margin-top: 20px;
+      color: #3399ff;
+      animation: fadeIn 1s ease 2s forwards;
+    }
+
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="heart-container">
+    <svg viewBox="0 0 32 29.6">
+      <path d="M23.6,0c-3.4,0-6.4,2.1-7.6,5.1C14.8,2.1,11.8,0,8.4,0C3.8,0,0,3.8,0,8.4c0,7.2,16,20,16,20s16-12.8,16-20
+        C32,3.8,28.2,0,23.6,0z"/>
+    </svg>
+  </div>
+  <div class="logo-text">QuasiCare</div>
+
+  <script>
+    setTimeout(() => {
+      window.location.href = "disclaimer.html"; // Go to disclaimer screen
+    }, 4000);
+  </script>
+</body>
+</html>
