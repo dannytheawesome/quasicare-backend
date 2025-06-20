@@ -17,6 +17,7 @@
       font-family: system-ui, sans-serif;
       color: white;
       overflow: hidden;
+      transition: background 0.3s ease;
     }
 
     .heart-container {
@@ -65,15 +66,13 @@
   <div class="logo-text">QuasiCare</div>
 
   <script>
-    // Check if disclaimer was already accepted
-    const accepted = localStorage.getItem("acceptedDisclaimer");
     setTimeout(() => {
-      if (accepted === "true") {
-        window.location.href = "login.html";
-      } else {
+      if (!localStorage.getItem("acceptedDisclaimer")) {
         window.location.href = "disclaimer.html";
+      } else {
+        window.location.href = "login.html";
       }
-    }, 3500);
+    }, 4000);
   </script>
 </body>
 </html>
