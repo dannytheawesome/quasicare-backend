@@ -71,7 +71,8 @@
   </div>
 
   <div style="text-align: center;">
-    <button id="continueBtn" disabled>Continue</button>
+    <button id="signupBtn" disabled onclick="window.location.href='login.html'">Sign Up / Log In</button>
+    <button id="guestBtn" disabled onclick="window.location.href='index.html'">Continue as Guest</button>
   </div>
 
   <div class="links">
@@ -82,18 +83,15 @@
 
   <script>
     const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-    const continueBtn = document.getElementById('continueBtn');
+    const signupBtn = document.getElementById('signupBtn');
+    const guestBtn = document.getElementById('guestBtn');
 
     checkboxes.forEach(cb => {
       cb.addEventListener('change', () => {
         const allChecked = [...checkboxes].every(c => c.checked);
-        continueBtn.disabled = !allChecked;
+        signupBtn.disabled = !allChecked;
+        guestBtn.disabled = !allChecked;
       });
-    });
-
-    continueBtn.addEventListener('click', () => {
-      localStorage.setItem("acceptedDisclaimer", "true");
-      window.location.href = "login.html";
     });
   </script>
 </body>
