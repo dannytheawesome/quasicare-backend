@@ -24,72 +24,60 @@
     }
 
     input {
-      padding: 12px;
-      margin: 10px;
+      padding: 10px;
       width: 90%;
       max-width: 300px;
+      margin: 8px 0;
       border: none;
       border-radius: 6px;
-      font-size: 16px;
-      background-color: #1e1e1e;
-      color: white;
+      font-size: 1rem;
     }
 
     button {
-      padding: 12px 20px;
-      margin: 10px;
+      padding: 12px;
+      width: 100%;
+      max-width: 300px;
+      margin-top: 15px;
       background-color: #3399ff;
-      border: none;
       color: white;
+      border: none;
       border-radius: 6px;
       font-size: 1rem;
       cursor: pointer;
     }
 
     button:hover {
-      background-color: #4aa3ff;
+      background-color: #0077cc;
     }
 
     #error {
       color: #f77;
-      margin-top: 10px;
+      margin-top: 12px;
     }
 
-    .links {
-      margin-top: 30px;
-      font-size: 0.9rem;
-      text-align: center;
-    }
-
-    .links a {
-      color: #aaa;
+    a {
+      color: #ccc;
       text-decoration: underline;
-      margin: 0 10px;
+      margin-top: 20px;
+      font-size: 0.9rem;
     }
   </style>
 </head>
 <body>
-  <h1>Log In to QuasiCare</h1>
-
+  <h1>Login</h1>
   <input type="email" id="email" placeholder="Email" />
   <input type="password" id="password" placeholder="Password" />
-  <button onclick="login()">Log In</button>
-  <button onclick="window.location.href='signup.html'">Sign Up</button>
+  <button id="loginBtn">Sign In</button>
   <div id="error"></div>
-
-  <div class="links">
-    <a href="terms.html" target="_blank">Terms</a>
-    <a href="privacy.html" target="_blank">Privacy</a>
-    <a href="disclaimer.html" target="_blank">Disclaimer</a>
-  </div>
+  <a href="signup.html">Don't have an account? Sign up</a>
 
   <script type="module">
-    if (!localStorage.getItem("acceptedDisclaimer")) {
-      window.location.href = "disclaimer.html";
-    }
-
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import {
+      getAuth,
+      signInWithEmailAndPassword,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCbrPC0NZDr8yZ4xTTBayBbOnESETg9xuw",
@@ -103,19 +91,29 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    window.login = () => {
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
+    document.getElementById("loginBtn").addEventListener("click", async () => {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
       const errorDiv = document.getElementById("error");
 
-      signInWithEmailAndPassword(auth, email, password)
-        .then(() => {
-          window.location.href = "index.html";
-        })
-        .catch((error) => {
-          errorDiv.innerText = "⚠️ " + error.message;
-        });
-    };
+      if (!email || !password) {
+        errorDiv.textContent = "⚠️ Please enter both email and password.";
+        return;
+      }
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        window.location.href = "index.html";
+      } catch (error) {
+        errorDiv.textContent = "⚠️ " + error.message;
+      }
+    });
+
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        window.location.href = "index.html";
+      }
+    });
   </script>
 </body>
 </html>
