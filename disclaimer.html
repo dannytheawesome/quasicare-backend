@@ -3,56 +3,60 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Disclaimer | QuasiCare</title>
+  <title>Before You Continue</title>
   <style>
     body {
       background-color: #111;
       color: white;
       font-family: system-ui, sans-serif;
-      padding: 30px;
-      line-height: 1.6;
+      text-align: left;
+      padding: 40px 20px;
     }
 
-    h1 {
-      color: #3399ff;
-      font-size: 1.8rem;
+    h2 {
       text-align: center;
-      margin-bottom: 20px;
-    }
-
-    .checkbox-group {
-      margin-bottom: 20px;
+      color: #3aaaff;
     }
 
     label {
       display: block;
-      margin: 12px 0;
-      cursor: pointer;
+      margin: 15px 0;
+    }
+
+    input[type="checkbox"] {
+      margin-right: 10px;
+      transform: scale(1.2);
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: center;
+      margin: 30px 0;
+      gap: 20px;
     }
 
     button {
-      padding: 12px 20px;
-      margin: 10px;
-      background-color: #3399ff;
-      border: none;
+      background-color: #349eff;
       color: white;
+      border: none;
+      padding: 12px 20px;
+      font-size: 16px;
       border-radius: 6px;
-      font-size: 1rem;
       cursor: pointer;
+      opacity: 0.6;
+      transition: 0.3s ease;
     }
 
-    button:disabled {
-      background-color: #444;
-      cursor: not-allowed;
+    button:enabled {
+      opacity: 1;
     }
 
-    .links {
-      margin-top: 20px;
-      font-size: 0.9rem;
+    footer {
       text-align: center;
+      font-size: 0.9rem;
     }
 
-    .links a {
+    footer a {
       color: #ccc;
       text-decoration: underline;
       margin: 0 10px;
@@ -60,47 +64,43 @@
   </style>
 </head>
 <body>
-  <h1>Before You Continue</h1>
-
+  <h2>Before You Continue</h2>
   <p>Please read and accept the following to continue using QuasiCare.</p>
 
-  <div class="checkbox-group">
-    <label><input type="checkbox" id="terms" /> I accept the <a href="terms.html" target="_blank">Terms of Service</a>.</label>
-    <label><input type="checkbox" id="privacy" /> I agree to the <a href="privacy.html" target="_blank">Privacy Policy</a>.</label>
-    <label><input type="checkbox" id="data" /> I understand how my data will be collected and used.</label>
+  <label><input type="checkbox" id="termsCheck"> I accept the <a href="terms.html" target="_blank">Terms of Service</a>.</label>
+  <label><input type="checkbox" id="privacyCheck"> I agree to the <a href="privacy.html" target="_blank">Privacy Policy</a>.</label>
+  <label><input type="checkbox" id="dataCheck"> I understand how my data will be collected and used.</label>
+
+  <div class="buttons">
+    <button id="signupBtn" type="button" disabled>Sign Up / Log In</button>
+    <button id="guestBtn" type="button" disabled>Continue as Guest</button>
   </div>
 
-  <div style="text-align: center;">
-    <button id="signupBtn" disabled>Sign Up / Log In</button>
-    <button id="guestBtn" disabled>Continue as Guest</button>
-  </div>
-
-  <div class="links">
+  <footer>
     <a href="terms.html" target="_blank">Terms</a>
     <a href="privacy.html" target="_blank">Privacy</a>
-  </div>
+  </footer>
 
   <script>
-    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-    const signupBtn = document.getElementById('signupBtn');
-    const guestBtn = document.getElementById('guestBtn');
+    const checkboxes = document.querySelectorAll("input[type='checkbox']");
+    const signupBtn = document.getElementById("signupBtn");
+    const guestBtn = document.getElementById("guestBtn");
 
-    // Enable buttons only when all checkboxes are checked
-    checkboxes.forEach(cb => {
-      cb.addEventListener('change', () => {
-        const allChecked = [...checkboxes].every(c => c.checked);
-        signupBtn.disabled = !allChecked;
-        guestBtn.disabled = !allChecked;
-      });
+    function updateButtonState() {
+      const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
+      signupBtn.disabled = !allChecked;
+      guestBtn.disabled = !allChecked;
+    }
+
+    checkboxes.forEach(cb => cb.addEventListener("change", updateButtonState));
+
+    signupBtn.addEventListener("click", () => {
+      window.location.href = "login.html";
     });
 
-    // Redirect properly
-    signupBtn.addEventListener('click', () => {
-      window.location.href = 'login.html';
-    });
-
-    guestBtn.addEventListener('click', () => {
-      window.location.href = 'index.html';
+    guestBtn.addEventListener("click", () => {
+      localStorage.setItem("quasicareGuestAccepted", "true");
+      window.location.href = "index.html";
     });
   </script>
 </body>
