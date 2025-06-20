@@ -4,22 +4,88 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Profile | QuasiCare</title>
+  <style>
+    body {
+      background-color: #111;
+      color: white;
+      font-family: system-ui, sans-serif;
+      text-align: center;
+      padding: 30px;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+    }
+
+    .info-box {
+      background-color: #1e1e1e;
+      border-radius: 10px;
+      padding: 20px;
+      margin: 20px auto;
+      max-width: 500px;
+      text-align: left;
+    }
+
+    .info-box p {
+      margin: 10px 0;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: #333;
+      border: none;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background-color: #555;
+    }
+
+    #footerLinks {
+      margin-top: 40px;
+      font-size: 0.9rem;
+    }
+
+    #footerLinks a {
+      color: #aaa;
+      text-decoration: underline;
+      margin: 0 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Your Profile</h1>
+  <div class="info-box" id="profileBox">
+    <p><strong>User ID:</strong> <span id="uid">Loading...</span></p>
+    <p><strong>Last Post Time:</strong> <span id="lastPost">Loading...</span></p>
+    <p><strong>Submitted Vents:</strong></p>
+    <ul id="ventList"></ul>
+  </div>
+
+  <div>
+    <a href="index.html"><button>⬅ Back to Home</button></a>
+  </div>
+
+  <div id="footerLinks">
+    <a href="terms.html" target="_blank">Terms</a>
+    <a href="privacy.html" target="_blank">Privacy</a>
+    <a href="disclaimer.html" target="_blank">Disclaimer</a>
+  </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import {
-      getAuth,
-      onAuthStateChanged
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import {
-      getDatabase,
-      ref,
-      get,
-      child
+      getDatabase, ref, get, child
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    import {
+      getAuth, signInAnonymously, onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
     const firebaseConfig = {
-      apiKey: "AIzaSyCbrPC0NZDr8yZ4xTTBayBbOnESETg9xuw",
+      apiKey: "YOUR_API_KEY",
       authDomain: "quasicare.firebaseapp.com",
       databaseURL: "https://quasicare-default-rtdb.firebaseio.com",
       projectId: "quasicare",
@@ -29,81 +95,42 @@
     };
 
     const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
     const db = getDatabase(app);
+    const auth = getAuth(app);
+
+    signInAnonymously(auth).catch(console.error);
 
     onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        const uid = user.uid;
-        document.getElementById("uid").innerText = uid;
+      if (!user) return;
 
-        const userRef = ref(db, `users/${uid}`);
-        const snapshot = await get(userRef);
+      const uid = user.uid;
+      document.getElementById("uid").innerText = uid;
 
-        if (snapshot.exists()) {
-          const data = snapshot.val();
-          document.getElementById("joined").innerText = new Date(data.createdAt).toLocaleString() || "N/A";
-          document.getElementById("replyCount").innerText = data.replies || 0;
-          document.getElementById("journalCount").innerText = data.journals || 0;
-          document.getElementById("badges").innerText = data.badges?.join(", ") || "None";
-        } else {
-          document.getElementById("info").innerText = "⚠️ No user data found in database.";
-        }
+      const lastPostRef = ref(db, `users/${uid}/lastPostTime`);
+      const lastPostSnap = await get(lastPostRef);
+      if (lastPostSnap.exists()) {
+        const date = new Date(lastPostSnap.val());
+        document.getElementById("lastPost").innerText = date.toLocaleString();
       } else {
-        document.getElementById("info").innerText = "⚠️ You are not logged in.";
+        document.getElementById("lastPost").innerText = "No posts yet.";
+      }
+
+      const ventsSnap = await get(ref(db, "vents"));
+      const list = document.getElementById("ventList");
+      if (ventsSnap.exists()) {
+        const data = ventsSnap.val();
+        for (let code in data) {
+          if (data[code].uid === uid) {
+            const li = document.createElement("li");
+            li.innerText = code;
+            list.appendChild(li);
+          }
+        }
+        if (list.childElementCount === 0) {
+          list.innerHTML = "<li>No vents found.</li>";
+        }
       }
     });
   </script>
-
-  <style>
-    body {
-      background-color: #111;
-      color: white;
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 40px;
-    }
-    .info-box {
-      margin-top: 20px;
-      background-color: #1e1e1e;
-      padding: 20px;
-      border-radius: 8px;
-      display: inline-block;
-      text-align: left;
-    }
-    h1 {
-      font-size: 2rem;
-    }
-    .footer a {
-      color: #aaa;
-      text-decoration: underline;
-      margin: 0 10px;
-    }
-    .footer {
-      margin-top: 40px;
-      font-size: 0.9rem;
-    }
-  </style>
-</head>
-<body>
-  <h1>Your Profile</h1>
-  <div class="info-box">
-    <p><strong>User ID:</strong> <span id="uid">Loading...</span></p>
-    <p><strong>Joined:</strong> <span id="joined">Loading...</span></p>
-    <p><strong>Total Replies Sent:</strong> <span id="replyCount">0</span></p>
-    <p><strong>Journal Count:</strong> <span id="journalCount">0</span></p>
-    <p><strong>Badges:</strong> <span id="badges">None</span></p>
-    <p id="info" style="color: #f77;"></p>
-  </div>
-
-  <div style="margin-top: 30px;">
-    <a href="index.html"><button>⬅ Back to Home</button></a>
-  </div>
-
-  <div class="footer">
-    <a href="terms.html">Terms</a>
-    <a href="privacy.html">Privacy</a>
-    <a href="disclaimer.html">Disclaimer</a>
-  </div>
 </body>
 </html>
