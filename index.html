@@ -97,14 +97,13 @@
   </div>
 
   <div id="suicideCounters">
-    <h2>Souls lost in the U.S.: <span id="usCount">0</span></h2>
-    <h2>Souls lost globally: <span id="globalCount">0</span></h2>
+    <h2>Souls lost in the U.S. (2025): <span id="usCount">0</span></h2>
+    <h2>Souls lost globally (2025): <span id="globalCount">0</span></h2>
   </div>
 
   <footer>
     <a href="terms.html" target="_blank">Terms</a>
     <a href="privacy.html" target="_blank">Privacy</a>
-    <a href="disclaimer.html" target="_blank">Disclaimer</a>
   </footer>
 
   <script type="module">
@@ -132,22 +131,35 @@
     // Suicide counter logic
     const usBase = 15173;
     const globalBase = 221283;
-    const usRate = 60 * 11; // ~1 suicide per 11 min in U.S.
-    const globalRate = 40;  // ~1 every 40s globally
+    const usRate = 60 * 11;
+    const globalRate = 40;
+    const startTime = new Date("2025-01-01T00:00:00Z").getTime(); // New year start
 
-    let startTime = Date.now();
+    const now = Date.now();
+    const elapsed = Math.floor((now - startTime) / 1000);
+    const targetUS = usBase + Math.floor(elapsed / usRate);
+    const targetGlobal = globalBase + Math.floor(elapsed / globalRate);
 
-    function updateCounters() {
-      const seconds = Math.floor((Date.now() - startTime) / 1000);
-      const usCount = usBase + Math.floor(seconds / usRate);
-      const globalCount = globalBase + Math.floor(seconds / globalRate);
+    function animateCounter(id, target) {
+      const el = document.getElementById(id);
+      let current = 0;
+      const steps = 30;
+      const increment = Math.ceil(target / steps);
+      const interval = 1200 / steps;
 
-      document.getElementById("usCount").innerText = usCount.toLocaleString();
-      document.getElementById("globalCount").innerText = globalCount.toLocaleString();
+      const countUp = setInterval(() => {
+        current += increment;
+        if (current >= target) {
+          el.innerText = target.toLocaleString();
+          clearInterval(countUp);
+        } else {
+          el.innerText = current.toLocaleString();
+        }
+      }, interval);
     }
 
-    updateCounters();
-    setInterval(updateCounters, 3000);
+    animateCounter("usCount", targetUS);
+    animateCounter("globalCount", targetGlobal);
   </script>
 </body>
 </html>
