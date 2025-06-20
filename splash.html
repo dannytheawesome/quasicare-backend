@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -18,6 +17,7 @@
       font-family: system-ui, sans-serif;
       color: white;
       overflow: hidden;
+      transition: background 0.3s ease;
     }
 
     .heart-container {
@@ -42,9 +42,10 @@
 
     .logo-text {
       opacity: 0;
-      font-size: 1.6rem;
+      font-size: 1.8rem;
       margin-top: 20px;
       color: #3399ff;
+      font-weight: 600;
       animation: fadeIn 1s ease 2s forwards;
     }
 
@@ -65,8 +66,9 @@
   <div class="logo-text">QuasiCare</div>
 
   <script>
+    // Wait 4 seconds, then move to the disclaimer page
     setTimeout(() => {
-      window.location.href = "disclaimer.html"; // Go to disclaimer screen
+      window.location.href = "disclaimer.html";
     }, 4000);
   </script>
 </body>
