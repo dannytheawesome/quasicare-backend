@@ -9,7 +9,7 @@
       background-color: #111;
       color: white;
       font-family: system-ui, sans-serif;
-      padding: 20px;
+      padding: 30px;
       line-height: 1.6;
     }
 
@@ -20,23 +20,14 @@
       margin-bottom: 20px;
     }
 
-    p {
-      text-align: center;
-      font-size: 1rem;
-      max-width: 500px;
-      margin: 0 auto 20px auto;
-    }
-
     .checkbox-group {
-      max-width: 500px;
-      margin: 0 auto 20px auto;
+      margin-bottom: 20px;
     }
 
     label {
       display: block;
       margin: 12px 0;
       cursor: pointer;
-      font-size: 0.95rem;
     }
 
     button {
@@ -48,8 +39,6 @@
       border-radius: 6px;
       font-size: 1rem;
       cursor: pointer;
-      width: 80%;
-      max-width: 300px;
     }
 
     button:disabled {
@@ -58,8 +47,8 @@
     }
 
     .links {
-      margin-top: 30px;
-      font-size: 0.85rem;
+      margin-top: 20px;
+      font-size: 0.9rem;
       text-align: center;
     }
 
@@ -73,20 +62,16 @@
 <body>
   <h1>Before You Continue</h1>
 
-  <p>
-    QuasiCare is a supportive space, but not a replacement for professional help.
-    To proceed, please confirm your understanding and acceptance of our policies.
-  </p>
+  <p>Please read and accept the following to continue using QuasiCare.</p>
 
   <div class="checkbox-group">
     <label><input type="checkbox" id="terms" /> I accept the <a href="terms.html" target="_blank">Terms of Service</a>.</label>
     <label><input type="checkbox" id="privacy" /> I agree to the <a href="privacy.html" target="_blank">Privacy Policy</a>.</label>
-    <label><input type="checkbox" id="data" /> I understand how my data may be collected and used.</label>
+    <label><input type="checkbox" id="data" /> I understand how my data will be collected and used.</label>
   </div>
 
   <div style="text-align: center;">
-    <button id="signupBtn" disabled onclick="window.location.href='signup.html'">Sign Up / Log In</button>
-    <button id="guestBtn" disabled onclick="window.location.href='index.html'">Continue as Guest</button>
+    <button id="continueBtn" disabled>Continue</button>
   </div>
 
   <div class="links">
@@ -97,15 +82,18 @@
 
   <script>
     const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-    const signupBtn = document.getElementById('signupBtn');
-    const guestBtn = document.getElementById('guestBtn');
+    const continueBtn = document.getElementById('continueBtn');
 
     checkboxes.forEach(cb => {
       cb.addEventListener('change', () => {
         const allChecked = [...checkboxes].every(c => c.checked);
-        signupBtn.disabled = !allChecked;
-        guestBtn.disabled = !allChecked;
+        continueBtn.disabled = !allChecked;
       });
+    });
+
+    continueBtn.addEventListener('click', () => {
+      localStorage.setItem("acceptedDisclaimer", "true");
+      window.location.href = "login.html";
     });
   </script>
 </body>
