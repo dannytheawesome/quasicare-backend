@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,35 +7,112 @@
   <title>Welcome to QuasiCare</title>
   <style>
     body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
       background-color: #111;
       color: white;
-      font-family: system-ui, sans-serif;
       text-align: center;
-      padding: 50px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      height: 100vh;
     }
 
-    button {
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    #loader {
+      font-size: 1.2rem;
+      margin-bottom: 20px;
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.4; }
+      50% { opacity: 1; }
+      100% { opacity: 0.4; }
+    }
+
+    .container {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .btn {
       padding: 12px 24px;
-      margin: 10px;
-      background-color: #333;
+      background: #333;
       color: white;
       border: none;
       border-radius: 6px;
+      font-size: 1rem;
       cursor: pointer;
     }
 
-    button:hover {
-      background-color: #555;
+    .btn:hover {
+      background: #555;
+    }
+
+    .disclaimer-box {
+      background-color: #222;
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 90%;
+      margin: 0 auto 20px;
+    }
+
+    label {
+      font-size: 0.9rem;
     }
   </style>
 </head>
 <body>
-  <h1>Welcome to QuasiCare</h1>
-  <p>Please choose an option:</p>
 
-  <a href="talk.html"><button>🗣 Talk</button></a>
-  <a href="listen.html"><button>👂 Listen</button></a>
-  <a href="profile.html"><button>👤 Profile</button></a>
-  <a href="login.html"><button>🔑 Login</button></a>
+  <div id="loader">Loading QuasiCare...</div>
+
+  <div class="container" id="disclaimerScreen">
+    <div class="disclaimer-box">
+      <h2>Disclaimer & Terms</h2>
+      <p>Please read and agree to the terms and data usage before proceeding.</p>
+      <label>
+        <input type="checkbox" id="agreeCheckbox" />
+        I agree to the <a href="terms.html" target="_blank">Terms</a>, <a href="privacy.html" target="_blank">Privacy Policy</a>, and <a href="disclaimer.html" target="_blank">Disclaimer</a>.
+      </label>
+    </div>
+    <button class="btn" onclick="proceed()" id="agreeBtn" disabled>Agree and Continue</button>
+  </div>
+
+  <div class="container hidden" id="entryOptions">
+    <h1>Welcome to QuasiCare</h1>
+    <p>Choose how you'd like to continue:</p>
+    <button class="btn" onclick="location.href='signup.html'">Sign Up</button>
+    <button class="btn" onclick="location.href='login.html'">Sign In</button>
+    <button class="btn" onclick="location.href='index.html'">Enter Anonymously</button>
+    <p style="font-size: 0.8rem; color: #aaa;">Note: Anonymous users have limited access for safety and accountability.</p>
+  </div>
+
+  <script>
+    setTimeout(() => {
+      document.getElementById("loader").style.display = "none";
+      document.getElementById("disclaimerScreen").style.display = "flex";
+    }, 1500);
+
+    document.getElementById("agreeCheckbox").addEventListener("change", function() {
+      document.getElementById("agreeBtn").disabled = !this.checked;
+    });
+
+    function proceed() {
+      document.getElementById("disclaimerScreen").classList.add("hidden");
+      document.getElementById("entryOptions").classList.remove("hidden");
+    }
+  </script>
+
 </body>
 </html>
