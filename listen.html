@@ -4,43 +4,47 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Listen | QuasiCare</title>
-  <script src="https://cdn.jsdelivr.net/npm/leo-profanity@1.7.0/leo-profanity.min.js"></script>
-
   <style>
     body {
       background-color: #111;
       color: white;
       font-family: system-ui, sans-serif;
-      padding: 30px;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
       text-align: center;
+      font-size: 1.8rem;
+      margin-bottom: 20px;
     }
 
-    .vent-box {
-      background-color: #1e1e1e;
-      padding: 12px;
-      margin: 10px auto;
+    .vent-card {
+      background-color: #222;
+      padding: 15px;
+      margin-bottom: 20px;
       border-radius: 8px;
-      max-width: 500px;
-      text-align: left;
     }
 
-    input, textarea {
-      width: 90%;
-      max-width: 400px;
+    .vent-card p {
+      margin-bottom: 10px;
+    }
+
+    textarea {
+      width: 100%;
       padding: 10px;
-      font-size: 14px;
-      margin-top: 10px;
       border: none;
       border-radius: 6px;
       background-color: #1e1e1e;
       color: white;
+      font-size: 14px;
+      resize: vertical;
     }
 
     button {
       margin-top: 10px;
-      padding: 10px 20px;
-      font-size: 16px;
-      background-color: #333;
+      padding: 8px 14px;
+      background-color: #3399ff;
       color: white;
       border: none;
       border-radius: 6px;
@@ -48,56 +52,36 @@
     }
 
     button:hover {
-      background-color: #555;
+      background-color: #2b7ddc;
     }
 
-    #footerLinks {
+    .footer-links {
+      text-align: center;
       margin-top: 40px;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
     }
 
-    #footerLinks a {
+    .footer-links a {
       color: #aaa;
+      margin: 0 8px;
       text-decoration: underline;
-      margin: 0 10px;
-    }
-
-    #feedback {
-      color: #f77;
-      margin-top: 10px;
     }
   </style>
 </head>
 <body>
-  <h1>Listen & Support</h1>
-  <p>Read anonymous vents. If you feel ready, you can respond and offer comfort.</p>
+  <h1>Support a Soul</h1>
+  <div id="ventContainer">Loading...</div>
 
-  <div id="ventFeed"></div>
-
-  <h2>Reply to a Vent</h2>
-  <input type="text" id="replyCode" placeholder="Enter vent code" /><br />
-  <textarea id="replyInput" placeholder="Type your reply..."></textarea><br />
-  <button onclick="submitReply()">Send Reply</button>
-  <p id="feedback"></p>
-
-  <div style="margin-top: 40px;">
-    <a href="index.html"><button>⬅ Back to Home</button></a>
-  </div>
-
-  <div id="footerLinks">
+  <div class="footer-links">
     <a href="terms.html" target="_blank">Terms</a>
     <a href="privacy.html" target="_blank">Privacy</a>
-    <a href="disclaimer.html" target="_blank">Disclaimer</a>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import {
-      getDatabase, ref, get, onValue, update
+      getDatabase, ref, get, update
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-    import {
-      getAuth, signInAnonymously, onAuthStateChanged
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCbrPC0NZDr8yZ4xTTBayBbOnESETg9xuw",
@@ -111,70 +95,51 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    const auth = getAuth(app);
+    const container = document.getElementById("ventContainer");
 
-    let userUID = null;
-    signInAnonymously(auth).catch(console.error);
+    async function loadVents() {
+      const snapshot = await get(ref(db, "vents"));
+      if (!snapshot.exists()) {
+        container.innerText = "No vents available right now.";
+        return;
+      }
 
-    onAuthStateChanged(auth, (user) => {
-      if (user) userUID = user.uid;
-    });
-
-    function loadVents() {
-      const container = document.getElementById("ventFeed");
+      const data = snapshot.val();
       container.innerHTML = "";
 
-      onValue(ref(db, "vents"), (snapshot) => {
-        container.innerHTML = "";
-        const data = snapshot.val();
-        if (!data) return;
+      Object.entries(data).forEach(([code, vent]) => {
+        if (vent.reply == null) {
+          const card = document.createElement("div");
+          card.className = "vent-card";
 
-        Object.entries(data).forEach(([code, entry]) => {
-          const box = document.createElement("div");
-          box.className = "vent-box";
-          box.innerHTML = `
-            <strong>Code:</strong> ${code}<br>
-            <strong>Message:</strong> ${entry.message}<br>
-            <strong>Reply:</strong> ${entry.reply || "No reply yet"}
-          `;
-          container.appendChild(box);
-        });
+          const message = document.createElement("p");
+          message.innerText = vent.message;
+          card.appendChild(message);
+
+          const textarea = document.createElement("textarea");
+          textarea.placeholder = "Write a caring reply...";
+          card.appendChild(textarea);
+
+          const btn = document.createElement("button");
+          btn.innerText = "Send Reply";
+          btn.onclick = async () => {
+            const reply = textarea.value.trim();
+            if (!reply) return alert("Please write a reply.");
+            await update(ref(db, `vents/${code}`), { reply });
+            card.remove(); // hide after reply
+          };
+          card.appendChild(btn);
+
+          container.appendChild(card);
+        }
       });
+
+      if (container.innerHTML.trim() === "") {
+        container.innerText = "No new vents needing support.";
+      }
     }
 
     loadVents();
-
-    window.submitReply = async function () {
-      const code = document.getElementById("replyCode").value.trim().toUpperCase();
-      const reply = document.getElementById("replyInput").value.trim();
-      const feedback = document.getElementById("feedback");
-
-      if (!code || !reply) {
-        feedback.innerText = "⚠️ Please enter both code and reply.";
-        return;
-      }
-
-      if (!userUID) {
-        feedback.innerText = "⚠️ You must be signed in to reply.";
-        return;
-      }
-
-      if (window.leoProfanity && leoProfanity.check(reply)) {
-        feedback.innerText = "⚠️ Reply contains inappropriate language.";
-        return;
-      }
-
-      const replyRef = ref(db, `vents/${code}`);
-      const snap = await get(replyRef);
-      if (!snap.exists()) {
-        feedback.innerText = "⚠️ Invalid vent code.";
-        return;
-      }
-
-      await update(replyRef, { reply });
-      feedback.innerText = "✅ Reply submitted!";
-      document.getElementById("replyInput").value = "";
-    };
   </script>
 </body>
 </html>
