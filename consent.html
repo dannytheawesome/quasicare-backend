@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Consent | QuasiCare</title>
+  <style>
+    body {
+      background-color: #111;
+      color: white;
+      font-family: system-ui, sans-serif;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      color: #00ccff;
+    }
+
+    .consent-box {
+      background-color: #1c1c1c;
+      padding: 20px;
+      margin-top: 20px;
+      border-radius: 10px;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: left;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 12px 20px;
+      background-color: #00ccff;
+      border: none;
+      border-radius: 6px;
+      color: #111;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #00b0e0;
+    }
+
+    footer {
+      margin-top: 40px;
+      font-size: 0.85rem;
+      color: #aaa;
+    }
+
+    footer a {
+      color: #aaa;
+      text-decoration: underline;
+      margin: 0 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Before You Continue</h1>
+
+  <div class="consent-box">
+    <p>By using QuasiCare, you acknowledge and agree to the following:</p>
+    <ul>
+      <li>This is a mental health support tool, not a replacement for professional care.</li>
+      <li>We do not collect personally identifiable information unless explicitly shared.</li>
+      <li>You must not post illegal, violent, or harmful content.</li>
+      <li>Your data may be processed anonymously for moderation and improvement.</li>
+    </ul>
+    <p>You must read and agree to our <a href="terms.html" target="_blank">Terms of Service</a> and <a href="privacy.html" target="_blank">Privacy Policy</a> before using the platform.</p>
+  </div>
+
+  <button onclick="proceed()">I Agree and Continue</button>
+
+  <footer>
+    <a href="terms.html" target="_blank">Terms</a>
+    <a href="privacy.html" target="_blank">Privacy</a>
+    <a href="disclaimer.html" target="_blank">Disclaimer</a>
+  </footer>
+
+  <script>
+    function proceed() {
+      window.location.href = "login.html";
+    }
+  </script>
+</body>
+</html>
