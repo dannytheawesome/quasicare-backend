@@ -13,76 +13,70 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding-top: 40px;
-      text-align: center;
+      justify-content: start;
+      padding-top: 60px;
     }
 
     .logo-animation {
       width: 100px;
       height: 100px;
       background: url('3f2e9965-d914-427b-bd62-5ed435eb9bc7.png') center/contain no-repeat;
-      animation: pulse 2s ease-in-out;
+      animation: pulse 2.5s ease-in-out;
     }
 
     @keyframes pulse {
-      0% { transform: scale(0.3); opacity: 0; }
+      0% { transform: scale(0.2); opacity: 0; }
       100% { transform: scale(1); opacity: 1; }
     }
 
     h1 {
-      font-size: 1.7rem;
-      margin: 20px 0 10px;
-    }
-
-    .tagline {
-      font-size: 1.1rem;
-      color: #bbb;
-      margin-bottom: 30px;
-      font-weight: 400;
+      margin-top: 20px;
+      font-size: 1.8rem;
     }
 
     .buttons {
+      margin: 30px 0;
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 15px;
       width: 80%;
       max-width: 300px;
     }
 
     .buttons a button {
       padding: 14px;
-      background-color: #1d1d1d;
+      background-color: #222;
       color: white;
       border: none;
-      border-radius: 10px;
+      border-radius: 8px;
       font-size: 16px;
       cursor: pointer;
-      transition: background 0.2s ease;
     }
 
     .buttons a button:hover {
-      background-color: #333;
+      background-color: #444;
     }
 
     #suicideCounters {
-      margin-top: 35px;
+      margin-top: 20px;
+      text-align: center;
     }
 
     #suicideCounters h2 {
-      font-size: 1rem;
+      font-size: 1.1rem;
+      font-weight: normal;
       color: #ccc;
-      margin: 6px 0;
     }
 
     #suicideCounters span {
-      color: #00ffc3;
-      font-weight: 600;
+      color: #00ffcc;
+      font-weight: bold;
     }
 
     footer {
-      margin-top: 50px;
-      font-size: 0.85rem;
-      color: #888;
+      margin-top: 40px;
+      font-size: 0.9rem;
+      color: #aaa;
     }
 
     footer a {
@@ -95,7 +89,6 @@
 <body>
   <div class="logo-animation"></div>
   <h1>Welcome to QuasiCare</h1>
-  <div class="tagline">You are loved. You matter.</div>
 
   <div class="buttons">
     <a href="talk.html"><button>Talk</button></a>
@@ -104,8 +97,8 @@
   </div>
 
   <div id="suicideCounters">
-    <h2>Souls lost in the U.S. (2025): <span id="usCount">0</span></h2>
-    <h2>Souls lost globally (2025): <span id="globalCount">0</span></h2>
+    <h2>Souls lost in the U.S.: <span id="usCount">0</span></h2>
+    <h2>Souls lost globally: <span id="globalCount">0</span></h2>
   </div>
 
   <footer>
@@ -129,40 +122,59 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
+    const accepted = localStorage.getItem("quasicareGuestAccepted");
+    if (!accepted) {
+      window.location.href = "disclaimer.html";
+    }
+
     onAuthStateChanged(auth, (user) => {
-      if (!user) window.location.href = "login.html";
+      if (!user) {
+        window.location.href = "login.html";
+      }
     });
 
-    // Suicide counter logic
+    // Animated Suicide Counters
     const usBase = 15173;
     const globalBase = 221283;
-    const usRate = 60 * 11; // ~1 U.S. suicide every 11 min
-    const globalRate = 40;  // ~1 global suicide every 40s
+    const usRate = 60 * 11;
+    const globalRate = 40;
 
-    const startTime = Date.now();
+    const usEl = document.getElementById("usCount");
+    const globalEl = document.getElementById("globalCount");
 
-    function animateCountUp(id, target) {
-      let current = 0;
-      const duration = 1000;
-      const stepTime = Math.max(Math.floor(duration / target), 20);
+    let startTime = Date.now();
 
-      const timer = setInterval(() => {
-        current += 1;
-        document.getElementById(id).innerText = current.toLocaleString();
-        if (current >= target) clearInterval(timer);
-      }, stepTime);
+    function getCounts() {
+      const elapsed = Math.floor((Date.now() - startTime) / 1000);
+      return {
+        us: usBase + Math.floor(elapsed / usRate),
+        global: globalBase + Math.floor(elapsed / globalRate)
+      };
+    }
+
+    function animateCounter(el, finalValue, duration = 1000) {
+      let start = 0;
+      const startTime = performance.now();
+
+      function update(now) {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const value = Math.floor(progress * finalValue);
+        el.textContent = value.toLocaleString();
+        if (progress < 1) requestAnimationFrame(update);
+      }
+
+      requestAnimationFrame(update);
     }
 
     function updateCounters() {
-      const seconds = Math.floor((Date.now() - startTime) / 1000);
-      const usCount = usBase + Math.floor(seconds / usRate);
-      const globalCount = globalBase + Math.floor(seconds / globalRate);
-
-      animateCountUp("usCount", usCount);
-      animateCountUp("globalCount", globalCount);
+      const counts = getCounts();
+      animateCounter(usEl, counts.us);
+      animateCounter(globalEl, counts.global);
     }
 
     updateCounters();
+    setInterval(updateCounters, 3000);
   </script>
 </body>
 </html>
