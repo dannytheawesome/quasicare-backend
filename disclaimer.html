@@ -1,21 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Disclaimer | QuasiCare</title>
+  <style>
+    body {
+      background-color: #0f0f0f;
+      color: white;
+      font-family: system-ui, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 30px;
+      text-align: center;
+    }
 
-<h1>Disclaimer</h1>
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 10px;
+    }
 
-<p>QuasiCare is an anonymous emotional support platform. It is not a substitute for professional therapy, counseling, legal advice, or medical treatment.</p>
+    p {
+      font-size: 0.95rem;
+      margin-bottom: 20px;
+      max-width: 400px;
+    }
 
-<p>By using this platform, you acknowledge and agree to the following:</p>
-<ul>
-  <li>Your messages and replies are stored anonymously and may be reviewed by AI moderation for safety.</li>
-  <li>You are solely responsible for the content you submit.</li>
-  <li>In case of suspected imminent harm, we reserve the right to take appropriate action.</li>
-</ul>
+    .links a {
+      color: #7dd3fc;
+      text-decoration: underline;
+      margin: 0 6px;
+      font-size: 0.9rem;
+    }
 
-<p>If you are in crisis or need professional help, please contact:</p>
-<ul>
-  <li><strong>U.S. 988 Suicide & Crisis Lifeline:</strong> Call or text 988 or visit <a href="https://988lifeline.org" target="_blank">988lifeline.org</a></li>
-  <li><strong>International Directory:</strong> <a href="https://findahelpline.com" target="_blank">findahelpline.com</a></li>
-</ul>
+    label {
+      font-size: 0.9rem;
+      margin: 20px 0;
+    }
 
-<p>By continuing to use this site, you agree to our <a href="terms.html">Terms of Use</a> and <a href="privacy.html">Privacy Policy</a>.</p>
+    .btn-group {
+      margin-top: 25px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+      max-width: 260px;
+    }
 
-<p><a href="index.html"><button>Return Home</button></a></p>
+    button {
+      background-color: #333;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 10px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      background-color: #555;
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    input[type="checkbox"] {
+      margin-right: 8px;
+      transform: scale(1.2);
+    }
+  </style>
+</head>
+<body>
+  <h1>Welcome to QuasiCare</h1>
+  <p>
+    Before continuing, please confirm that you’ve read and agreed to our:
+  </p>
+  <div class="links">
+    <a href="terms.html" target="_blank">Terms</a>
+    <a href="privacy.html" target="_blank">Privacy</a>
+    <a href="disclaimer.html" target="_blank">Disclaimer</a>
+  </div>
+
+  <label>
+    <input type="checkbox" id="agreeCheckbox" />
+    I agree to the above terms.
+  </label>
+
+  <div class="btn-group">
+    <button onclick="continueTo('signup')" disabled id="signupBtn">Sign Up</button>
+    <button onclick="continueTo('login')" disabled id="loginBtn">Log In</button>
+    <button onclick="continueTo('anonymous')" disabled id="anonBtn">Continue Anonymously</button>
+  </div>
+
+  <script>
+    const checkbox = document.getElementById("agreeCheckbox");
+    const buttons = [
+      document.getElementById("signupBtn"),
+      document.getElementById("loginBtn"),
+      document.getElementById("anonBtn"),
+    ];
+
+    checkbox.addEventListener("change", () => {
+      buttons.forEach((btn) => (btn.disabled = !checkbox.checked));
+    });
+
+    function continueTo(mode) {
+      switch (mode) {
+        case "signup":
+          window.location.href = "signup.html"; // we’ll make this soon
+          break;
+        case "login":
+          window.location.href = "login.html";
+          break;
+        case "anonymous":
+          window.location.href = "index.html"; // home, but limited access
+          break;
+      }
+    }
+  </script>
+</body>
+</html>
