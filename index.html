@@ -12,87 +12,116 @@
     html, body {
       margin: 0;
       padding: 0;
-      height: 100%;
       overflow: hidden;
-      font-family: system-ui, sans-serif;
-      background: radial-gradient(circle, #111, #000);
+      height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(-45deg, #1f1c2c, #928dab, #0f2027, #2c5364);
+      background-size: 400% 400%;
+      animation: gradientBG 20s ease infinite;
       color: white;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
 
     .container {
       display: flex;
-      flex-direction: row;
-      width: 300%;
+      width: 300vw;
       height: 100%;
-      transition: transform 0.5s ease;
+      transition: transform 0.4s ease;
     }
 
     .panel {
-      flex: 0 0 100%;
+      flex: 0 0 100vw;
       height: 100%;
-      padding: 20px;
-      overflow-y: auto;
+      padding: 60px 30px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
     }
 
     h1 {
-      font-size: 1.5rem;
-      margin-top: 30px;
+      font-size: 2rem;
+      margin-bottom: 10px;
     }
 
-    .swipe-indicator {
-      position: fixed;
-      bottom: 10px;
-      width: 100%;
-      text-align: center;
-      font-size: 0.85rem;
-      color: #888;
+    p {
+      font-size: 1.1rem;
+      margin-bottom: 25px;
+      color: #eee;
+    }
+
+    button {
+      padding: 12px 20px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: none;
+      background-color: #fff;
+      color: #333;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #ddd;
     }
 
     .counter {
       margin-top: 20px;
-      text-align: center;
-    }
-
-    .counter h2 {
-      margin: 10px 0;
       font-size: 1rem;
-      color: #ccc;
     }
 
     .counter span {
-      color: #00ffcc;
+      color: #00ffc8;
       font-weight: bold;
+    }
+
+    .swipe-hint {
+      position: absolute;
+      bottom: 20px;
+      width: 100%;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #ccc;
     }
   </style>
 </head>
 <body>
-  <div class="container" id="swipeContainer">
-    <!-- Panel 1: Profile (Home) -->
-    <div class="panel">
-      <h1>Welcome Back 👋</h1>
-      <p>This is your profile space. Reflect. Breathe. Be you.</p>
-      <div class="counter">
-        <h2>Souls lost in the U.S. (2025): <span id="usCount">0</span></h2>
-        <h2>Souls lost globally (2025): <span id="globalCount">0</span></h2>
-      </div>
-    </div>
-
-    <!-- Panel 2: Talk -->
+  <div id="carousel" class="container">
+    <!-- Talk Panel -->
     <div class="panel">
       <h1>Talk</h1>
       <p>Express what's on your mind.</p>
       <a href="talk.html"><button>Open Talk</button></a>
     </div>
 
-    <!-- Panel 3: Listen -->
+    <!-- Profile Panel (Center) -->
+    <div class="panel">
+      <h1>Welcome Back 👋</h1>
+      <p>This is your profile space. Reflect. Breathe.</p>
+      <div class="counter">
+        <p>Souls lost in the U.S. (2025): <span id="usCount">0</span></p>
+        <p>Souls lost globally (2025): <span id="globalCount">0</span></p>
+      </div>
+    </div>
+
+    <!-- Listen Panel -->
     <div class="panel">
       <h1>Listen</h1>
-      <p>Hear others' stories anonymously.</p>
-      <a href="listen.html"><button>Start Listening</button></a>
+      <p>Support others by replying to their messages.</p>
+      <a href="listen.html"><button>Go to Listen</button></a>
     </div>
   </div>
 
-  <div class="swipe-indicator">Swipe left/right to navigate</div>
+  <div class="swipe-hint">Swipe left/right to navigate</div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -116,7 +145,7 @@
       }
     });
 
-    // Counter logic
+    // Suicide Counter
     const usRateSec = 11 * 60;
     const globalRateSec = 40;
     const startOfYear = new Date("2025-01-01T00:00:00Z").getTime();
@@ -163,29 +192,27 @@
       globalEl.innerText = (++global).toLocaleString();
     }, globalRateSec * 1000);
 
-    // Swipe Handling
-    let currentPanel = 0;
-    const swipeContainer = document.getElementById("swipeContainer");
-    let touchStartX = null;
+    // Swipe Navigation
+    let currentIndex = 1;
+    const container = document.getElementById("carousel");
+    container.style.transform = `translateX(-${currentIndex * 100}vw)`;
 
-    swipeContainer.addEventListener("touchstart", (e) => {
-      touchStartX = e.touches[0].clientX;
+    let startX = 0;
+    document.addEventListener("touchstart", (e) => {
+      startX = e.touches[0].clientX;
     });
 
-    swipeContainer.addEventListener("touchend", (e) => {
-      if (!touchStartX) return;
-      const touchEndX = e.changedTouches[0].clientX;
-      const deltaX = touchEndX - touchStartX;
+    document.addEventListener("touchend", (e) => {
+      const endX = e.changedTouches[0].clientX;
+      const delta = endX - startX;
 
-      if (Math.abs(deltaX) > 50) {
-        if (deltaX < 0 && currentPanel < 2) {
-          currentPanel++;
-        } else if (deltaX > 0 && currentPanel > 0) {
-          currentPanel--;
-        }
-        swipeContainer.style.transform = `translateX(-${currentPanel * 100}%)`;
+      if (delta > 50 && currentIndex > 0) {
+        currentIndex--;
+      } else if (delta < -50 && currentIndex < 2) {
+        currentIndex++;
       }
-      touchStartX = null;
+
+      container.style.transform = `translateX(-${currentIndex * 100}vw)`;
     });
   </script>
 </body>
