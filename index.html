@@ -5,101 +5,143 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>QuasiCare</title>
   <style>
-    body, html {
+    * {
       margin: 0;
       padding: 0;
-      font-family: system-ui, sans-serif;
-      height: 100%;
-      overflow: hidden;
-      background: linear-gradient(270deg, #2e3d55, #3e6e7e, #5b7c6a);
-      background-size: 600% 600%;
-      animation: bgMove 20s ease infinite;
-      color: white;
-    }
-
-    @keyframes bgMove {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-
-    .slider {
-      display: flex;
-      width: 300vw;
-      height: 100vh;
-      transition: transform 0.5s ease-in-out;
-    }
-
-    .panel {
-      width: 100vw;
-      height: 100vh;
-      flex-shrink: 0;
-      padding: 40px 20px;
       box-sizing: border-box;
-      text-align: center;
+    }
+
+    body, html {
+      width: 100%;
+      height: 100%;
+      font-family: -apple-system, system-ui, sans-serif;
+      overflow: hidden;
+      background: linear-gradient(120deg, #111, #222);
+    }
+
+    .container {
+      width: 300%;
+      height: 100%;
+      display: flex;
+      transition: transform 0.4s ease;
+    }
+
+    section {
+      width: 100%;
+      height: 100%;
+      flex-shrink: 0;
+      padding: 30px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      position: relative;
     }
 
     h1 {
       font-size: 1.8rem;
-      margin-bottom: 20px;
+      margin-bottom: 10px;
     }
 
-    .counter-box h2 {
-      font-size: 1rem;
-      font-weight: normal;
+    .info {
+      font-size: 0.95rem;
       color: #ccc;
-    }
-
-    .counter-box span {
-      font-weight: bold;
-      color: #00ffcc;
+      margin-bottom: 30px;
     }
 
     button {
-      padding: 12px 20px;
-      font-size: 16px;
-      background: rgba(255, 255, 255, 0.1);
+      padding: 14px 22px;
+      background-color: #3399ff;
       border: none;
+      border-radius: 8px;
       color: white;
-      border-radius: 6px;
+      font-size: 16px;
       cursor: pointer;
-      margin: 10px;
+      margin: 8px 0;
     }
 
-    .swipe-hint {
-      font-size: 0.9rem;
+    button:hover {
+      background-color: #0077cc;
+    }
+
+    .counters {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .counters h3 {
+      font-size: 1rem;
+      color: #bbb;
+      margin: 6px 0;
+    }
+
+    .counters span {
+      color: #00ffcc;
+      font-weight: bold;
+    }
+
+    footer {
+      position: absolute;
+      bottom: 20px;
+      font-size: 0.8rem;
       color: #aaa;
-      margin-top: 30px;
+    }
+
+    footer a {
+      color: #aaa;
+      text-decoration: underline;
+      margin: 0 8px;
+    }
+
+    .bg-animation {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at center, #444 0%, #111 100%);
+      animation: bgPulse 6s infinite ease-in-out;
+      z-index: -1;
+    }
+
+    @keyframes bgPulse {
+      0%, 100% { background-position: center; }
+      50% { background-position: top left; }
     }
   </style>
 </head>
 <body>
-  <div class="slider" id="slider">
-    <!-- Talk -->
-    <div class="panel" id="talkPanel">
-      <h1>Talk</h1>
-      <p>You can vent anonymously.</p>
-      <a href="talk.html"><button>Go to Talk</button></a>
-      <div class="swipe-hint">← Swipe to Profile</div>
-    </div>
+  <div class="bg-animation"></div>
 
+  <div class="container" id="swipeContainer">
     <!-- Profile -->
-    <div class="panel" id="profilePanel">
-      <h1>Welcome to QuasiCare</h1>
-      <div class="counter-box">
-        <h2>Souls lost in the U.S. (2025): <span id="usCount">0</span></h2>
-        <h2>Souls lost globally (2025): <span id="globalCount">0</span></h2>
+    <section id="profilePage">
+      <h1>Your Profile</h1>
+      <p class="info">Swipe left to Talk, right to Listen</p>
+      <div class="counters">
+        <h3>Souls lost in the U.S. (2025): <span id="usCount">0</span></h3>
+        <h3>Souls lost globally (2025): <span id="globalCount">0</span></h3>
       </div>
-      <div class="swipe-hint">← Swipe to Talk | Swipe to Listen →</div>
-    </div>
+      <footer>
+        <a href="terms.html" target="_blank">Terms</a>
+        <a href="privacy.html" target="_blank">Privacy</a>
+      </footer>
+    </section>
+
+    <!-- Talk -->
+    <section id="talkPage">
+      <h1>Talk</h1>
+      <p class="info">Your voice matters. Share anonymously.</p>
+      <a href="talk.html"><button>Go to Talk</button></a>
+    </section>
 
     <!-- Listen -->
-    <div class="panel" id="listenPanel">
+    <section id="listenPage">
       <h1>Listen</h1>
-      <p>Support others by replying to their messages.</p>
+      <p class="info">Support others. Your empathy is powerful.</p>
       <a href="listen.html"><button>Go to Listen</button></a>
-      <div class="swipe-hint">← Swipe to Profile</div>
-    </div>
+    </section>
   </div>
 
   <script type="module">
@@ -118,74 +160,64 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        window.location.href = "login.html";
-      }
+    onAuthStateChanged(auth, user => {
+      if (!user) window.location.href = "login.html";
     });
 
-    // Suicide counter logic
+    // Swipe Logic
+    const container = document.getElementById("swipeContainer");
+    let startX = 0;
+    let currentIndex = 0;
+
+    container.addEventListener("touchstart", e => {
+      startX = e.touches[0].clientX;
+    });
+
+    container.addEventListener("touchend", e => {
+      const endX = e.changedTouches[0].clientX;
+      if (startX - endX > 50 && currentIndex < 2) currentIndex++;
+      else if (endX - startX > 50 && currentIndex > 0) currentIndex--;
+      container.style.transform = `translateX(-${currentIndex * 100}%)`;
+    });
+
+    // Suicide counters
+    const usEl = document.getElementById("usCount");
+    const globalEl = document.getElementById("globalCount");
+
     const usRateSec = 11 * 60;
     const globalRateSec = 40;
     const startOfYear = new Date("2025-01-01T00:00:00Z").getTime();
 
-    const getCounts = () => {
-      const now = Date.now();
-      const secondsPassed = Math.floor((now - startOfYear) / 1000);
-      return {
-        us: Math.floor(secondsPassed / usRateSec),
-        global: Math.floor(secondsPassed / globalRateSec)
-      };
-    };
-
-    const animateCount = (element, to) => {
+    const animateCount = (el, target) => {
       let start = 0;
-      const duration = 1500;
+      const duration = 1000;
       const startTime = performance.now();
 
-      const update = (time) => {
+      const animate = (time) => {
         const elapsed = time - startTime;
         const progress = Math.min(elapsed / duration, 1);
-        const current = Math.floor(progress * to);
-        element.innerText = current.toLocaleString();
-        if (progress < 1) requestAnimationFrame(update);
+        el.innerText = Math.floor(progress * target).toLocaleString();
+        if (progress < 1) requestAnimationFrame(animate);
       };
 
-      requestAnimationFrame(update);
+      requestAnimationFrame(animate);
     };
 
-    const usEl = document.getElementById("usCount");
-    const globalEl = document.getElementById("globalCount");
+    const now = Date.now();
+    const secondsSince = Math.floor((now - startOfYear) / 1000);
+    const usCount = Math.floor(secondsSince / usRateSec);
+    const globalCount = Math.floor(secondsSince / globalRateSec);
 
-    const { us, global } = getCounts();
-    animateCount(usEl, us);
-    animateCount(globalEl, global);
+    animateCount(usEl, usCount);
+    animateCount(globalEl, globalCount);
 
     setInterval(() => {
-      usEl.innerText = (++us).toLocaleString();
+      usEl.innerText = (++usCount).toLocaleString();
     }, usRateSec * 1000);
 
     setInterval(() => {
-      globalEl.innerText = (++global).toLocaleString();
+      globalEl.innerText = (++globalCount).toLocaleString();
     }, globalRateSec * 1000);
-
-    // Swipe Navigation
-    let slider = document.getElementById("slider");
-    let currentPanel = 1; // Start at profile
-    let startX = 0;
-
-    window.addEventListener("touchstart", e => {
-      startX = e.touches[0].clientX;
-    });
-
-    window.addEventListener("touchend", e => {
-      const diffX = e.changedTouches[0].clientX - startX;
-      if (Math.abs(diffX) > 50) {
-        if (diffX < 0 && currentPanel < 2) currentPanel++;
-        else if (diffX > 0 && currentPanel > 0) currentPanel--;
-        slider.style.transform = `translateX(-${currentPanel * 100}vw)`;
-      }
-    });
   </script>
 </body>
 </html>
