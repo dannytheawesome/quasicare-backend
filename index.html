@@ -84,11 +84,58 @@
       font-weight: bold;
     }
 
-    .quote {
-      margin-top: 25px;
+    .section-title {
+      margin-top: 30px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #ddd;
+    }
+
+    .mood-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .mood-buttons button {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid #ccc;
+      color: #fff;
+      padding: 8px 14px;
+      font-size: 0.9rem;
+    }
+
+    .mood-buttons button.active {
+      border-color: #00ffc8;
+      background-color: rgba(0, 255, 200, 0.2);
+    }
+
+    .breathe-circle {
+      width: 100px;
+      height: 100px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 50%;
+      animation: breathe 6s ease-in-out infinite;
+      margin: 20px auto;
+    }
+
+    @keyframes breathe {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.4); }
+    }
+
+    .affirmation {
+      margin-top: 20px;
       font-style: italic;
-      font-size: 0.95rem;
       color: #ccc;
+      opacity: 0;
+      animation: fadeQuote 1s ease-in-out forwards;
+    }
+
+    @keyframes fadeQuote {
+      to { opacity: 1; }
     }
 
     .swipe-hint {
@@ -110,30 +157,6 @@
       font-size: 2rem;
       opacity: 0.3;
     }
-
-    .mood-selector, .affirmation, .breathe-circle {
-      margin-top: 20px;
-    }
-
-    select {
-      padding: 10px;
-      border-radius: 6px;
-      font-size: 1rem;
-    }
-
-    .breathe-circle {
-      width: 100px;
-      height: 100px;
-      background: rgba(255,255,255,0.1);
-      border-radius: 50%;
-      animation: breathe 6s ease-in-out infinite;
-      margin: 15px auto;
-    }
-
-    @keyframes breathe {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.4); }
-    }
   </style>
 </head>
 <body>
@@ -149,25 +172,25 @@
     <div class="panel">
       <h1>Welcome Back 👋</h1>
       <p>This is your profile space. Reflect. Breathe.</p>
+
       <div class="counter">
         <p>Souls lost in the U.S. (2025): <span id="usCount">0</span></p>
         <p>Souls lost globally (2025): <span id="globalCount">0</span></p>
       </div>
-      <div class="quote">“Progress, not perfection.”</div>
 
-      <div class="mood-selector">
-        <label for="mood">How are you feeling today?</label><br>
-        <select id="mood">
-          <option>🙂 Okay</option>
-          <option>😊 Good</option>
-          <option>😔 Sad</option>
-          <option>😡 Angry</option>
-          <option>😌 Calm</option>
-        </select>
+      <div class="section-title">How are you feeling today?</div>
+      <div class="mood-buttons" id="moodButtons">
+        <button>Terrible</button>
+        <button>Okay</button>
+        <button>Good</button>
+        <button>Great</button>
       </div>
 
+      <div class="section-title">Tap to Breathe</div>
       <div class="breathe-circle"></div>
-      <div class="affirmation">🌟 You are enough. You are doing your best.</div>
+
+      <div class="section-title">Affirmation</div>
+      <div class="affirmation" id="affirmation">You are enough. You are doing your best.</div>
     </div>
 
     <!-- Listen Panel (RIGHT) -->
@@ -243,13 +266,8 @@
     animateCount(usEl, us);
     animateCount(globalEl, global);
 
-    setInterval(() => {
-      usEl.innerText = (++us).toLocaleString();
-    }, usRateSec * 1000);
-
-    setInterval(() => {
-      globalEl.innerText = (++global).toLocaleString();
-    }, globalRateSec * 1000);
+    setInterval(() => { usEl.innerText = (++us).toLocaleString(); }, usRateSec * 1000);
+    setInterval(() => { globalEl.innerText = (++global).toLocaleString(); }, globalRateSec * 1000);
 
     // Swipe Navigation
     let currentIndex = 1; // Start on profile
@@ -265,14 +283,38 @@
       const endX = e.changedTouches[0].clientX;
       const delta = endX - startX;
 
-      if (delta > 50 && currentIndex > 0) {
-        currentIndex--;
-      } else if (delta < -50 && currentIndex < 2) {
-        currentIndex++;
-      }
+      if (delta > 50 && currentIndex > 0) currentIndex--;
+      else if (delta < -50 && currentIndex < 2) currentIndex++;
 
       container.style.transform = `translateX(-${currentIndex * 100}vw)`;
     });
+
+    // Mood Button Toggle
+    document.getElementById("moodButtons").addEventListener("click", (e) => {
+      if (e.target.tagName === "BUTTON") {
+        [...e.currentTarget.children].forEach(btn => btn.classList.remove("active"));
+        e.target.classList.add("active");
+      }
+    });
+
+    // Rotate Affirmations
+    const affirmations = [
+      "You are enough. You are doing your best.",
+      "Today is a fresh start.",
+      "Small steps still move you forward.",
+      "You deserve peace.",
+      "Breathe. Reset. Continue."
+    ];
+    let i = 0;
+    setInterval(() => {
+      i = (i + 1) % affirmations.length;
+      const el = document.getElementById("affirmation");
+      el.style.opacity = 0;
+      setTimeout(() => {
+        el.innerText = affirmations[i];
+        el.style.opacity = 1;
+      }, 300);
+    }, 6000);
   </script>
 </body>
 </html>
