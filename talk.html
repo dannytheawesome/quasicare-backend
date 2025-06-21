@@ -6,31 +6,33 @@
   <title>Talk | QuasiCare</title>
   <script src="https://cdn.jsdelivr.net/npm/leo-profanity@1.7.0/leo-profanity.min.js"></script>
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
-      font-family: system-ui, sans-serif;
-      background: linear-gradient(-45deg, #1e3c72, #2a5298, #1e3c72, #2a5298);
-      background-size: 400% 400%;
-      animation: gradientBG 15s ease infinite;
-      color: white;
       padding: 30px 20px;
+      background: radial-gradient(circle at center, #222 0%, #111 100%);
+      animation: pulse 12s ease-in-out infinite;
+      font-family: -apple-system, system-ui, sans-serif;
+      color: #fff;
       text-align: center;
     }
 
-    @keyframes gradientBG {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
+    @keyframes pulse {
+      0%, 100% { background-position: center; }
+      50% { background-position: bottom right; }
     }
 
     h1 {
-      font-size: 1.8rem;
+      font-size: 1.6rem;
       margin-bottom: 10px;
     }
 
     p {
-      font-size: 1rem;
-      color: #ddd;
+      font-size: 0.95rem;
+      color: #ccc;
       margin-bottom: 25px;
     }
 
@@ -41,12 +43,11 @@
       padding: 10px;
       font-size: 16px;
       border: none;
-      border-radius: 8px;
-      background-color: rgba(0, 0, 0, 0.4);
+      border-radius: 6px;
+      background-color: #1e1e1e;
       color: white;
       margin-bottom: 10px;
       resize: none;
-      backdrop-filter: blur(4px);
     }
 
     button {
@@ -55,18 +56,13 @@
       background-color: #3399ff;
       color: white;
       border: none;
-      border-radius: 8px;
+      border-radius: 6px;
       cursor: pointer;
       margin: 8px;
-      transition: background-color 0.3s ease;
     }
 
     button:hover {
       background-color: #0077cc;
-    }
-
-    .hidden {
-      display: none;
     }
 
     #feedback {
@@ -75,19 +71,19 @@
       font-size: 0.9rem;
     }
 
-    #successMessage {
-      margin-top: 20px;
+    .hidden {
+      display: none;
     }
 
-    footer {
+    #footerLinks {
       margin-top: 40px;
       font-size: 0.85rem;
     }
 
-    footer a {
+    #footerLinks a {
       color: #aaa;
-      margin: 0 8px;
       text-decoration: underline;
+      margin: 0 10px;
     }
   </style>
 </head>
@@ -106,10 +102,11 @@
     <button id="copyButton" onclick="copyCode()">Copy Code</button>
   </div>
 
-  <footer>
+  <div id="footerLinks">
+    <a href="index.html">⬅ Back</a>
     <a href="terms.html" target="_blank">Terms</a>
     <a href="privacy.html" target="_blank">Privacy</a>
-  </footer>
+  </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -132,6 +129,7 @@
 
     let userUID = null;
     signInAnonymously(auth).catch(console.error);
+
     onAuthStateChanged(auth, (user) => {
       if (user) userUID = user.uid;
     });
