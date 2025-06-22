@@ -2,63 +2,53 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>QuasiCare | Home</title>
   <style>
     * {
       box-sizing: border-box;
     }
-
     html, body {
       margin: 0;
       padding: 0;
-      overflow: hidden;
       height: 100%;
+      overflow: hidden;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    }
-
-    body {
       background: linear-gradient(-45deg, #1f1c2c, #928dab, #0f2027, #2c5364);
       background-size: 400% 400%;
       animation: gradientBG 20s ease infinite;
       color: white;
     }
-
     @keyframes gradientBG {
       0% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
     }
-
     .container {
       display: flex;
       width: 300vw;
       height: 100%;
       transition: transform 0.4s ease;
     }
-
     .panel {
       flex: 0 0 100vw;
       height: 100%;
-      padding: 60px 30px;
+      padding: 60px 20px;
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      justify-content: start;
       align-items: center;
       text-align: center;
     }
-
-    h1 {
-      font-size: 2rem;
+    h1, h2 {
       margin-bottom: 10px;
     }
-
-    p {
-      font-size: 1.1rem;
-      margin-bottom: 20px;
-      color: #eee;
+    .brand {
+      font-weight: bold;
+      font-size: 1.3rem;
+      color: #ccc;
+      margin-top: 10px;
     }
-
     button {
       padding: 12px 20px;
       font-size: 16px;
@@ -67,31 +57,19 @@
       background-color: #fff;
       color: #333;
       cursor: pointer;
-      transition: background 0.3s ease, box-shadow 0.3s ease;
+      transition: background 0.3s ease;
     }
-
     button:hover {
       background-color: #ddd;
-      box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
     }
-
     .counter {
-      margin-top: 20px;
+      margin: 20px 0;
       font-size: 1rem;
     }
-
     .counter span {
       color: #00ffc8;
       font-weight: bold;
     }
-
-    .section-title {
-      margin-top: 30px;
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: #ddd;
-    }
-
     .mood-buttons {
       display: flex;
       gap: 10px;
@@ -99,7 +77,6 @@
       flex-wrap: wrap;
       justify-content: center;
     }
-
     .mood-buttons button {
       background: rgba(255,255,255,0.1);
       border: 1px solid #ccc;
@@ -107,12 +84,10 @@
       padding: 8px 14px;
       font-size: 0.9rem;
     }
-
     .mood-buttons button.active {
       border-color: #00ffc8;
       background-color: rgba(0, 255, 200, 0.2);
     }
-
     .mood-timeline {
       display: flex;
       gap: 12px;
@@ -120,15 +95,12 @@
       margin-top: 12px;
       flex-wrap: wrap;
     }
-
     .mood-dot {
       width: 26px;
       height: 26px;
       border-radius: 50%;
       position: relative;
-      animation: fadeIn 0.6s ease;
     }
-
     .mood-dot::after {
       content: attr(data-mood);
       position: absolute;
@@ -137,33 +109,23 @@
       transform: translateX(-50%);
       font-size: 0.65rem;
       color: #ccc;
-      white-space: nowrap;
     }
-
     .mood-dot[data-mood="Terrible"] { background-color: #ff4e4e; }
     .mood-dot[data-mood="Okay"]     { background-color: #ffb347; }
     .mood-dot[data-mood="Good"]     { background-color: #7ed957; }
     .mood-dot[data-mood="Great"]    { background-color: #00ffc8; }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: scale(0.7); }
-      to   { opacity: 1; transform: scale(1); }
-    }
-
     .breathe-circle {
       width: 100px;
       height: 100px;
       background: rgba(255,255,255,0.1);
       border-radius: 50%;
       animation: breathe 6s ease-in-out infinite;
-      margin: 20px auto;
+      margin: 30px 0;
     }
-
     @keyframes breathe {
       0%, 100% { transform: scale(1); }
       50% { transform: scale(1.4); }
     }
-
     .affirmation {
       margin-top: 20px;
       font-style: italic;
@@ -171,11 +133,15 @@
       opacity: 0;
       animation: fadeQuote 1s ease-in-out forwards;
     }
-
     @keyframes fadeQuote {
       to { opacity: 1; }
     }
-
+    .copy-btn {
+      margin-top: 10px;
+      background-color: #00ffc8;
+      color: black;
+      padding: 8px 16px;
+    }
     .swipe-hint {
       position: absolute;
       bottom: 20px;
@@ -184,7 +150,6 @@
       font-size: 0.9rem;
       color: #ccc;
     }
-
     .arrows {
       position: absolute;
       bottom: 50px;
@@ -204,43 +169,34 @@
       <p>Express what's on your mind.</p>
       <a href="talk.html"><button>Open Talk</button></a>
     </div>
-
     <div class="panel">
-      <img src="logo.png" alt="QuasiCare Logo" style="height: 48px; margin-bottom: 10px;">
-      <p style="font-weight: 600; color: #ccc;">QuasiCare – Helping you heal</p>
+      <div class="brand">QuasiCare – Helping you heal</div>
       <h1>Welcome Back</h1>
       <p>This is your profile space. Reflect. Breathe.</p>
-
       <div class="counter">
         <p>Souls lost in the U.S. (2025): <span id="usCount">0</span></p>
         <p>Souls lost globally (2025): <span id="globalCount">0</span></p>
       </div>
-
-      <div class="section-title">How are you feeling today?</div>
+      <div><strong>How are you feeling today?</strong></div>
       <div class="mood-buttons" id="moodButtons">
         <button>Terrible</button>
         <button>Okay</button>
         <button>Good</button>
         <button>Great</button>
       </div>
-
-      <div class="section-title">Your Mood Timeline</div>
-      <div id="moodTimeline" class="mood-timeline"></div>
-
-      <div class="section-title">Tap to Breathe</div>
+      <div class="mood-timeline" id="moodTimeline"></div>
+      <div><strong>Tap to Breathe</strong></div>
       <div class="breathe-circle"></div>
-
-      <div class="section-title">Affirmation</div>
+      <div><strong>Affirmation</strong></div>
       <div class="affirmation" id="affirmation">You are enough. You are doing your best.</div>
+      <button class="copy-btn" onclick="copyAffirmation()">Copy Quote</button>
     </div>
-
     <div class="panel">
       <h1>Listen</h1>
       <p>Support others by replying to their messages.</p>
       <a href="listen.html"><button>Go to Listen</button></a>
     </div>
   </div>
-
   <div class="swipe-hint">Swipe left/right to navigate</div>
   <div class="arrows">
     <span>⬅️</span>
@@ -254,7 +210,6 @@
     const firebaseConfig = {
       apiKey: "AIzaSyCbrPC0NZDr8yZ4xTTBayBbOnESETg9xuw",
       authDomain: "quasicare.firebaseapp.com",
-      databaseURL: "https://quasicare-default-rtdb.firebaseio.com",
       projectId: "quasicare",
       storageBucket: "quasicare.appspot.com",
       messagingSenderId: "197366070004",
@@ -268,7 +223,7 @@
       if (!user) window.location.href = "login.html";
     });
 
-    const usRateSec = 660;
+    const usRateSec = 11 * 60;
     const globalRateSec = 40;
     const startOfYear = new Date("2025-01-01T00:00:00Z").getTime();
 
@@ -281,44 +236,31 @@
       };
     };
 
-    const animateCount = (el, to) => {
-      let start = 0;
-      const duration = 1500;
-      const startTime = performance.now();
-      const update = (t) => {
-        const elapsed = t - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        el.innerText = Math.floor(progress * to).toLocaleString();
-        if (progress < 1) requestAnimationFrame(update);
-      };
-      requestAnimationFrame(update);
-    };
-
     const usEl = document.getElementById("usCount");
     const globalEl = document.getElementById("globalCount");
-    const { us, global } = getCounts();
-    animateCount(usEl, us);
-    animateCount(globalEl, global);
-    setInterval(() => { usEl.innerText = (++us).toLocaleString(); }, usRateSec * 1000);
-    setInterval(() => { globalEl.innerText = (++global).toLocaleString(); }, globalRateSec * 1000);
+    let { us, global } = getCounts();
+    usEl.textContent = us.toLocaleString();
+    globalEl.textContent = global.toLocaleString();
+    setInterval(() => { usEl.textContent = (++us).toLocaleString(); }, usRateSec * 1000);
+    setInterval(() => { globalEl.textContent = (++global).toLocaleString(); }, globalRateSec * 1000);
 
     let currentIndex = 1;
     const container = document.getElementById("carousel");
     container.style.transform = `translateX(-${currentIndex * 100}vw)`;
     let startX = 0;
-    document.addEventListener("touchstart", (e) => startX = e.touches[0].clientX);
-    document.addEventListener("touchend", (e) => {
+    document.addEventListener("touchstart", e => startX = e.touches[0].clientX);
+    document.addEventListener("touchend", e => {
       const delta = e.changedTouches[0].clientX - startX;
       if (delta > 50 && currentIndex > 0) currentIndex--;
       else if (delta < -50 && currentIndex < 2) currentIndex++;
       container.style.transform = `translateX(-${currentIndex * 100}vw)`;
     });
 
-    document.getElementById("moodButtons").addEventListener("click", (e) => {
+    document.getElementById("moodButtons").addEventListener("click", e => {
       if (e.target.tagName === "BUTTON") {
         [...e.currentTarget.children].forEach(btn => btn.classList.remove("active"));
         e.target.classList.add("active");
-        saveMood(e.target.innerText.trim());
+        saveMood(e.target.innerText);
       }
     });
 
@@ -330,16 +272,14 @@
     }
 
     function renderMoodHistory() {
-      const container = document.getElementById("moodTimeline");
-      if (!container) return;
+      const timeline = document.getElementById("moodTimeline");
       const history = JSON.parse(localStorage.getItem("moodHistory") || "[]");
-      container.innerHTML = "";
+      timeline.innerHTML = "";
       history.forEach(entry => {
         const dot = document.createElement("div");
         dot.className = "mood-dot";
         dot.setAttribute("data-mood", entry.mood);
-        dot.title = `${entry.mood} – ${new Date(entry.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-        container.appendChild(dot);
+        timeline.appendChild(dot);
       });
     }
 
@@ -358,10 +298,16 @@
       const el = document.getElementById("affirmation");
       el.style.opacity = 0;
       setTimeout(() => {
-        el.innerText = affirmations[i];
+        el.textContent = affirmations[i];
         el.style.opacity = 1;
       }, 300);
     }, 6000);
+
+    window.copyAffirmation = function () {
+      const text = document.getElementById("affirmation").textContent;
+      navigator.clipboard.writeText(text);
+      alert("Quote copied!");
+    }
   </script>
 </body>
 </html>
