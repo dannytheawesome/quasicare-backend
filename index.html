@@ -2,9 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>QuasiCare | Home</title>
-  <link rel="icon" href="logo.png" type="image/png" />
   <style>
     * {
       box-sizing: border-box;
@@ -16,6 +15,9 @@
       overflow: hidden;
       height: 100%;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    body {
       background: linear-gradient(-45deg, #1f1c2c, #928dab, #0f2027, #2c5364);
       background-size: 400% 400%;
       animation: gradientBG 20s ease infinite;
@@ -46,21 +48,15 @@
       text-align: center;
     }
 
-    .logo {
-      width: 120px;
-      margin-bottom: 10px;
-      opacity: 0.8;
-    }
-
     h1 {
       font-size: 2rem;
       margin-bottom: 10px;
     }
 
-    .subtitle {
-      font-size: 1rem;
-      color: #ccc;
+    p {
+      font-size: 1.1rem;
       margin-bottom: 20px;
+      color: #eee;
     }
 
     button {
@@ -203,19 +199,17 @@
 </head>
 <body>
   <div id="carousel" class="container">
-    <!-- Talk Panel (LEFT) -->
     <div class="panel">
       <h1>Talk</h1>
-      <p class="subtitle">Express what's on your mind.</p>
+      <p>Express what's on your mind.</p>
       <a href="talk.html"><button>Open Talk</button></a>
     </div>
 
-    <!-- Profile Panel (CENTER) -->
     <div class="panel">
-      <img src="logo.png" alt="QuasiCare Logo" class="logo" />
-      <div class="subtitle">QuasiCare – Helping you heal</div>
+      <img src="logo.png" alt="QuasiCare Logo" style="height: 48px; margin-bottom: 10px;">
+      <p style="font-weight: 600; color: #ccc;">QuasiCare – Helping you heal</p>
       <h1>Welcome Back</h1>
-      <p class="subtitle">This is your profile space. Reflect. Breathe.</p>
+      <p>This is your profile space. Reflect. Breathe.</p>
 
       <div class="counter">
         <p>Souls lost in the U.S. (2025): <span id="usCount">0</span></p>
@@ -240,10 +234,9 @@
       <div class="affirmation" id="affirmation">You are enough. You are doing your best.</div>
     </div>
 
-    <!-- Listen Panel (RIGHT) -->
     <div class="panel">
       <h1>Listen</h1>
-      <p class="subtitle">Support others by replying to their messages.</p>
+      <p>Support others by replying to their messages.</p>
       <a href="listen.html"><button>Go to Listen</button></a>
     </div>
   </div>
@@ -261,6 +254,7 @@
     const firebaseConfig = {
       apiKey: "AIzaSyCbrPC0NZDr8yZ4xTTBayBbOnESETg9xuw",
       authDomain: "quasicare.firebaseapp.com",
+      databaseURL: "https://quasicare-default-rtdb.firebaseio.com",
       projectId: "quasicare",
       storageBucket: "quasicare.appspot.com",
       messagingSenderId: "197366070004",
@@ -274,8 +268,7 @@
       if (!user) window.location.href = "login.html";
     });
 
-    // Counters
-    const usRateSec = 11 * 60;
+    const usRateSec = 660;
     const globalRateSec = 40;
     const startOfYear = new Date("2025-01-01T00:00:00Z").getTime();
 
@@ -292,13 +285,12 @@
       let start = 0;
       const duration = 1500;
       const startTime = performance.now();
-
-      const update = (time) => {
-        const progress = Math.min((time - startTime) / duration, 1);
+      const update = (t) => {
+        const elapsed = t - startTime;
+        const progress = Math.min(elapsed / duration, 1);
         el.innerText = Math.floor(progress * to).toLocaleString();
         if (progress < 1) requestAnimationFrame(update);
       };
-
       requestAnimationFrame(update);
     };
 
@@ -307,25 +299,21 @@
     const { us, global } = getCounts();
     animateCount(usEl, us);
     animateCount(globalEl, global);
-
     setInterval(() => { usEl.innerText = (++us).toLocaleString(); }, usRateSec * 1000);
     setInterval(() => { globalEl.innerText = (++global).toLocaleString(); }, globalRateSec * 1000);
 
-    // Swipe
     let currentIndex = 1;
     const container = document.getElementById("carousel");
     container.style.transform = `translateX(-${currentIndex * 100}vw)`;
-
     let startX = 0;
-    document.addEventListener("touchstart", e => startX = e.touches[0].clientX);
-    document.addEventListener("touchend", e => {
+    document.addEventListener("touchstart", (e) => startX = e.touches[0].clientX);
+    document.addEventListener("touchend", (e) => {
       const delta = e.changedTouches[0].clientX - startX;
       if (delta > 50 && currentIndex > 0) currentIndex--;
       else if (delta < -50 && currentIndex < 2) currentIndex++;
       container.style.transform = `translateX(-${currentIndex * 100}vw)`;
     });
 
-    // Mood logic
     document.getElementById("moodButtons").addEventListener("click", (e) => {
       if (e.target.tagName === "BUTTON") {
         [...e.currentTarget.children].forEach(btn => btn.classList.remove("active"));
@@ -342,22 +330,21 @@
     }
 
     function renderMoodHistory() {
-      const timeline = document.getElementById("moodTimeline");
+      const container = document.getElementById("moodTimeline");
+      if (!container) return;
       const history = JSON.parse(localStorage.getItem("moodHistory") || "[]");
-      timeline.innerHTML = "";
-
+      container.innerHTML = "";
       history.forEach(entry => {
         const dot = document.createElement("div");
         dot.className = "mood-dot";
         dot.setAttribute("data-mood", entry.mood);
         dot.title = `${entry.mood} – ${new Date(entry.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-        timeline.appendChild(dot);
+        container.appendChild(dot);
       });
     }
 
     renderMoodHistory();
 
-    // Affirmation
     const affirmations = [
       "You are enough. You are doing your best.",
       "Today is a fresh start.",
