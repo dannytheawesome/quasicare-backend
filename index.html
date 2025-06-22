@@ -40,8 +40,15 @@
       align-items: center;
       text-align: center;
     }
-    h1 { font-size: 2rem; margin-bottom: 10px; }
-    p { font-size: 1.1rem; margin-bottom: 20px; color: #eee; }
+    h1 {
+      font-size: 2.2rem;
+      margin-bottom: 10px;
+    }
+    p {
+      font-size: 1.1rem;
+      margin-bottom: 20px;
+      color: #eee;
+    }
     button {
       padding: 12px 20px;
       font-size: 16px;
@@ -54,22 +61,26 @@
     }
     button:hover {
       background-color: #ddd;
-      box-shadow: 0 0 10px rgba(255,255,255,0.2);
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
     }
-    .copy-btn {
-      margin-top: 10px;
-      font-size: 0.9rem;
-      background-color: #00ffc8;
-      color: #000;
+    .logo {
+      width: 140px;
+      margin-bottom: 10px;
+      filter: drop-shadow(0 0 6px rgba(255,255,255,0.2));
     }
-    .copy-feedback {
-      font-size: 0.8rem;
-      color: #ccc;
-      margin-top: 6px;
-      height: 1em;
+    .tagline {
+      font-size: 1.25rem;
+      font-weight: 500;
+      margin-bottom: 20px;
     }
-    .counter { margin-top: 20px; font-size: 1rem; }
-    .counter span { color: #00ffc8; font-weight: bold; }
+    .counter {
+      margin-top: 20px;
+      font-size: 1rem;
+    }
+    .counter span {
+      color: #00ffc8;
+      font-weight: bold;
+    }
     .section-title {
       margin-top: 30px;
       font-size: 1.1rem;
@@ -94,37 +105,6 @@
       border-color: #00ffc8;
       background-color: rgba(0, 255, 200, 0.2);
     }
-    .mood-timeline {
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-      margin-top: 12px;
-      flex-wrap: wrap;
-    }
-    .mood-dot {
-      width: 26px;
-      height: 26px;
-      border-radius: 50%;
-      position: relative;
-      animation: fadeIn 0.6s ease;
-    }
-    .mood-dot::after {
-      content: attr(data-mood);
-      position: absolute;
-      bottom: -24px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 0.65rem;
-      color: #ccc;
-    }
-    .mood-dot[data-mood="Terrible"] { background-color: #ff4e4e; }
-    .mood-dot[data-mood="Okay"]     { background-color: #ffb347; }
-    .mood-dot[data-mood="Good"]     { background-color: #7ed957; }
-    .mood-dot[data-mood="Great"]    { background-color: #00ffc8; }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: scale(0.7); }
-      to   { opacity: 1; transform: scale(1); }
-    }
     .breathe-circle {
       width: 100px;
       height: 100px;
@@ -144,6 +124,7 @@
       opacity: 0;
       animation: fadeQuote 1s ease-in-out forwards;
     }
+    @keyframes fadeQuote { to { opacity: 1; } }
     .swipe-hint {
       position: absolute;
       bottom: 20px;
@@ -151,7 +132,6 @@
       text-align: center;
       font-size: 0.9rem;
       color: #ccc;
-      animation: fadeSwipe 2s ease-in-out infinite alternate;
     }
     .arrows {
       position: absolute;
@@ -161,37 +141,32 @@
       justify-content: space-between;
       padding: 0 20px;
       font-size: 2rem;
-      animation: arrowPulse 2s infinite;
-    }
-    @keyframes fadeQuote { to { opacity: 1; } }
-    @keyframes fadeSwipe { from {opacity: 0.2;} to {opacity: 0.8;} }
-    @keyframes arrowPulse {
-      0%, 100% { opacity: 0.2; transform: scale(1); }
-      50% { opacity: 0.8; transform: scale(1.1); }
-    }
-    @media (max-width: 600px) {
-      h1 { font-size: 1.5rem; }
-      p, .section-title { font-size: 1rem; }
-      .breathe-circle { width: 80px; height: 80px; }
-      .affirmation { font-size: 0.9rem; }
-      button { font-size: 14px; padding: 10px 16px; }
+      opacity: 0.3;
     }
   </style>
 </head>
 <body>
   <div id="carousel" class="container">
+    <!-- Talk Panel -->
     <div class="panel">
       <h1>Talk</h1>
       <p>Express what's on your mind.</p>
       <a href="talk.html"><button>Open Talk</button></a>
     </div>
+
+    <!-- Profile Panel -->
     <div class="panel">
-      <h1>Welcome Back 👋</h1>
+      <img class="logo" src="logo.png" alt="QuasiCare logo" />
+      <div class="tagline">QuasiCare – Helping you heal</div>
+
+      <h1>Welcome Back</h1>
       <p>This is your profile space. Reflect. Breathe.</p>
+
       <div class="counter">
         <p>Souls lost in the U.S. (2025): <span id="usCount">0</span></p>
         <p>Souls lost globally (2025): <span id="globalCount">0</span></p>
       </div>
+
       <div class="section-title">How are you feeling today?</div>
       <div class="mood-buttons" id="moodButtons">
         <button>Terrible</button>
@@ -199,21 +174,22 @@
         <button>Good</button>
         <button>Great</button>
       </div>
-      <div class="section-title">Your Mood Timeline</div>
-      <div id="moodTimeline" class="mood-timeline"></div>
+
       <div class="section-title">Tap to Breathe</div>
       <div class="breathe-circle"></div>
+
       <div class="section-title">Affirmation</div>
       <div class="affirmation" id="affirmation">You are enough. You are doing your best.</div>
-      <div class="copy-feedback" id="copyFeedback"></div>
-      <button class="copy-btn" onclick="copyAffirmation()">Copy Quote</button>
     </div>
+
+    <!-- Listen Panel -->
     <div class="panel">
       <h1>Listen</h1>
       <p>Support others by replying to their messages.</p>
       <a href="listen.html"><button>Go to Listen</button></a>
     </div>
   </div>
+
   <div class="swipe-hint">Swipe left/right to navigate</div>
   <div class="arrows">
     <span>⬅️</span>
@@ -224,78 +200,59 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-    const firebaseConfig = { apiKey: "AIzaSyCbrPC0NZDr8yZ4xTTBayBbOnESETg9xuw", authDomain: "quasicare.firebaseapp.com", projectId: "quasicare", storageBucket: "quasicare.appspot.com", messagingSenderId: "197366070004", appId: "1:197366070004:web:2972eb9297102b6183bca1" };
+    const firebaseConfig = {
+      apiKey: "AIzaSyCbrPC0NZDr8yZ4xTTBayBbOnESETg9xuw",
+      authDomain: "quasicare.firebaseapp.com",
+      projectId: "quasicare",
+      storageBucket: "quasicare.appspot.com",
+      messagingSenderId: "197366070004",
+      appId: "1:197366070004:web:2972eb9297102b6183bca1"
+    };
+
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    onAuthStateChanged(auth, (user) => { if (!user) window.location.href = "login.html"; });
+    onAuthStateChanged(auth, (user) => {
+      if (!user) window.location.href = "login.html";
+    });
 
-    const usRateSec = 660;
-    const globalRateSec = 40;
+    // Suicide Counter
+    const usRateSec = 660, globalRateSec = 40;
     const startOfYear = new Date("2025-01-01T00:00:00Z").getTime();
+
     const getCounts = () => {
-      const secondsPassed = Math.floor((Date.now() - startOfYear) / 1000);
-      return { us: Math.floor(secondsPassed / usRateSec), global: Math.floor(secondsPassed / globalRateSec) };
+      const now = Date.now(), seconds = Math.floor((now - startOfYear) / 1000);
+      return {
+        us: Math.floor(seconds / usRateSec),
+        global: Math.floor(seconds / globalRateSec)
+      };
     };
+
     const animateCount = (el, to) => {
-      let start = 0;
       const duration = 1500, startTime = performance.now();
-      const update = (time) => {
-        const progress = Math.min((time - startTime) / duration, 1);
+      const update = (t) => {
+        const progress = Math.min((t - startTime) / duration, 1);
         el.innerText = Math.floor(progress * to).toLocaleString();
         if (progress < 1) requestAnimationFrame(update);
       };
       requestAnimationFrame(update);
     };
-    const usEl = document.getElementById("usCount");
-    const globalEl = document.getElementById("globalCount");
+
+    const usEl = document.getElementById("usCount"), globalEl = document.getElementById("globalCount");
     const { us, global } = getCounts();
     animateCount(usEl, us);
     animateCount(globalEl, global);
     setInterval(() => usEl.innerText = (++us).toLocaleString(), usRateSec * 1000);
     setInterval(() => globalEl.innerText = (++global).toLocaleString(), globalRateSec * 1000);
 
-    let currentIndex = 1;
-    const container = document.getElementById("carousel");
-    container.style.transform = `translateX(-${currentIndex * 100}vw)`;
-    let startX = 0;
-    document.addEventListener("touchstart", e => startX = e.touches[0].clientX);
-    document.addEventListener("touchend", e => {
-      const delta = e.changedTouches[0].clientX - startX;
-      if (delta > 50 && currentIndex > 0) currentIndex--;
-      else if (delta < -50 && currentIndex < 2) currentIndex++;
-      container.style.transform = `translateX(-${currentIndex * 100}vw)`;
-    });
-
-    document.getElementById("moodButtons").addEventListener("click", e => {
+    // Mood Button Toggle
+    document.getElementById("moodButtons").addEventListener("click", (e) => {
       if (e.target.tagName === "BUTTON") {
         [...e.currentTarget.children].forEach(btn => btn.classList.remove("active"));
         e.target.classList.add("active");
-        saveMood(e.target.innerText.trim());
       }
     });
 
-    const saveMood = (mood) => {
-      const history = JSON.parse(localStorage.getItem("moodHistory") || "[]");
-      history.unshift({ mood, timestamp: Date.now() });
-      localStorage.setItem("moodHistory", JSON.stringify(history.slice(0, 5)));
-      renderMoodHistory();
-    };
-
-    const renderMoodHistory = () => {
-      const container = document.getElementById("moodTimeline");
-      if (!container) return;
-      const history = JSON.parse(localStorage.getItem("moodHistory") || "[]");
-      container.innerHTML = "";
-      history.forEach(entry => {
-        const dot = document.createElement("div");
-        dot.className = "mood-dot";
-        dot.setAttribute("data-mood", entry.mood);
-        dot.title = `${entry.mood} – ${new Date(entry.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-        container.appendChild(dot);
-      });
-    };
-    renderMoodHistory();
-
+    // Affirmations
     const affirmations = [
       "You are enough. You are doing your best.",
       "Today is a fresh start.",
@@ -314,14 +271,17 @@
       }, 300);
     }, 6000);
 
-    window.copyAffirmation = function () {
-      const quote = document.getElementById("affirmation").innerText;
-      navigator.clipboard.writeText(quote).then(() => {
-        const fb = document.getElementById("copyFeedback");
-        fb.innerText = "✅ Copied to clipboard!";
-        setTimeout(() => fb.innerText = "", 2000);
-      });
-    }
+    // Swipe Nav
+    let currentIndex = 1, startX = 0;
+    const container = document.getElementById("carousel");
+    container.style.transform = `translateX(-${currentIndex * 100}vw)`;
+    document.addEventListener("touchstart", e => startX = e.touches[0].clientX);
+    document.addEventListener("touchend", e => {
+      const delta = e.changedTouches[0].clientX - startX;
+      if (delta > 50 && currentIndex > 0) currentIndex--;
+      else if (delta < -50 && currentIndex < 2) currentIndex++;
+      container.style.transform = `translateX(-${currentIndex * 100}vw)`;
+    });
   </script>
 </body>
 </html>
