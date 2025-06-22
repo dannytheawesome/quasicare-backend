@@ -67,11 +67,12 @@
       background-color: #fff;
       color: #333;
       cursor: pointer;
-      transition: background 0.3s ease;
+      transition: background 0.3s ease, box-shadow 0.3s ease;
     }
 
     button:hover {
       background-color: #ddd;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
     }
 
     .counter {
@@ -110,6 +111,43 @@
     .mood-buttons button.active {
       border-color: #00ffc8;
       background-color: rgba(0, 255, 200, 0.2);
+    }
+
+    .mood-timeline {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .mood-dot {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      position: relative;
+      animation: fadeIn 0.6s ease;
+    }
+
+    .mood-dot::after {
+      content: attr(data-mood);
+      position: absolute;
+      bottom: -24px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.65rem;
+      color: #ccc;
+      white-space: nowrap;
+    }
+
+    .mood-dot[data-mood="Terrible"] { background-color: #ff4e4e; }
+    .mood-dot[data-mood="Okay"]     { background-color: #ffb347; }
+    .mood-dot[data-mood="Good"]     { background-color: #7ed957; }
+    .mood-dot[data-mood="Great"]    { background-color: #00ffc8; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.7); }
+      to   { opacity: 1; transform: scale(1); }
     }
 
     .breathe-circle {
@@ -186,6 +224,9 @@
         <button>Great</button>
       </div>
 
+      <div class="section-title">Your Mood Timeline</div>
+      <div id="moodTimeline" class="mood-timeline"></div>
+
       <div class="section-title">Tap to Breathe</div>
       <div class="breathe-circle"></div>
 
@@ -229,7 +270,7 @@
       }
     });
 
-    // Suicide Counter Logic
+    // Suicide Counter
     const usRateSec = 11 * 60;
     const globalRateSec = 40;
     const startOfYear = new Date("2025-01-01T00:00:00Z").getTime();
@@ -270,7 +311,7 @@
     setInterval(() => { globalEl.innerText = (++global).toLocaleString(); }, globalRateSec * 1000);
 
     // Swipe Navigation
-    let currentIndex = 1; // Start on profile
+    let currentIndex = 1;
     const container = document.getElementById("carousel");
     container.style.transform = `translateX(-${currentIndex * 100}vw)`;
 
@@ -289,15 +330,44 @@
       container.style.transform = `translateX(-${currentIndex * 100}vw)`;
     });
 
-    // Mood Button Toggle
+    // Mood Buttons
     document.getElementById("moodButtons").addEventListener("click", (e) => {
       if (e.target.tagName === "BUTTON") {
         [...e.currentTarget.children].forEach(btn => btn.classList.remove("active"));
         e.target.classList.add("active");
+        saveMood(e.target.innerText.trim());
       }
     });
 
-    // Rotate Affirmations
+    function saveMood(mood) {
+      const history = JSON.parse(localStorage.getItem("moodHistory") || "[]");
+      history.unshift({ mood, timestamp: Date.now() });
+      localStorage.setItem("moodHistory", JSON.stringify(history.slice(0, 5)));
+      renderMoodHistory();
+    }
+
+    function renderMoodHistory() {
+      const container = document.getElementById("moodTimeline");
+      if (!container) return;
+      const history = JSON.parse(localStorage.getItem("moodHistory") || "[]");
+      container.innerHTML = "";
+
+      history.forEach(entry => {
+        const dot = document.createElement("div");
+        dot.className = "mood-dot";
+        dot.setAttribute("data-mood", entry.mood);
+
+        const date = new Date(entry.timestamp);
+        const label = `${entry.mood} – ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+        dot.title = label;
+
+        container.appendChild(dot);
+      });
+    }
+
+    renderMoodHistory();
+
+    // Affirmation Rotation
     const affirmations = [
       "You are enough. You are doing your best.",
       "Today is a fresh start.",
