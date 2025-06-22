@@ -2,10 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>QuasiCare | Home</title>
   <style>
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
     html, body {
       margin: 0;
       padding: 0;
@@ -40,9 +42,19 @@
       align-items: center;
       text-align: center;
     }
-    h1 {
-      font-size: 2.2rem;
+    img.logo {
+      max-width: 120px;
       margin-bottom: 10px;
+      filter: drop-shadow(0 0 4px rgba(255,255,255,0.3));
+    }
+    .brand-line {
+      font-size: 1rem;
+      margin-bottom: 20px;
+      color: #ccc;
+    }
+    h1 {
+      font-size: 2rem;
+      margin: 10px 0;
     }
     p {
       font-size: 1.1rem;
@@ -62,20 +74,6 @@
     button:hover {
       background-color: #ddd;
       box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
-    }
-    .logo {
-      width: 140px;
-      margin-bottom: 10px;
-      filter: drop-shadow(0 0 6px rgba(255,255,255,0.2));
-    }
-    .tagline {
-      font-size: 1.25rem;
-      font-weight: 500;
-      margin-bottom: 20px;
-    }
-    .counter {
-      margin-top: 20px;
-      font-size: 1rem;
     }
     .counter span {
       color: #00ffc8;
@@ -124,24 +122,8 @@
       opacity: 0;
       animation: fadeQuote 1s ease-in-out forwards;
     }
-    @keyframes fadeQuote { to { opacity: 1; } }
-    .swipe-hint {
-      position: absolute;
-      bottom: 20px;
-      width: 100%;
-      text-align: center;
-      font-size: 0.9rem;
-      color: #ccc;
-    }
-    .arrows {
-      position: absolute;
-      bottom: 50px;
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      padding: 0 20px;
-      font-size: 2rem;
-      opacity: 0.3;
+    @keyframes fadeQuote {
+      to { opacity: 1; }
     }
   </style>
 </head>
@@ -156,9 +138,8 @@
 
     <!-- Profile Panel -->
     <div class="panel">
-      <img class="logo" src="logo.png" alt="QuasiCare logo" />
-      <div class="tagline">QuasiCare – Helping you heal</div>
-
+      <img src="logo.png" alt="QuasiCare logo" class="logo" />
+      <div class="brand-line">QuasiCare – Helping you heal</div>
       <h1>Welcome Back</h1>
       <p>This is your profile space. Reflect. Breathe.</p>
 
@@ -190,12 +171,6 @@
     </div>
   </div>
 
-  <div class="swipe-hint">Swipe left/right to navigate</div>
-  <div class="arrows">
-    <span>⬅️</span>
-    <span>➡️</span>
-  </div>
-
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -211,40 +186,51 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+
     onAuthStateChanged(auth, (user) => {
-      if (!user) window.location.href = "login.html";
+      if (!user) {
+        window.location.href = "login.html";
+      }
     });
 
-    // Suicide Counter
-    const usRateSec = 660, globalRateSec = 40;
+    const usRateSec = 11 * 60;
+    const globalRateSec = 40;
     const startOfYear = new Date("2025-01-01T00:00:00Z").getTime();
 
     const getCounts = () => {
-      const now = Date.now(), seconds = Math.floor((now - startOfYear) / 1000);
+      const now = Date.now();
+      const secondsPassed = Math.floor((now - startOfYear) / 1000);
       return {
-        us: Math.floor(seconds / usRateSec),
-        global: Math.floor(seconds / globalRateSec)
+        us: Math.floor(secondsPassed / usRateSec),
+        global: Math.floor(secondsPassed / globalRateSec)
       };
     };
 
-    const animateCount = (el, to) => {
-      const duration = 1500, startTime = performance.now();
-      const update = (t) => {
-        const progress = Math.min((t - startTime) / duration, 1);
-        el.innerText = Math.floor(progress * to).toLocaleString();
+    const animateCount = (element, to) => {
+      let start = 0;
+      const duration = 1500;
+      const startTime = performance.now();
+
+      const update = (time) => {
+        const elapsed = time - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const current = Math.floor(progress * to);
+        element.innerText = current.toLocaleString();
         if (progress < 1) requestAnimationFrame(update);
       };
+
       requestAnimationFrame(update);
     };
 
-    const usEl = document.getElementById("usCount"), globalEl = document.getElementById("globalCount");
+    const usEl = document.getElementById("usCount");
+    const globalEl = document.getElementById("globalCount");
     const { us, global } = getCounts();
     animateCount(usEl, us);
     animateCount(globalEl, global);
-    setInterval(() => usEl.innerText = (++us).toLocaleString(), usRateSec * 1000);
-    setInterval(() => globalEl.innerText = (++global).toLocaleString(), globalRateSec * 1000);
 
-    // Mood Button Toggle
+    setInterval(() => { usEl.innerText = (++us).toLocaleString(); }, usRateSec * 1000);
+    setInterval(() => { globalEl.innerText = (++global).toLocaleString(); }, globalRateSec * 1000);
+
     document.getElementById("moodButtons").addEventListener("click", (e) => {
       if (e.target.tagName === "BUTTON") {
         [...e.currentTarget.children].forEach(btn => btn.classList.remove("active"));
@@ -252,7 +238,6 @@
       }
     });
 
-    // Affirmations
     const affirmations = [
       "You are enough. You are doing your best.",
       "Today is a fresh start.",
@@ -260,6 +245,7 @@
       "You deserve peace.",
       "Breathe. Reset. Continue."
     ];
+
     let i = 0;
     setInterval(() => {
       i = (i + 1) % affirmations.length;
@@ -270,18 +256,6 @@
         el.style.opacity = 1;
       }, 300);
     }, 6000);
-
-    // Swipe Nav
-    let currentIndex = 1, startX = 0;
-    const container = document.getElementById("carousel");
-    container.style.transform = `translateX(-${currentIndex * 100}vw)`;
-    document.addEventListener("touchstart", e => startX = e.touches[0].clientX);
-    document.addEventListener("touchend", e => {
-      const delta = e.changedTouches[0].clientX - startX;
-      if (delta > 50 && currentIndex > 0) currentIndex--;
-      else if (delta < -50 && currentIndex < 2) currentIndex++;
-      container.style.transform = `translateX(-${currentIndex * 100}vw)`;
-    });
   </script>
 </body>
 </html>
