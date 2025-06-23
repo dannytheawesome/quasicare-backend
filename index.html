@@ -10,8 +10,8 @@
     :root {
       --bg-gradient: linear-gradient(-45deg, #0d1a2d, #142d4c, #0f2a3b, #0a1c28);
       --text-light: #fff;
-      --primary: #00c2a8;
-      --primary-dark: #007f6f;
+      --primary: #009f8a;
+      --primary-dark: #00695f;
     }
 
     * {
@@ -51,7 +51,7 @@
     }
 
     #intro.zoom-out {
-      transform: scale(2.8);
+      transform: scale(2.5);
       opacity: 0;
       pointer-events: none;
     }
@@ -65,7 +65,7 @@
 
     #intro p {
       margin-top: 1rem;
-      opacity: 0.8;
+      opacity: 0.85;
       animation: floatText 4s ease-in-out infinite;
       text-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
     }
@@ -103,20 +103,19 @@
     }
 
     #app {
-      display: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       text-align: center;
       padding: 2rem 1rem;
-      z-index: 10;
-      position: relative;
       opacity: 0;
-      transform: scale(1.1);
-      transition: transform 0.8s ease-out, opacity 0.8s ease-out;
+      transform: scale(1.2);
+      transition: opacity 1.5s ease, transform 1.5s ease;
       max-width: 600px;
       margin: auto;
     }
 
     #app.show {
-      display: block;
       opacity: 1;
       transform: scale(1);
     }
@@ -133,13 +132,13 @@
       background: var(--primary);
       color: #fff;
       border: none;
-      padding: 14px 20px;
-      border-radius: 30px;
+      padding: 10px 16px;
+      border-radius: 24px;
       cursor: pointer;
       font-weight: 700;
-      font-size: 1rem;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      box-shadow: 0 4px 10px rgba(0, 255, 200, 0.2);
+      font-size: 0.95rem;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+      box-shadow: 0 3px 8px rgba(0, 255, 200, 0.1);
     }
 
     nav button:hover {
@@ -202,7 +201,7 @@
 
     @media (max-width: 480px) {
       nav { flex-direction: column; gap: 1rem; }
-      nav button { width: 100%; font-size: 1.1rem; }
+      nav button { width: 100%; font-size: 1.05rem; }
     }
   </style>
 </head>
