@@ -8,7 +8,7 @@
     @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&display=swap');
 
     :root {
-      --bg-gradient: linear-gradient(-45deg, #1e3c72, #2a5298, #1f4068, #16222a);
+      --bg-gradient: linear-gradient(-45deg, #2c3e50, #3a506b, #586a84, #2e3a59);
       --text-light: #fff;
       --primary: #00ffc8;
     }
@@ -45,26 +45,26 @@
       flex-direction: column;
       text-align: center;
       z-index: 1000;
-      transition: opacity 0.8s ease, transform 1s ease;
+      transition: opacity 0.8s ease, transform 1.2s ease;
       transform: scale(1);
     }
 
     #intro.float-away {
       opacity: 0;
-      transform: scale(3);
+      transform: scale(2.5);
       pointer-events: none;
     }
 
     #intro h1 {
       font-size: 2.5rem;
       margin: 0;
-      animation: float 3s ease-in-out infinite;
+      animation: float 4s ease-in-out infinite;
     }
 
     #intro p {
       margin-top: 1rem;
       opacity: 0.8;
-      animation: float 4s ease-in-out infinite;
+      animation: float 5s ease-in-out infinite;
     }
 
     @keyframes float {
@@ -80,9 +80,9 @@
       z-index: 0;
       pointer-events: none;
       background-image: radial-gradient(white 1px, transparent 1px);
-      background-size: 20px 20px;
-      opacity: 0.05;
-      animation: drift 60s linear infinite;
+      background-size: 18px 18px;
+      opacity: 0.04;
+      animation: drift 80s linear infinite;
     }
 
     @keyframes drift {
@@ -169,6 +169,7 @@
 </head>
 <body>
   <div class="particles"></div>
+
   <div id="intro">
     <h1>Welcome to<br>QuasiCare</h1>
     <p>Tap anywhere to continue</p>
