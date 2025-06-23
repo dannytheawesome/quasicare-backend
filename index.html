@@ -8,9 +8,11 @@
     @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&display=swap');
 
     :root {
-      --bg-gradient: #1e3c72; /* Fixed background color */
-      --text-light: #fff;
+      --bg1: #1e3c72;
+      --bg2: #2a5298;
       --primary: #00ffc8;
+      --text: #ffffff;
+      --fade-text: #cccccc;
     }
 
     * {
@@ -20,30 +22,32 @@
     html, body {
       margin: 0;
       padding: 0;
-      font-family: 'Nunito', sans-serif;
-      background-color: var(--bg-gradient);
-      color: var(--text-light);
       height: 100%;
-      overflow-x: hidden;
-      -webkit-font-smoothing: antialiased;
+      font-family: 'Nunito', sans-serif;
+      color: var(--text);
+      background: linear-gradient(-45deg, var(--bg1), var(--bg2), #16222a, #1f4068);
+      background-size: 400% 400%;
+      animation: gradientMove 30s ease infinite;
+      overflow: hidden;
     }
 
-    body {
-      display: flex;
-      flex-direction: column;
+    @keyframes gradientMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
 
     #intro {
-      flex: 1;
+      position: fixed;
+      inset: 0;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      flex-direction: column;
-      text-align: center;
-      background-color: var(--bg-gradient);
+      background: inherit;
       z-index: 1000;
-      transform: scale(1);
-      transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 1.2s ease;
+      transition: transform 1.3s cubic-bezier(0.6, 0, 0.4, 1), opacity 1.3s ease;
+      text-align: center;
     }
 
     #intro.zoom-out {
@@ -55,69 +59,62 @@
     #intro h1 {
       font-size: 2.5rem;
       margin: 0;
-      animation: float 3s ease-in-out infinite;
     }
 
     #intro p {
       margin-top: 1rem;
-      opacity: 0.8;
-      animation: float 4s ease-in-out infinite;
-    }
-
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-6px); }
+      color: var(--fade-text);
     }
 
     #app {
-      display: none;
-      text-align: center;
-      padding: 2rem 1rem;
-      z-index: 10;
-      position: relative;
       opacity: 0;
-      transform: scale(1.3);
-      transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 1.2s ease;
+      pointer-events: none;
+      transition: opacity 1.2s ease, transform 1.2s ease;
+      transform: scale(1.05);
+      padding: 2rem 1rem;
+      text-align: center;
+      max-width: 700px;
+      margin: 0 auto;
     }
 
     #app.show {
-      display: block;
       opacity: 1;
+      pointer-events: all;
       transform: scale(1);
     }
 
     nav {
-      margin: 1.5rem 0;
+      margin: 2rem 0 1rem;
       display: flex;
       flex-direction: column;
-      gap: 0.5rem;
-      align-items: center;
+      gap: 0.75rem;
     }
 
-    nav button {
-      background: rgba(255, 255, 255, 0.2);
-      color: white;
+    .tab-btn {
+      background: rgba(255, 255, 255, 0.15);
       border: none;
-      padding: 12px 20px;
-      border-radius: 8px;
-      cursor: pointer;
+      border-radius: 999px;
+      padding: 0.75rem 1.5rem;
+      font-size: 1.1rem;
       font-weight: 600;
-      width: 100%;
-      max-width: 320px;
-      transition: background 0.3s ease;
+      cursor: pointer;
+      color: white;
+      transition: transform 0.15s ease, background 0.3s ease;
     }
 
-    nav button.active {
+    .tab-btn.active {
       background: var(--primary);
       color: black;
+    }
+
+    .tab-btn:active {
+      transform: scale(0.97);
     }
 
     .panel {
       display: none;
       opacity: 0;
-      max-width: 700px;
-      margin: auto;
-      transition: opacity 0.8s ease;
+      transition: opacity 0.6s ease;
     }
 
     .panel.active {
@@ -125,32 +122,49 @@
       opacity: 1;
     }
 
+    .counter {
+      margin-top: 1.5rem;
+    }
+
+    .counter p {
+      font-size: 1.1rem;
+    }
+
     .counter span {
       color: var(--primary);
       font-weight: bold;
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(1.1); opacity: 0.7; }
     }
 
     .affirmation {
       margin-top: 1.5rem;
       font-style: italic;
+      font-size: 1rem;
+      color: #ddd;
     }
 
     textarea {
       width: 100%;
-      max-width: 700px;
-      height: 200px;
+      max-width: 100%;
+      height: 150px;
+      border-radius: 1em;
       padding: 1rem;
-      border-radius: 8px;
+      font-family: inherit;
+      font-size: 1rem;
       border: none;
       resize: vertical;
+      margin-top: 1rem;
+    }
+
+    button {
       font-family: inherit;
-      margin: auto;
+    }
+
+    @media (min-width: 600px) {
+      nav {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
     }
   </style>
 </head>
@@ -176,19 +190,19 @@
         <p>Souls lost in the U.S. (2025): <span id="usCount">0</span></p>
         <p>Souls lost globally (2025): <span id="globalCount">0</span></p>
       </div>
-      <div class="affirmation" id="affirmation"></div>
+      <div class="affirmation" id="affirmation">You are enough. You are doing your best.</div>
     </div>
 
     <div id="talk" class="panel">
       <h3>Talk</h3>
       <p>Express what’s on your mind. Your voice matters.</p>
-      <a href="talk.html"><button>Go to Talk</button></a>
+      <a href="talk.html"><button class="tab-btn">Go to Talk</button></a>
     </div>
 
     <div id="listen" class="panel">
       <h3>Listen</h3>
       <p>Support others who need a hand or a kind word.</p>
-      <a href="listen.html"><button>Go to Listen</button></a>
+      <a href="listen.html"><button class="tab-btn">Go to Listen</button></a>
     </div>
 
     <div id="journal" class="panel">
@@ -197,19 +211,14 @@
     </div>
   </div>
 
-  <audio id="tapSound" src="https://cdn.pixabay.com/download/audio/2022/10/31/audio_9880bb7031.mp3?filename=click-124467.mp3"></audio>
-
   <script>
     const intro = document.getElementById("intro");
     const app = document.getElementById("app");
-    const tapSound = document.getElementById("tapSound");
-    const panels = document.querySelectorAll(".panel");
     const tabs = document.querySelectorAll(".tab-btn");
+    const panels = document.querySelectorAll(".panel");
 
     intro.addEventListener("click", () => {
-      tapSound.play();
       intro.classList.add("zoom-out");
-
       setTimeout(() => {
         intro.style.display = "none";
         app.classList.add("show");
@@ -218,7 +227,6 @@
 
     tabs.forEach(btn => {
       btn.addEventListener("click", () => {
-        tapSound.play();
         tabs.forEach(b => b.classList.remove("active"));
         panels.forEach(p => p.classList.remove("active"));
         btn.classList.add("active");
@@ -226,6 +234,7 @@
       });
     });
 
+    // Suicide Counter
     const usRateSec = 11 * 60;
     const globalRateSec = 40;
     const startOfYear = new Date("2025-01-01T00:00:00Z").getTime();
@@ -233,24 +242,24 @@
     const globalEl = document.getElementById("globalCount");
 
     let us, global;
-    const updateCounts = () => {
+    function updateCounts() {
       const now = Date.now();
       const seconds = Math.floor((now - startOfYear) / 1000);
       us = Math.floor(seconds / usRateSec);
       global = Math.floor(seconds / globalRateSec);
-    };
+    }
 
-    const animateCount = (el, to) => {
+    function animateCount(el, to) {
       let start = 0;
       const duration = 1500;
       const startTime = performance.now();
-      const update = (time) => {
+      function animate(time) {
         const progress = Math.min((time - startTime) / duration, 1);
         el.innerText = Math.floor(progress * to).toLocaleString();
-        if (progress < 1) requestAnimationFrame(update);
-      };
-      requestAnimationFrame(update);
-    };
+        if (progress < 1) requestAnimationFrame(animate);
+      }
+      requestAnimationFrame(animate);
+    }
 
     updateCounts();
     animateCount(usEl, us);
@@ -258,6 +267,7 @@
     setInterval(() => usEl.innerText = (++us).toLocaleString(), usRateSec * 1000);
     setInterval(() => globalEl.innerText = (++global).toLocaleString(), globalRateSec * 1000);
 
+    // Affirmation rotation
     const affirmations = [
       "You are enough. You are doing your best.",
       "Today is a fresh start.",
@@ -266,16 +276,13 @@
       "Breathe. Reset. Continue."
     ];
 
-    let index = 0;
-    const showAffirmation = () => {
-      const el = document.getElementById("affirmation");
-      const lastShown = localStorage.getItem("affirmationIndex") || 0;
-      index = (parseInt(lastShown) + 1) % affirmations.length;
-      el.innerText = affirmations[index];
-      localStorage.setItem("affirmationIndex", index);
-    };
-    showAffirmation();
+    const affEl = document.getElementById("affirmation");
+    let index = parseInt(localStorage.getItem("affirmationIndex") || "0");
+    index = (index + 1) % affirmations.length;
+    affEl.innerText = affirmations[index];
+    localStorage.setItem("affirmationIndex", index);
 
+    // Journal persistence
     const journal = document.getElementById("journalEntry");
     journal.value = localStorage.getItem("journal") || "";
     journal.addEventListener("input", () => {
