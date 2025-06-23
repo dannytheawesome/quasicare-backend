@@ -6,6 +6,7 @@
   <title>QuasiCare | Home</title>
   <style>
     * { box-sizing: border-box; }
+
     body {
       margin: 0;
       padding: 20px;
@@ -16,6 +17,7 @@
       color: white;
       text-align: center;
     }
+
     @keyframes gradientBG {
       0% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
@@ -40,7 +42,7 @@
     .counter span { color: #00ffc8; font-weight: bold; }
 
     .breathe-wrapper {
-      margin: 20px auto;
+      margin: 30px auto;
       position: relative;
     }
 
@@ -50,38 +52,18 @@
       border-radius: 50%;
       margin: 0 auto;
       background: rgba(255,255,255,0.15);
-      transition: transform 3s ease-in-out;
+      transition: transform 2.5s ease-in-out;
     }
 
     .guidance-text {
       margin-top: 15px;
       font-size: 1.1rem;
       color: #ccc;
-      height: 1.4rem;
-    }
-
-    .mood-buttons {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content: center;
-      margin-top: 10px;
-    }
-
-    .mood-buttons button {
-      background: rgba(255,255,255,0.1);
-      border: 1px solid #ccc;
-      color: white;
-      font-size: 0.9rem;
-    }
-
-    .mood-buttons button.active {
-      background-color: rgba(0, 255, 200, 0.2);
-      border-color: #00ffc8;
+      height: 1.5rem;
     }
 
     .affirmation {
-      margin-top: 20px;
+      margin-top: 30px;
       font-style: italic;
       font-size: 1rem;
       color: #ccc;
@@ -102,20 +84,12 @@
     <p>Souls lost globally (2025): <span id="globalCount">0</span></p>
   </div>
 
-  <h2>How are you feeling?</h2>
-  <div class="mood-buttons" id="moodButtons">
-    <button>Terrible</button>
-    <button>Okay</button>
-    <button>Good</button>
-    <button>Great</button>
-  </div>
-
   <h2>Tap to Breathe</h2>
   <div class="breathe-wrapper">
     <div id="breatheCircle" class="breathe-circle"></div>
     <div id="guidanceText" class="guidance-text"></div>
   </div>
-  <button onclick="toggleBreathing()">Start/Pause Breathing</button>
+  <button onclick="toggleBreathing()">Start / Pause</button>
 
   <h2>Affirmation</h2>
   <div id="affirmation" class="affirmation">You are enough. You are doing your best.</div>
@@ -139,14 +113,16 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-
     onAuthStateChanged(auth, (user) => {
       if (!user) window.location.href = "login.html";
     });
 
+    // Suicide Counter
     const usRateSec = 11 * 60;
     const globalRateSec = 40;
     const startOfYear = new Date("2025-01-01T00:00:00Z").getTime();
+    const usEl = document.getElementById("usCount");
+    const globalEl = document.getElementById("globalCount");
 
     function getCounts() {
       const now = Date.now();
@@ -157,10 +133,7 @@
       };
     }
 
-    const usEl = document.getElementById("usCount");
-    const globalEl = document.getElementById("globalCount");
     const { us, global } = getCounts();
-
     function animateCount(el, to) {
       let start = 0;
       const duration = 1500;
@@ -176,23 +149,10 @@
 
     animateCount(usEl, us);
     animateCount(globalEl, global);
-
     setInterval(() => usEl.innerText = (++us).toLocaleString(), usRateSec * 1000);
     setInterval(() => globalEl.innerText = (++global).toLocaleString(), globalRateSec * 1000);
 
-    // Mood Tracker
-    document.getElementById("moodButtons").addEventListener("click", e => {
-      if (e.target.tagName === "BUTTON") {
-        [...e.currentTarget.children].forEach(btn => btn.classList.remove("active"));
-        e.target.classList.add("active");
-        const mood = e.target.innerText;
-        const history = JSON.parse(localStorage.getItem("moodHistory") || "[]");
-        history.unshift({ mood, time: Date.now() });
-        localStorage.setItem("moodHistory", JSON.stringify(history.slice(0, 5)));
-      }
-    });
-
-    // Affirmation Cycle
+    // Affirmation
     const affirmations = [
       "You are enough. You are doing your best.",
       "Today is a fresh start.",
@@ -245,7 +205,7 @@
         phaseIndex = (phaseIndex + 1) % phases.length;
       }
 
-      step(); // start immediately
+      step();
       breatheInterval = setInterval(step, 3000);
     }
   </script>
