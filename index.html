@@ -4,212 +4,295 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>QuasiCare</title>
-  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    body, html {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      font-family: 'Baloo 2', cursive;
-      background: linear-gradient(135deg, #0a1f33, #124a8d);
-      background-size: 200% 200%;
-      animation: gradientShift 10s ease infinite;
-      color: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&display=swap');
+
+    :root {
+      --bg-gradient: linear-gradient(-45deg, #1e3c72, #2a5298, #1f4068, #16222a);
+      --text-light: #fff;
+      --primary: #00ffc8;
     }
 
-    @keyframes gradientShift {
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Nunito', sans-serif;
+      background: var(--bg-gradient);
+      background-size: 400% 400%;
+      animation: gradientBG 25s ease infinite;
+      color: var(--text-light);
+      overflow: hidden;
+    }
+
+    @keyframes gradientBG {
       0% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
     }
 
-    .container {
-      text-align: center;
-      padding: 20px;
-      max-width: 500px;
-      width: 100%;
-    }
-
-    h1, h2 {
-      margin: 0.5em 0;
-    }
-
-    .screen {
-      display: none;
-      flex-direction: column;
+    #intro {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: var(--bg-gradient);
+      display: flex;
       align-items: center;
-    }
-
-    .active {
-      display: flex;
-    }
-
-    .button-group {
-      display: flex;
+      justify-content: center;
       flex-direction: column;
-      gap: 10px;
-      margin: 20px 0;
+      text-align: center;
+      z-index: 1000;
+      transition: opacity 0.8s ease, transform 1s ease;
+      transform: scale(1);
+    }
+
+    #intro.float-away {
+      opacity: 0;
+      transform: scale(3);
+      pointer-events: none;
+    }
+
+    #intro h1 {
+      font-size: 2.5rem;
+      margin: 0;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    #intro p {
+      margin-top: 1rem;
+      opacity: 0.8;
+      animation: float 4s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+
+    .particles {
+      position: absolute;
+      top: 0; left: 0;
       width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+      background-image: radial-gradient(white 1px, transparent 1px);
+      background-size: 20px 20px;
+      opacity: 0.05;
+      animation: drift 60s linear infinite;
     }
 
-    .button-group button {
-      padding: 15px;
+    @keyframes drift {
+      from { background-position: 0 0; }
+      to { background-position: 1000px 1000px; }
+    }
+
+    #app {
+      display: none;
+      text-align: center;
+      padding: 2rem;
+      z-index: 10;
+      position: relative;
+    }
+
+    nav {
+      margin: 1.5rem 0;
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    nav button {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
       border: none;
-      border-radius: 10px;
-      background-color: #2fd4c9;
-      font-size: 1.2em;
-      font-weight: bold;
-      color: #000;
+      padding: 10px 16px;
+      border-radius: 6px;
       cursor: pointer;
-      transition: background-color 0.3s ease;
+      font-weight: 600;
+      transition: background 0.3s ease;
     }
 
-    .button-group button.inactive {
-      background-color: rgba(255, 255, 255, 0.2);
-      color: #fff;
+    nav button.active {
+      background: var(--primary);
+      color: black;
     }
 
-    .counter {
-      font-size: 1em;
-      margin: 5px 0;
+    .panel {
+      display: none;
+      opacity: 0;
+      max-width: 700px;
+      margin: auto;
+      transition: opacity 0.8s ease;
+    }
+
+    .panel.active {
+      display: block;
+      opacity: 1;
+    }
+
+    .counter span {
+      color: var(--primary);
+      font-weight: bold;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.1); opacity: 0.7; }
     }
 
     .affirmation {
+      margin-top: 1.5rem;
       font-style: italic;
-      margin-top: 30px;
     }
 
-    .journal-entry {
+    textarea {
       width: 100%;
-      max-width: 400px;
-      height: 150px;
+      height: 200px;
+      padding: 1rem;
+      border-radius: 8px;
       border: none;
-      border-radius: 10px;
-      padding: 15px;
-      font-size: 1em;
-      resize: none;
+      resize: vertical;
+      font-family: inherit;
     }
 
-    .nav-screen h3 {
-      margin-bottom: 10px;
-    }
-
-    @media (min-width: 600px) {
-      .button-group {
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: center;
-      }
-
-      .button-group button {
-        flex: 1 1 45%;
-        margin: 5px;
-      }
+    @media (max-width: 600px) {
+      nav { flex-direction: column; }
+      nav button { width: 100%; }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <!-- Welcome Screen -->
-    <div id="welcome" class="screen active">
-      <h1>Welcome to<br><span style="font-size: 2em;">QuasiCare</span></h1>
-      <p>Tap anywhere to continue</p>
+  <div class="particles"></div>
+  <div id="intro">
+    <h1>Welcome to<br>QuasiCare</h1>
+    <p>Tap anywhere to continue</p>
+  </div>
+
+  <div id="app">
+    <h2>This is your space</h2>
+    <p>Reflect. Breathe. Reset.</p>
+
+    <nav>
+      <button class="tab-btn active" data-tab="profile">Profile</button>
+      <button class="tab-btn" data-tab="talk">Talk</button>
+      <button class="tab-btn" data-tab="listen">Listen</button>
+      <button class="tab-btn" data-tab="journal">Reflection Journal</button>
+    </nav>
+
+    <div id="profile" class="panel active">
+      <div class="counter">
+        <p>Souls lost in the U.S. (2025): <span id="usCount">0</span></p>
+        <p>Souls lost globally (2025): <span id="globalCount">0</span></p>
+      </div>
+      <div class="affirmation" id="affirmation"></div>
     </div>
 
-    <!-- Main Screen -->
-    <div id="main" class="screen">
-      <h2>This is your space</h2>
-      <p>Reflect. Breathe. Reset.</p>
+    <div id="talk" class="panel">
+      <h3>Talk</h3>
+      <p>Express what’s on your mind. Your voice matters.</p>
+      <a href="talk.html"><button>Go to Talk</button></a>
+    </div>
 
-      <div class="button-group">
-        <button id="profileBtn" class="active-tab">Profile</button>
-        <button id="talkBtn" class="inactive">Talk</button>
-        <button id="listenBtn" class="inactive">Listen</button>
-        <button id="journalBtn" class="inactive">Reflection Journal</button>
-      </div>
+    <div id="listen" class="panel">
+      <h3>Listen</h3>
+      <p>Support others who need a hand or a kind word.</p>
+      <a href="listen.html"><button>Go to Listen</button></a>
+    </div>
 
-      <div id="profileScreen" class="nav-screen">
-        <div class="counter">
-          Souls lost in the U.S. (2025): <span id="usCounter">0</span>
-        </div>
-        <div class="counter">
-          Souls lost globally (2025): <span id="globalCounter">0</span>
-        </div>
-        <div class="affirmation">
-          <p>Today is a fresh start.</p>
-        </div>
-      </div>
-
-      <div id="talkScreen" class="nav-screen" style="display:none;">
-        <h3>Talk</h3>
-        <p>Express what’s on your mind. Your voice matters.</p>
-        <button onclick="window.location.href='talk.html'">Go to Talk</button>
-      </div>
-
-      <div id="listenScreen" class="nav-screen" style="display:none;">
-        <h3>Listen</h3>
-        <p>Support others who need a hand or a kind word.</p>
-        <button onclick="window.location.href='listen.html'">Go to Listen</button>
-      </div>
-
-      <div id="journalScreen" class="nav-screen" style="display:none;">
-        <h3>Reflection Journal</h3>
-        <textarea class="journal-entry" placeholder="Write your thoughts..."></textarea>
-      </div>
+    <div id="journal" class="panel">
+      <h3>Reflection Journal</h3>
+      <textarea id="journalEntry" placeholder="Write your thoughts..."></textarea>
     </div>
   </div>
 
+  <audio id="tapSound" src="https://cdn.pixabay.com/download/audio/2022/10/31/audio_9880bb7031.mp3?filename=click-124467.mp3"></audio>
+
   <script>
-    // Screen transition
-    document.getElementById("welcome").addEventListener("click", () => {
-      document.getElementById("welcome").classList.remove("active");
-      document.getElementById("main").classList.add("active");
+    const intro = document.getElementById("intro");
+    const app = document.getElementById("app");
+    const tapSound = document.getElementById("tapSound");
+    const panels = document.querySelectorAll(".panel");
+    const tabs = document.querySelectorAll(".tab-btn");
+
+    intro.addEventListener("click", () => {
+      tapSound.play();
+      intro.classList.add("float-away");
+      setTimeout(() => {
+        intro.style.display = "none";
+        app.style.display = "block";
+      }, 1000);
     });
 
-    // Navigation buttons
-    const navButtons = {
-      profileBtn: "profileScreen",
-      talkBtn: "talkScreen",
-      listenBtn: "listenScreen",
-      journalBtn: "journalScreen"
-    };
-
-    Object.keys(navButtons).forEach(id => {
-      document.getElementById(id).addEventListener("click", () => {
-        // Reset all screens
-        document.querySelectorAll(".nav-screen").forEach(screen => screen.style.display = "none");
-        document.querySelectorAll(".button-group button").forEach(btn => btn.classList.add("inactive"));
-
-        // Show selected
-        document.getElementById(navButtons[id]).style.display = "block";
-        document.getElementById(id).classList.remove("inactive");
+    tabs.forEach(btn => {
+      btn.addEventListener("click", () => {
+        tapSound.play();
+        tabs.forEach(b => b.classList.remove("active"));
+        panels.forEach(p => p.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById(btn.dataset.tab).classList.add("active");
       });
     });
 
-    // Counter logic
-    const usCounter = document.getElementById("usCounter");
-    const globalCounter = document.getElementById("globalCounter");
-    let usCount = 22739;
-    let globalCount = 375194;
+    const usRateSec = 11 * 60;
+    const globalRateSec = 40;
+    const startOfYear = new Date("2025-01-01T00:00:00Z").getTime();
+    const usEl = document.getElementById("usCount");
+    const globalEl = document.getElementById("globalCount");
 
-    function animateCounter(el, start, end, duration) {
-      let startTime = null;
-      function update(timestamp) {
-        if (!startTime) startTime = timestamp;
-        const progress = timestamp - startTime;
-        const step = Math.min(progress / duration, 1);
-        el.textContent = Math.floor(start + (end - start) * step).toLocaleString();
-        if (step < 1) requestAnimationFrame(update);
-      }
+    let us, global;
+    const updateCounts = () => {
+      const now = Date.now();
+      const seconds = Math.floor((now - startOfYear) / 1000);
+      us = Math.floor(seconds / usRateSec);
+      global = Math.floor(seconds / globalRateSec);
+    };
+
+    const animateCount = (el, to) => {
+      let start = 0;
+      const duration = 1500;
+      const startTime = performance.now();
+      const update = (time) => {
+        const progress = Math.min((time - startTime) / duration, 1);
+        el.innerText = Math.floor(progress * to).toLocaleString();
+        if (progress < 1) requestAnimationFrame(update);
+      };
       requestAnimationFrame(update);
-    }
+    };
 
-    window.addEventListener('load', () => {
-      animateCounter(usCounter, 0, usCount, 2000);
-      animateCounter(globalCounter, 0, globalCount, 2000);
+    updateCounts();
+    animateCount(usEl, us);
+    animateCount(globalEl, global);
+    setInterval(() => usEl.innerText = (++us).toLocaleString(), usRateSec * 1000);
+    setInterval(() => globalEl.innerText = (++global).toLocaleString(), globalRateSec * 1000);
+
+    const affirmations = [
+      "You are enough. You are doing your best.",
+      "Today is a fresh start.",
+      "Small steps still move you forward.",
+      "You deserve peace.",
+      "Breathe. Reset. Continue."
+    ];
+
+    let index = 0;
+    const showAffirmation = () => {
+      const el = document.getElementById("affirmation");
+      const lastShown = localStorage.getItem("affirmationIndex") || 0;
+      index = (parseInt(lastShown) + 1) % affirmations.length;
+      el.innerText = affirmations[index];
+      localStorage.setItem("affirmationIndex", index);
+    };
+    showAffirmation();
+
+    const journal = document.getElementById("journalEntry");
+    journal.value = localStorage.getItem("journal") || "";
+    journal.addEventListener("input", () => {
+      localStorage.setItem("journal", journal.value);
     });
   </script>
 </body>
