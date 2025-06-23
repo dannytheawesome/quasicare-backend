@@ -1,145 +1,148 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>QuasiCare | Home</title>
   <style>
     :root {
-      --bg-gradient-dark: linear-gradient(-45deg, #1f1c2c, #928dab, #0f2027, #2c5364);
-      --bg-gradient-light: linear-gradient(-45deg, #f0f0f0, #c2e9fb, #e2ebf0, #d4fc79);
-      --text-color-dark: white;
-      --text-color-light: #222;
+      --bg: #1f1c2c;
+      --text: #ffffff;
+      --accent: #00ffc8;
     }
 
-    * { box-sizing: border-box; }
+    [data-theme="light"] {
+      --bg: #f5f5f5;
+      --text: #111;
+      --accent: #0077ff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     html, body {
-      margin: 0; padding: 0;
+      margin: 0;
+      padding: 0;
+      height: 100%;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      transition: background 0.4s ease, color 0.4s ease;
-    }
-    body.dark {
-      background: var(--bg-gradient-dark);
-      background-size: 400% 400%;
-      animation: gradientBG 20s ease infinite;
-      color: var(--text-color-dark);
-    }
-    body.light {
-      background: var(--bg-gradient-light);
-      background-size: 400% 400%;
-      animation: gradientBG 20s ease infinite;
-      color: var(--text-color-light);
-    }
-    @keyframes gradientBG {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
+      background: var(--bg);
+      color: var(--text);
+      transition: background 0.4s, color 0.4s;
     }
 
-    header {
-      padding: 20px;
-      text-align: center;
-      font-size: 1.6rem;
+    .nav {
+      display: flex;
+      justify-content: space-around;
+      padding: 15px;
+      background-color: rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      backdrop-filter: blur(10px);
+    }
+
+    .nav button {
+      background: none;
+      border: none;
+      color: var(--text);
+      font-size: 1rem;
+      cursor: pointer;
+      padding: 10px;
+      transition: color 0.3s;
+    }
+
+    .nav button.active {
+      color: var(--accent);
       font-weight: bold;
     }
 
-    .tabs {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-    .tabs button {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: background 0.3s, transform 0.2s;
-    }
-    .tabs button:hover {
-      transform: translateY(-2px);
-    }
-    .tab-content {
-      display: none;
-      max-width: 600px;
+    main {
+      max-width: 700px;
       margin: auto;
       padding: 20px;
-      animation: fadeIn 0.5s ease forwards;
+      animation: fadeIn 0.5s ease;
     }
-    .tab-content.active {
-      display: block;
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 10px;
     }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
+
+    p {
+      font-size: 1rem;
+      color: var(--text);
+      line-height: 1.5;
     }
 
     .counter p span {
-      color: #00ffc8;
+      color: var(--accent);
       font-weight: bold;
     }
 
     .breathe-circle {
-      width: 120px;
-      height: 120px;
+      width: 100px;
+      height: 100px;
+      background: rgba(255,255,255,0.1);
       border-radius: 50%;
+      animation: breathe 6s ease-in-out infinite;
       margin: 20px auto;
-      background-color: rgba(0, 255, 200, 0.2);
-      animation: heartbeat 6s ease-in-out infinite;
     }
-    @keyframes heartbeat {
+
+    @keyframes breathe {
       0%, 100% { transform: scale(1); }
       50% { transform: scale(1.4); }
     }
 
     .affirmation {
-      margin-top: 30px;
+      margin-top: 20px;
       font-style: italic;
-      text-align: center;
       opacity: 0;
-      animation: fadeInAffirm 1s ease forwards;
+      transition: opacity 0.8s ease;
     }
-    @keyframes fadeInAffirm {
-      to { opacity: 1; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .theme-toggle {
-      position: fixed;
-      top: 10px;
-      right: 10px;
-      padding: 8px 14px;
-      border: none;
-      border-radius: 5px;
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: none;
+      border: 2px solid var(--accent);
+      color: var(--accent);
+      padding: 5px 10px;
+      border-radius: 6px;
       cursor: pointer;
-      z-index: 1000;
+      font-size: 0.85rem;
     }
   </style>
 </head>
-<body class="dark">
+<body>
   <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
+  <nav class="nav">
+    <button class="tab-btn active" onclick="switchTab('profile')">Profile</button>
+    <button class="tab-btn" onclick="window.location.href='talk.html'">Talk</button>
+    <button class="tab-btn" onclick="window.location.href='listen.html'">Listen</button>
+  </nav>
 
-  <header>Welcome to QuasiCare</header>
-
-  <div class="tabs">
-    <button onclick="switchTab('profile')">Profile</button>
-    <button onclick="window.location.href='talk.html'">Talk</button>
-    <button onclick="window.location.href='listen.html'">Listen</button>
-  </div>
-
-  <div id="profile" class="tab-content active">
-    <p>This is your space to reflect, breathe, and ground yourself.</p>
+  <main id="profileTab">
+    <h1>Welcome to QuasiCare</h1>
+    <p>This is your personal space. Reflect. Reset.</p>
 
     <div class="counter">
       <p>Souls lost in the U.S. (2025): <span id="usCount">0</span></p>
       <p>Souls lost globally (2025): <span id="globalCount">0</span></p>
     </div>
 
-    <h3>Tap to Breathe</h3>
+    <h2>Tap to Breathe</h2>
     <div class="breathe-circle"></div>
 
+    <h2>Affirmation</h2>
     <div class="affirmation" id="affirmation">You are enough. You are doing your best.</div>
-  </div>
+  </main>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -156,29 +159,39 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    onAuthStateChanged(auth, (user) => {
-      if (!user) window.location.href = "login.html";
+    onAuthStateChanged(auth, user => {
+      if (!user) location.href = "login.html";
     });
 
-    const usEl = document.getElementById("usCount");
-    const globalEl = document.getElementById("globalCount");
+    // Counter
     const usRateSec = 11 * 60;
     const globalRateSec = 40;
     const startOfYear = new Date("2025-01-01T00:00:00Z").getTime();
-    const now = Date.now();
-    const secondsPassed = Math.floor((now - startOfYear) / 1000);
-    let us = Math.floor(secondsPassed / usRateSec);
-    let global = Math.floor(secondsPassed / globalRateSec);
+    const usEl = document.getElementById("usCount");
+    const globalEl = document.getElementById("globalCount");
+
+    const getCounts = () => {
+      const now = Date.now();
+      const secondsPassed = Math.floor((now - startOfYear) / 1000);
+      return {
+        us: Math.floor(secondsPassed / usRateSec),
+        global: Math.floor(secondsPassed / globalRateSec)
+      };
+    };
 
     const animateCount = (el, to) => {
-      let start = 0, startTime = performance.now();
+      let start = 0;
+      const duration = 1500;
+      const startTime = performance.now();
       const update = time => {
-        const progress = Math.min((time - startTime) / 1500, 1);
+        const progress = Math.min((time - startTime) / duration, 1);
         el.innerText = Math.floor(progress * to).toLocaleString();
         if (progress < 1) requestAnimationFrame(update);
       };
       requestAnimationFrame(update);
     };
+
+    const { us, global } = getCounts();
     animateCount(usEl, us);
     animateCount(globalEl, global);
     setInterval(() => usEl.innerText = (++us).toLocaleString(), usRateSec * 1000);
@@ -188,29 +201,33 @@
     const affirmations = [
       "You are enough. You are doing your best.",
       "Today is a fresh start.",
+      "Small steps still move you forward.",
       "You deserve peace.",
-      "One step at a time is progress.",
-      "You're not alone."
+      "Breathe. Reset. Continue."
     ];
-    let i = 0;
-    setInterval(() => {
-      const el = document.getElementById("affirmation");
+    let index = 0;
+    const el = document.getElementById("affirmation");
+    function showNextAffirmation() {
       el.style.opacity = 0;
       setTimeout(() => {
-        i = (i + 1) % affirmations.length;
-        el.innerText = affirmations[i];
+        index = (index + 1) % affirmations.length;
+        el.innerText = affirmations[index];
         el.style.opacity = 1;
       }, 300);
-    }, 6000);
+    }
+    setInterval(showNextAffirmation, 6000);
 
-    window.switchTab = function(tabId) {
-      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-      document.getElementById(tabId).classList.add('active');
+    // Theme Switcher
+    function toggleTheme() {
+      const html = document.documentElement;
+      const current = html.getAttribute("data-theme");
+      html.setAttribute("data-theme", current === "dark" ? "light" : "dark");
     }
 
-    window.toggleTheme = function() {
-      document.body.classList.toggle('dark');
-      document.body.classList.toggle('light');
+    // Tab Highlighting
+    function switchTab(name) {
+      document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
+      document.querySelector(`.tab-btn:nth-child(${name === 'profile' ? 1 : name === 'talk' ? 2 : 3})`).classList.add("active");
     }
   </script>
 </body>
