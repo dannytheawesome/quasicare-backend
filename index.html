@@ -7,9 +7,7 @@
   <style>
     :root {
       --bg-light: linear-gradient(-45deg, #e0eafc, #cfdef3, #dee4ff, #c3cfe2);
-      --bg-dark: linear-gradient(-45deg, #1f1c2c, #0f2027, #2c5364, #928dab);
       --text-light: #222;
-      --text-dark: #fff;
       --primary: #00ffc8;
     }
 
@@ -26,11 +24,6 @@
       animation: gradientBG 20s ease infinite;
       background-size: 400% 400%;
       overflow-x: hidden;
-    }
-
-    body.dark {
-      background: var(--bg-dark);
-      color: var(--text-dark);
     }
 
     @keyframes gradientBG {
@@ -144,22 +137,6 @@
       font-weight: bold;
     }
 
-    #themeToggle {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      padding: 6px 12px;
-      background: #fff;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    body.dark #themeToggle {
-      background: #333;
-      color: #fff;
-    }
-
     @media (max-width: 600px) {
       nav { flex-direction: column; }
       nav button { width: 100%; }
@@ -175,8 +152,6 @@
 
   <!-- App Content -->
   <div id="app">
-    <button id="themeToggle">Toggle Theme</button>
-
     <h2>This is your space</h2>
     <p>Reflect. Breathe. Reset.</p>
 
@@ -271,11 +246,6 @@
         btn.classList.add("active");
         document.getElementById(btn.dataset.tab).classList.add("active");
       });
-    });
-
-    const toggleBtn = document.getElementById("themeToggle");
-    toggleBtn.addEventListener("click", () => {
-      document.body.classList.toggle("dark");
     });
 
     const affirmations = [
