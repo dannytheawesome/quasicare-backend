@@ -7,6 +7,12 @@
   <script src="https://cdn.jsdelivr.net/npm/leo-profanity@1.7.0/leo-profanity.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --bg-gradient: linear-gradient(-45deg, #1e3c72, #2a5298, #1f4068, #16222a);
+      --primary: #00ffc8;
+      --text-light: #ffffff;
+    }
+
     * {
       box-sizing: border-box;
     }
@@ -15,45 +21,55 @@
       margin: 0;
       padding: 40px 20px;
       font-family: 'Nunito', sans-serif;
-      background: linear-gradient(135deg, #2C3E50, #4CA1AF);
-      color: #fff;
+      background: var(--bg-gradient);
+      background-size: 400% 400%;
+      animation: gradientFlow 25s ease infinite;
+      color: var(--text-light);
       text-align: center;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       justify-content: center;
-      animation: backgroundFade 30s ease infinite;
+      align-items: center;
     }
 
-    @keyframes backgroundFade {
+    @keyframes gradientFlow {
       0% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
     }
 
     h1 {
-      font-size: 2rem;
+      font-size: 2.2rem;
       margin-bottom: 0.5rem;
+      animation: float 3s ease-in-out infinite;
     }
 
     p {
       font-size: 1rem;
       color: #e0e0e0;
       margin-bottom: 20px;
+      opacity: 0.9;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-6px); }
     }
 
     textarea {
       width: 100%;
       max-width: 480px;
       height: 120px;
-      padding: 12px;
+      padding: 14px;
       font-size: 1rem;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       background: rgba(255, 255, 255, 0.05);
       color: #fff;
       margin-bottom: 14px;
       resize: none;
+      backdrop-filter: blur(4px);
       transition: background 0.3s;
     }
 
@@ -65,7 +81,7 @@
     button {
       padding: 12px 28px;
       font-size: 1rem;
-      background: #00ffc8;
+      background: var(--primary);
       color: #111;
       font-weight: 600;
       border: none;
