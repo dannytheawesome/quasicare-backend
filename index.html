@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>QuasiCare | Home</title>
+  <title>QuasiCare</title>
   <style>
     :root {
       --bg-light: linear-gradient(-45deg, #e0eafc, #cfdef3, #dee4ff, #c3cfe2);
-      --bg-dark: linear-gradient(-45deg, #1f1c2c, #928dab, #0f2027, #2c5364);
+      --bg-dark: linear-gradient(-45deg, #1f1c2c, #0f2027, #2c5364, #928dab);
       --text-light: #222;
       --text-dark: #fff;
       --primary: #00ffc8;
@@ -17,20 +17,15 @@
       box-sizing: border-box;
     }
 
-    html, body {
+    body {
       margin: 0;
       padding: 0;
       font-family: 'Segoe UI', sans-serif;
-      height: 100%;
-      overflow: hidden;
-    }
-
-    body {
       background: var(--bg-light);
-      background-size: 400% 400%;
       color: var(--text-light);
       animation: gradientBG 20s ease infinite;
-      transition: background 0.5s ease, color 0.5s ease;
+      background-size: 400% 400%;
+      overflow-x: hidden;
     }
 
     body.dark {
@@ -46,53 +41,50 @@
 
     #intro {
       position: fixed;
+      top: 0; left: 0;
       width: 100%;
       height: 100%;
-      background: inherit;
+      z-index: 9999;
+      background: var(--bg-light);
       display: flex;
       flex-direction: column;
-      justify-content: center;
       align-items: center;
-      z-index: 1000;
-      animation: zoomIn 3s ease forwards;
-      text-align: center;
-    }
-
-    @keyframes zoomIn {
-      0% { transform: scale(1.4); opacity: 0; }
-      50% { transform: scale(1.1); opacity: 1; }
-      100% { transform: scale(1); }
+      justify-content: center;
+      transition: all 0.8s ease;
+      animation: zoomIn 2s ease-out;
     }
 
     #intro h1 {
-      font-size: 2.4rem;
-      animation: floatText 4s ease infinite;
+      font-size: 2.5rem;
       margin: 0;
+      animation: floatText 2s ease-in-out infinite alternate;
+    }
+
+    #intro p {
+      opacity: 0.8;
+      margin-top: 1rem;
     }
 
     @keyframes floatText {
-      0% { transform: translateY(0); }
-      50% { transform: translateY(-12px); }
-      100% { transform: translateY(0); }
+      from { transform: translateY(0); }
+      to { transform: translateY(-10px); }
     }
 
-    #continueTap {
-      margin-top: 20px;
-      font-size: 1rem;
-      opacity: 0.7;
+    @keyframes zoomIn {
+      0% {
+        transform: scale(1.2);
+        opacity: 0;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
     }
 
     #app {
       display: none;
-      height: 100%;
-      padding: 20px;
-    }
-
-    header {
+      padding: 2rem;
       text-align: center;
-      font-size: 1.5rem;
-      font-weight: bold;
-      margin-bottom: 10px;
     }
 
     nav {
@@ -100,62 +92,51 @@
       justify-content: center;
       gap: 10px;
       margin-bottom: 1rem;
+      flex-wrap: wrap;
     }
 
     nav button {
       padding: 10px 16px;
       border: none;
       border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
       background: rgba(255, 255, 255, 0.2);
       color: inherit;
-      font-weight: bold;
-      cursor: pointer;
+      transition: background 0.3s ease;
     }
 
     nav button.active {
-      background: var(--primary);
-      color: #000;
-    }
-
-    .tab-wrapper {
-      position: relative;
-      overflow: hidden;
-      height: calc(100% - 160px); /* subtract header/nav height */
+      background-color: var(--primary);
+      color: black;
     }
 
     .panel {
-      position: absolute;
-      top: 0;
-      width: 100%;
-      left: 100%;
+      display: none;
       opacity: 0;
-      transition: all 0.5s ease;
-      padding: 10px;
+      transition: opacity 0.5s ease;
       max-width: 700px;
       margin: auto;
     }
 
     .panel.active {
-      left: 0;
+      display: block;
       opacity: 1;
-      z-index: 1;
     }
 
-    #themeToggle {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      padding: 8px 12px;
-      border: none;
-      background: #fff;
-      border-radius: 5px;
-      font-weight: bold;
-      cursor: pointer;
+    .affirmation {
+      margin-top: 20px;
+      font-style: italic;
+      opacity: 0;
+      animation: fadeIn 1s ease forwards;
     }
 
-    body.dark #themeToggle {
-      background: #333;
-      color: white;
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+
+    .counter {
+      margin-top: 20px;
     }
 
     .counter p span {
@@ -163,33 +144,41 @@
       font-weight: bold;
     }
 
-    .affirmation {
-      font-style: italic;
-      margin-top: 20px;
-      opacity: 0;
-      animation: fadeIn 1.5s ease forwards;
+    #themeToggle {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 6px 12px;
+      background: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
     }
 
-    @keyframes fadeIn {
-      to { opacity: 1; }
+    body.dark #themeToggle {
+      background: #333;
+      color: #fff;
     }
 
     @media (max-width: 600px) {
-      header { font-size: 1.2rem; }
       nav { flex-direction: column; }
       nav button { width: 100%; }
     }
   </style>
 </head>
 <body>
-  <div id="intro" onclick="enterApp()">
-    <h1>Welcome to QuasiCare</h1>
-    <div id="continueTap">Tap anywhere to continue</div>
+  <!-- Intro Screen -->
+  <div id="intro">
+    <h1>Welcome to<br>QuasiCare</h1>
+    <p>Tap anywhere to continue</p>
   </div>
 
+  <!-- App Content -->
   <div id="app">
     <button id="themeToggle">Toggle Theme</button>
-    <header>QuasiCare Dashboard</header>
+
+    <h2>This is your space</h2>
+    <p>Reflect. Breathe. Reset.</p>
 
     <nav>
       <button class="tab-btn active" data-tab="profile">Profile</button>
@@ -197,28 +186,24 @@
       <button class="tab-btn" data-tab="listen">Listen</button>
     </nav>
 
-    <div class="tab-wrapper">
-      <div id="profile" class="panel active">
-        <h2>This is your space</h2>
-        <p>Reflect. Reset. You're safe here.</p>
-        <div class="counter">
-          <p>Souls lost in the U.S. (2025): <span id="usCount">0</span></p>
-          <p>Souls lost globally (2025): <span id="globalCount">0</span></p>
-        </div>
-        <div class="affirmation" id="affirmation">You are enough. You are doing your best.</div>
+    <div id="profile" class="panel active">
+      <div class="counter">
+        <p>Souls lost in the U.S. (2025): <span id="usCount">0</span></p>
+        <p>Souls lost globally (2025): <span id="globalCount">0</span></p>
       </div>
+      <div class="affirmation" id="affirmation">You are enough. You are doing your best.</div>
+    </div>
 
-      <div id="talk" class="panel">
-        <h2>Talk</h2>
-        <p>Express what’s on your mind.</p>
-        <a href="talk.html"><button>Go to Talk</button></a>
-      </div>
+    <div id="talk" class="panel">
+      <h3>Talk</h3>
+      <p>Express what’s on your mind. Your voice matters.</p>
+      <a href="talk.html"><button>Go to Talk</button></a>
+    </div>
 
-      <div id="listen" class="panel">
-        <h2>Listen</h2>
-        <p>Support others with care and compassion.</p>
-        <a href="listen.html"><button>Go to Listen</button></a>
-      </div>
+    <div id="listen" class="panel">
+      <h3>Listen</h3>
+      <p>Support others who need a hand or a kind word.</p>
+      <a href="listen.html"><button>Go to Listen</button></a>
     </div>
   </div>
 
@@ -238,7 +223,7 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, user => {
       if (!user) window.location.href = "login.html";
     });
 
@@ -248,18 +233,31 @@
     const usEl = document.getElementById("usCount");
     const globalEl = document.getElementById("globalCount");
 
-    let us = 0, global = 0;
+    let us, global;
 
-    function updateCounters() {
+    const updateInitialCounts = () => {
       const now = Date.now();
       const secondsPassed = Math.floor((now - startOfYear) / 1000);
       us = Math.floor(secondsPassed / usRateSec);
       global = Math.floor(secondsPassed / globalRateSec);
-      usEl.innerText = us.toLocaleString();
-      globalEl.innerText = global.toLocaleString();
-    }
+    };
 
-    updateCounters();
+    const animateCount = (el, to) => {
+      let start = 0;
+      const duration = 1500;
+      const startTime = performance.now();
+      const update = (time) => {
+        const progress = Math.min((time - startTime) / duration, 1);
+        el.innerText = Math.floor(progress * to).toLocaleString();
+        if (progress < 1) requestAnimationFrame(update);
+      };
+      requestAnimationFrame(update);
+    };
+
+    updateInitialCounts();
+    animateCount(usEl, us);
+    animateCount(globalEl, global);
+
     setInterval(() => usEl.innerText = (++us).toLocaleString(), usRateSec * 1000);
     setInterval(() => globalEl.innerText = (++global).toLocaleString(), globalRateSec * 1000);
 
@@ -275,14 +273,10 @@
       });
     });
 
-    document.getElementById("themeToggle").addEventListener("click", () => {
+    const toggleBtn = document.getElementById("themeToggle");
+    toggleBtn.addEventListener("click", () => {
       document.body.classList.toggle("dark");
     });
-
-    function enterApp() {
-      document.getElementById("intro").style.display = "none";
-      document.getElementById("app").style.display = "block";
-    }
 
     const affirmations = [
       "You are enough. You are doing your best.",
@@ -291,6 +285,7 @@
       "You deserve peace.",
       "Breathe. Reset. Continue."
     ];
+
     let index = 0;
     setInterval(() => {
       const el = document.getElementById("affirmation");
@@ -301,6 +296,22 @@
         el.style.opacity = 1;
       }, 300);
     }, 6000);
+  </script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const intro = document.getElementById("intro");
+      const app = document.getElementById("app");
+
+      intro.addEventListener("click", () => {
+        intro.style.opacity = "0";
+        intro.style.pointerEvents = "none";
+        setTimeout(() => {
+          intro.style.display = "none";
+          app.style.display = "block";
+        }, 500);
+      });
+    });
   </script>
 </body>
 </html>
