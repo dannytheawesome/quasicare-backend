@@ -2,130 +2,138 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>QuasiCare</title>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      font-family: 'Nunito', sans-serif;
-      background: linear-gradient(135deg, #2a2a3b, #3d3d5c);
-      color: white;
-      overflow: hidden;
+    * {
+      box-sizing: border-box;
     }
 
-    #particleCanvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100vh;
-      z-index: -1;
-      background: transparent;
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Nunito', sans-serif;
+      background: linear-gradient(-45deg, #6f86d6, #48c6ef, #fcb045, #ff3cac);
+      background-size: 600% 600%;
+      animation: gradientShift 25s ease infinite;
+      color: #fff;
+      overflow-x: hidden;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
 
     #intro {
       position: fixed;
-      top: 0;
-      left: 0;
+      top: 0; left: 0;
       width: 100%;
       height: 100%;
+      z-index: 9999;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      transition: all 0.8s ease;
+      animation: zoomIn 2s ease-out;
       background: transparent;
-      transition: opacity 1s ease;
-      z-index: 999;
     }
 
-    #intro h1, #intro p {
-      margin: 0.5rem;
-      text-align: center;
+    #intro h1 {
+      font-size: 2.5rem;
+      margin: 0;
+    }
+
+    #intro p {
+      opacity: 0.9;
+      margin-top: 1rem;
+    }
+
+    @keyframes zoomIn {
+      0% { transform: scale(1.2); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
     }
 
     #app {
       display: none;
       padding: 2rem;
       text-align: center;
-      animation: fadeIn 2s ease forwards;
     }
 
     nav {
-      margin-bottom: 1rem;
       display: flex;
       justify-content: center;
-      flex-wrap: wrap;
       gap: 10px;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
     }
 
     nav button {
-      padding: 10px 20px;
+      padding: 10px 16px;
       border: none;
-      border-radius: 8px;
-      background: #666;
-      color: white;
-      font-weight: bold;
+      border-radius: 6px;
       cursor: pointer;
-      transition: 0.3s;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.2);
+      color: #fff;
+      transition: background 0.3s ease;
     }
 
     nav button.active {
-      background: #00ffc8;
+      background-color: #00ffc8;
       color: black;
     }
 
     .panel {
       display: none;
       opacity: 0;
-      animation: fadeIn 0.6s ease forwards;
-      transition: opacity 0.6s;
+      transition: opacity 0.5s ease;
+      max-width: 700px;
+      margin: auto;
     }
 
     .panel.active {
       display: block;
-    }
-
-    .counter span {
-      color: #00ffc8;
-      font-weight: bold;
-      animation: pulse 2s infinite ease-in-out;
-    }
-
-    @keyframes fadeIn {
-      0% { opacity: 0; transform: translateY(10px); }
-      100% { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(1.05); opacity: 0.8; }
+      opacity: 1;
     }
 
     .affirmation {
       margin-top: 20px;
       font-style: italic;
+      opacity: 0;
+      animation: fadeIn 1s ease forwards;
     }
 
-    textarea {
-      width: 100%;
-      max-width: 600px;
-      height: 150px;
-      margin: 1rem auto;
-      display: block;
-      padding: 1rem;
-      border-radius: 10px;
-      border: none;
-      font-family: inherit;
-      font-size: 1rem;
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+
+    .counter {
+      margin-top: 20px;
+    }
+
+    .counter p span {
+      color: #00ffc8;
+      font-weight: bold;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    @media (max-width: 600px) {
+      nav { flex-direction: column; }
+      nav button { width: 100%; }
     }
   </style>
 </head>
 <body>
-  <canvas id="particleCanvas"></canvas>
-
   <div id="intro">
     <h1>Welcome to<br>QuasiCare</h1>
     <p>Tap anywhere to continue</p>
@@ -147,7 +155,7 @@
         <p>Souls lost in the U.S. (2025): <span id="usCount">0</span></p>
         <p>Souls lost globally (2025): <span id="globalCount">0</span></p>
       </div>
-      <div class="affirmation" id="affirmation">Loading encouragement...</div>
+      <div class="affirmation" id="affirmation">You are enough. You are doing your best.</div>
     </div>
 
     <div id="talk" class="panel">
@@ -164,38 +172,74 @@
 
     <div id="journal" class="panel">
       <h3>Reflection Journal</h3>
-      <textarea id="journalEntry" placeholder="Write your thoughts..."></textarea>
+      <textarea id="journalEntry" rows="10" style="width:100%;border-radius:8px;padding:1rem;"></textarea>
+      <p style="font-size:0.9rem;opacity:0.8;margin-top:10px;">Auto-saved locally</p>
     </div>
   </div>
 
-  <audio id="tapSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_1c6cfc57f7.mp3" preload="auto"></audio>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-  <script>
-    const usEl = document.getElementById("usCount");
-    const globalEl = document.getElementById("globalCount");
-    const tapSound = document.getElementById("tapSound");
+    const firebaseConfig = {
+      apiKey: "AIzaSyCbrPC0NZDr8yZ4xTTBayBbOnESETg9xuw",
+      authDomain: "quasicare.firebaseapp.com",
+      projectId: "quasicare",
+      storageBucket: "quasicare.appspot.com",
+      messagingSenderId: "197366070004",
+      appId: "1:197366070004:web:2972eb9297102b6183bca1"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    onAuthStateChanged(auth, user => {
+      if (!user) window.location.href = "login.html";
+    });
 
     const usRateSec = 11 * 60;
     const globalRateSec = 40;
     const startOfYear = new Date("2025-01-01T00:00:00Z").getTime();
-    let us = 0, global = 0;
+    const usEl = document.getElementById("usCount");
+    const globalEl = document.getElementById("globalCount");
+    let us, global;
 
-    const updateCounts = () => {
+    const updateInitialCounts = () => {
       const now = Date.now();
       const secondsPassed = Math.floor((now - startOfYear) / 1000);
       us = Math.floor(secondsPassed / usRateSec);
       global = Math.floor(secondsPassed / globalRateSec);
-      usEl.textContent = us.toLocaleString();
-      globalEl.textContent = global.toLocaleString();
     };
 
-    updateCounts();
-    setInterval(() => {
-      usEl.textContent = (++us).toLocaleString();
-    }, usRateSec * 1000);
-    setInterval(() => {
-      globalEl.textContent = (++global).toLocaleString();
-    }, globalRateSec * 1000);
+    const animateCount = (el, to) => {
+      let start = 0;
+      const duration = 1500;
+      const startTime = performance.now();
+      const update = (time) => {
+        const progress = Math.min((time - startTime) / duration, 1);
+        el.innerText = Math.floor(progress * to).toLocaleString();
+        if (progress < 1) requestAnimationFrame(update);
+      };
+      requestAnimationFrame(update);
+    };
+
+    updateInitialCounts();
+    animateCount(usEl, us);
+    animateCount(globalEl, global);
+    setInterval(() => usEl.innerText = (++us).toLocaleString(), usRateSec * 1000);
+    setInterval(() => globalEl.innerText = (++global).toLocaleString(), globalRateSec * 1000);
+
+    const tabBtns = document.querySelectorAll(".tab-btn");
+    const panels = document.querySelectorAll(".panel");
+
+    tabBtns.forEach(btn => {
+      btn.addEventListener("click", () => {
+        tabBtns.forEach(b => b.classList.remove("active"));
+        panels.forEach(p => p.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById(btn.dataset.tab).classList.add("active");
+      });
+    });
 
     const affirmations = [
       "You are enough. You are doing your best.",
@@ -205,85 +249,38 @@
       "Breathe. Reset. Continue."
     ];
 
-    const storedDate = localStorage.getItem('lastAffirmationDate');
-    const today = new Date().toDateString();
-    let daily = affirmations[Math.floor(Math.random() * affirmations.length)];
-    if (storedDate !== today) {
-      localStorage.setItem('lastAffirmationDate', today);
-      localStorage.setItem('dailyAffirmation', daily);
-    } else {
-      daily = localStorage.getItem('dailyAffirmation');
-    }
-    document.getElementById("affirmation").textContent = daily;
+    let index = 0;
+    setInterval(() => {
+      const el = document.getElementById("affirmation");
+      index = (index + 1) % affirmations.length;
+      el.style.opacity = 0;
+      setTimeout(() => {
+        el.innerText = affirmations[index];
+        el.style.opacity = 1;
+      }, 300);
+    }, 6000);
 
-    const tabBtns = document.querySelectorAll(".tab-btn");
-    const panels = document.querySelectorAll(".panel");
-
-    tabBtns.forEach(btn => {
-      btn.addEventListener("click", () => {
-        tapSound.play();
-        tabBtns.forEach(b => b.classList.remove("active"));
-        panels.forEach(p => p.classList.remove("active"));
-        btn.classList.add("active");
-        document.getElementById(btn.dataset.tab).classList.add("active");
-      });
+    // Journal autosave
+    const journal = document.getElementById("journalEntry");
+    journal.value = localStorage.getItem("journal") || "";
+    journal.addEventListener("input", () => {
+      localStorage.setItem("journal", journal.value);
     });
+  </script>
 
-    document.getElementById("journalEntry").value = localStorage.getItem("journal") || "";
-    document.getElementById("journalEntry").addEventListener("input", (e) => {
-      localStorage.setItem("journal", e.target.value);
-    });
-
+  <script>
     document.addEventListener("DOMContentLoaded", () => {
       const intro = document.getElementById("intro");
       const app = document.getElementById("app");
       intro.addEventListener("click", () => {
-        tapSound.play();
-        intro.style.opacity = 0;
+        intro.style.opacity = "0";
+        intro.style.pointerEvents = "none";
         setTimeout(() => {
           intro.style.display = "none";
           app.style.display = "block";
-        }, 800);
+        }, 500);
       });
     });
-
-    // Subtle background particles
-    const canvas = document.getElementById("particleCanvas");
-    const ctx = canvas.getContext("2d");
-    let particles = [];
-
-    function resize() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-    window.addEventListener("resize", resize);
-    resize();
-
-    for (let i = 0; i < 60; i++) {
-      particles.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        r: Math.random() * 3 + 1,
-        dx: (Math.random() - 0.5) * 0.5,
-        dy: (Math.random() - 0.5) * 0.5
-      });
-    }
-
-    function drawParticles() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "rgba(255,255,255,0.2)";
-      particles.forEach(p => {
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fill();
-        p.x += p.dx;
-        p.y += p.dy;
-        if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
-        if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
-      });
-      requestAnimationFrame(drawParticles);
-    }
-    drawParticles();
   </script>
 </body>
 </html>
