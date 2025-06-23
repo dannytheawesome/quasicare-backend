@@ -25,7 +25,7 @@
       background-size: 400% 400%;
       animation: gradientBG 25s ease infinite;
       color: var(--text-light);
-      overflow-x: hidden;
+      overflow: hidden;
     }
 
     @keyframes gradientBG {
@@ -45,7 +45,14 @@
       flex-direction: column;
       text-align: center;
       z-index: 1000;
-      transition: opacity 0.6s ease;
+      transition: opacity 0.8s ease, transform 1s ease;
+      transform: scale(1);
+    }
+
+    #intro.float-away {
+      opacity: 0;
+      transform: scale(3);
+      pointer-events: none;
     }
 
     #intro h1 {
@@ -57,30 +64,38 @@
     #intro p {
       margin-top: 1rem;
       opacity: 0.8;
-      animation: fadeIn 2s ease forwards;
+      animation: float 4s ease-in-out infinite;
     }
 
     @keyframes float {
       0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
+      50% { transform: translateY(-6px); }
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    #particles-js {
+    .particles {
       position: absolute;
+      top: 0; left: 0;
       width: 100%;
       height: 100%;
-      z-index: -1;
+      z-index: 0;
+      pointer-events: none;
+      background-image: radial-gradient(white 1px, transparent 1px);
+      background-size: 20px 20px;
+      opacity: 0.05;
+      animation: drift 60s linear infinite;
+    }
+
+    @keyframes drift {
+      from { background-position: 0 0; }
+      to { background-position: 1000px 1000px; }
     }
 
     #app {
       display: none;
       text-align: center;
       padding: 2rem;
+      z-index: 10;
+      position: relative;
     }
 
     nav {
@@ -153,7 +168,7 @@
   </style>
 </head>
 <body>
-  <div id="particles-js"></div>
+  <div class="particles"></div>
   <div id="intro">
     <h1>Welcome to<br>QuasiCare</h1>
     <p>Tap anywhere to continue</p>
@@ -198,21 +213,6 @@
 
   <audio id="tapSound" src="https://cdn.pixabay.com/download/audio/2022/10/31/audio_9880bb7031.mp3?filename=click-124467.mp3"></audio>
 
-  <script src="https://cdn.jsdelivr.net/npm/tsparticles@2/tsparticles.bundle.min.js"></script>
-  <script>
-    tsParticles.load("particles-js", {
-      particles: {
-        number: { value: 40 },
-        size: { value: 2 },
-        color: { value: "#ffffff" },
-        opacity: { value: 0.1 },
-        move: { enable: true, speed: 0.5 },
-        line_linked: { enable: false }
-      },
-      interactivity: { events: { onhover: { enable: false } } },
-      background: { color: "transparent" }
-    });
-  </script>
   <script>
     const intro = document.getElementById("intro");
     const app = document.getElementById("app");
@@ -222,12 +222,11 @@
 
     intro.addEventListener("click", () => {
       tapSound.play();
-      intro.style.opacity = "0";
-      intro.style.pointerEvents = "none";
+      intro.classList.add("float-away");
       setTimeout(() => {
         intro.style.display = "none";
         app.style.display = "block";
-      }, 600);
+      }, 1000);
     });
 
     tabs.forEach(btn => {
@@ -290,6 +289,7 @@
     };
     showAffirmation();
 
+    // Journal persistence
     const journal = document.getElementById("journalEntry");
     journal.value = localStorage.getItem("journal") || "";
     journal.addEventListener("input", () => {
