@@ -18,130 +18,84 @@
       animation: gradientBG 20s ease infinite;
       color: white;
     }
-
     @keyframes gradientBG {
       0% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
     }
-
     .container {
+      max-width: 600px;
+      margin: auto;
       padding: 40px 20px;
       text-align: center;
-      max-width: 600px;
-      margin: 0 auto;
     }
-
     h1 {
       font-size: 2rem;
       margin-bottom: 10px;
     }
-
     h2 {
-      font-size: 1.4rem;
-      margin-bottom: 8px;
+      font-size: 1.3rem;
+      margin-top: 30px;
+      margin-bottom: 10px;
     }
-
     p {
       font-size: 1rem;
-      margin: 6px 0;
       color: #ddd;
     }
-
     .counter p span {
-      color: #00ffc8;
+      color: #00cfff;
       font-weight: bold;
     }
-
-    .heart {
-      width: 100px;
-      height: 90px;
-      background-color: #ff4e4e;
-      position: relative;
-      margin: 30px auto;
-      animation: beat 1.5s infinite;
-      transform: rotate(-45deg);
+    .heart-beat {
+      width: 80px;
+      height: 72px;
+      background: url('https://upload.wikimedia.org/wikipedia/commons/3/35/Emoji_u2764.svg') no-repeat center;
+      background-size: contain;
+      margin: 20px auto;
+      animation: heartbeat 1.2s infinite;
+      filter: hue-rotate(190deg) brightness(1.3);
     }
-
-    .heart::before,
-    .heart::after {
-      content: "";
-      width: 100px;
-      height: 90px;
-      background-color: #ff4e4e;
-      border-radius: 50%;
-      position: absolute;
+    @keyframes heartbeat {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.3); }
     }
-
-    .heart::before {
-      top: -50px;
-      left: 0;
-    }
-
-    .heart::after {
-      left: 50px;
-      top: 0;
-    }
-
-    @keyframes beat {
-      0%, 100% { transform: scale(1) rotate(-45deg); }
-      50% { transform: scale(1.2) rotate(-45deg); }
-    }
-
-    .microtext {
-      font-size: 0.85rem;
-      color: #aaa;
-      margin-top: 8px;
-    }
-
     .affirmation {
-      margin: 20px 0 10px;
       font-style: italic;
-      font-size: 1rem;
-      opacity: 1;
+      color: #ccc;
+      font-size: 1.1rem;
+      margin-top: 20px;
+      min-height: 24px;
+      opacity: 0;
+      transform: translateY(10px);
+      animation: fadeSlideIn 1s ease forwards;
     }
-
-    .copy-btn {
-      background-color: #00ffe1;
-      border: none;
-      color: #000;
-      font-weight: bold;
-      padding: 10px 20px;
-      border-radius: 6px;
-      cursor: pointer;
-      margin-top: 10px;
+    @keyframes fadeSlideIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
-
-    .copy-btn:hover {
-      background-color: #00ddcc;
-    }
-
     @media (max-width: 600px) {
-      h1 { font-size: 1.6rem; }
-      h2 { font-size: 1.2rem; }
-      .heart { width: 80px; height: 70px; }
-      .heart::before, .heart::after { width: 80px; height: 70px; }
+      h1 { font-size: 1.5rem; }
+      .heart-beat { width: 60px; height: 54px; }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>QuasiCare – Helping You Heal</h2>
-    <h1>Welcome Back</h1>
-    <p>This is your personal space. Reflect. Reset. Restore.</p>
+    <h1>Welcome to QuasiCare</h1>
+    <p>A gentle space to reflect and feel safe.</p>
 
     <div class="counter">
       <p>Souls lost in the U.S. (2025): <span id="usCount">0</span></p>
       <p>Souls lost globally (2025): <span id="globalCount">0</span></p>
     </div>
 
-    <h2>Heartbeat of the World</h2>
-    <div class="heart"></div>
-    <div class="microtext">Each beat reminds us why this matters.</div>
+    <h2>Tap to Breathe</h2>
+    <div class="heart-beat" title="Heartbeat synced with global awareness"></div>
 
     <h2>Affirmation</h2>
     <div class="affirmation" id="affirmation">You are enough. You are doing your best.</div>
-    <button class="copy-btn" onclick="copyQuote()">Copy Quote</button>
   </div>
 
   <script type="module">
@@ -161,75 +115,73 @@
     const auth = getAuth(app);
 
     onAuthStateChanged(auth, (user) => {
-      if (!user) window.location.href = "login.html";
+      if (!user) {
+        window.location.href = "login.html";
+      }
     });
 
+    // Suicide stats animation
     const usRateSec = 11 * 60;
     const globalRateSec = 40;
     const startOfYear = new Date("2025-01-01T00:00:00Z").getTime();
 
-    function getCounts() {
-      const now = Date.now();
-      const secondsPassed = Math.floor((now - startOfYear) / 1000);
-      return {
-        us: Math.floor(secondsPassed / usRateSec),
-        global: Math.floor(secondsPassed / globalRateSec)
-      };
-    }
-
     const usEl = document.getElementById("usCount");
     const globalEl = document.getElementById("globalCount");
-    let { us, global } = getCounts();
 
-    function animateCount(el, to) {
+    const getCounts = () => {
+      const now = Date.now();
+      const seconds = Math.floor((now - startOfYear) / 1000);
+      return {
+        us: Math.floor(seconds / usRateSec),
+        global: Math.floor(seconds / globalRateSec)
+      };
+    };
+
+    const animateCount = (el, to) => {
       let start = 0;
-      const duration = 1500;
+      const duration = 1000;
       const startTime = performance.now();
-
-      function update(time) {
-        const progress = Math.min((time - startTime) / duration, 1);
-        const current = Math.floor(progress * to);
-        el.innerText = current.toLocaleString();
+      const update = (now) => {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        el.innerText = Math.floor(progress * to).toLocaleString();
         if (progress < 1) requestAnimationFrame(update);
-      }
+      };
       requestAnimationFrame(update);
-    }
+    };
 
+    const { us, global } = getCounts();
     animateCount(usEl, us);
     animateCount(globalEl, global);
 
-    setInterval(() => {
-      usEl.innerText = (++us).toLocaleString();
-    }, usRateSec * 1000);
+    setInterval(() => usEl.innerText = (++us).toLocaleString(), usRateSec * 1000);
+    setInterval(() => globalEl.innerText = (++global).toLocaleString(), globalRateSec * 1000);
 
-    setInterval(() => {
-      globalEl.innerText = (++global).toLocaleString();
-    }, globalRateSec * 1000);
-
-    // Affirmations
+    // Affirmation animation
     const affirmations = [
       "You are enough. You are doing your best.",
-      "Today is a fresh start.",
-      "You deserve peace.",
       "Breathe. Reset. Continue.",
-      "Even small steps count."
+      "You deserve peace.",
+      "Your presence matters.",
+      "Small steps still count."
     ];
 
     let i = 0;
-    setInterval(() => {
-      const el = document.getElementById("affirmation");
-      i = (i + 1) % affirmations.length;
-      el.style.opacity = 0;
-      setTimeout(() => {
-        el.innerText = affirmations[i];
-        el.style.opacity = 1;
-      }, 300);
-    }, 7000);
+    const affEl = document.getElementById("affirmation");
 
-    function copyQuote() {
-      const quote = document.getElementById("affirmation").innerText;
-      navigator.clipboard.writeText(quote);
+    function rotateAffirmation() {
+      affEl.style.opacity = 0;
+      affEl.style.transform = "translateY(10px)";
+      setTimeout(() => {
+        i = (i + 1) % affirmations.length;
+        affEl.innerText = affirmations[i];
+        affEl.style.animation = "none";
+        void affEl.offsetWidth; // trigger reflow
+        affEl.style.animation = "fadeSlideIn 1s ease forwards";
+      }, 400);
     }
+
+    setInterval(rotateAffirmation, 7000);
   </script>
 </body>
 </html>
