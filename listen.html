@@ -4,67 +4,106 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Listen | QuasiCare</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     body {
-      background-color: #111;
-      color: white;
-      font-family: system-ui, sans-serif;
       margin: 0;
       padding: 20px;
+      font-family: 'Nunito', sans-serif;
+      background: linear-gradient(135deg, #1f2c4c, #3b3c7b);
+      background-size: 200% 200%;
+      animation: backgroundFlow 20s ease infinite;
+      color: white;
+    }
+
+    @keyframes backgroundFlow {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
 
     h1 {
       text-align: center;
-      font-size: 1.8rem;
-      margin-bottom: 20px;
+      font-size: 2rem;
+      margin-bottom: 30px;
     }
 
     .vent-card {
-      background-color: #222;
-      padding: 15px;
-      margin-bottom: 20px;
-      border-radius: 8px;
+      background-color: rgba(255, 255, 255, 0.05);
+      padding: 16px;
+      border-radius: 10px;
+      margin-bottom: 24px;
+      transition: all 0.4s ease;
+      animation: fadeIn 0.5s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .vent-card p {
-      margin-bottom: 10px;
+      font-size: 1rem;
+      margin-bottom: 12px;
+      color: #eaeaea;
     }
 
     textarea {
       width: 100%;
-      padding: 10px;
+      padding: 12px;
       border: none;
       border-radius: 6px;
-      background-color: #1e1e1e;
+      background-color: rgba(255, 255, 255, 0.07);
       color: white;
-      font-size: 14px;
+      font-size: 0.95rem;
       resize: vertical;
+      margin-bottom: 10px;
+    }
+
+    textarea:focus {
+      outline: none;
+      background-color: rgba(255, 255, 255, 0.1);
     }
 
     button {
-      margin-top: 10px;
-      padding: 8px 14px;
-      background-color: #3399ff;
-      color: white;
+      padding: 10px 18px;
+      font-size: 1rem;
+      background-color: #00ffc8;
+      color: #111;
+      font-weight: 600;
       border: none;
-      border-radius: 6px;
+      border-radius: 8px;
       cursor: pointer;
+      transition: background 0.3s ease;
     }
 
     button:hover {
-      background-color: #2b7ddc;
+      background-color: #00e2b0;
     }
 
     .footer-links {
       text-align: center;
-      margin-top: 40px;
+      margin-top: 50px;
       font-size: 0.85rem;
+      opacity: 0.7;
     }
 
     .footer-links a {
-      color: #aaa;
-      margin: 0 8px;
+      color: #ccc;
+      margin: 0 10px;
       text-decoration: underline;
+    }
+
+    #ventContainer {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .empty-message {
+      text-align: center;
+      font-size: 1rem;
+      margin-top: 50px;
+      color: #bbb;
     }
   </style>
 </head>
@@ -73,6 +112,7 @@
   <div id="ventContainer">Loading...</div>
 
   <div class="footer-links">
+    <a href="index.html">⬅ Back</a>
     <a href="terms.html" target="_blank">Terms</a>
     <a href="privacy.html" target="_blank">Privacy</a>
   </div>
@@ -100,15 +140,19 @@
     async function loadVents() {
       const snapshot = await get(ref(db, "vents"));
       if (!snapshot.exists()) {
-        container.innerText = "No vents available right now.";
+        container.innerHTML = `<p class="empty-message">No messages need support at the moment. Check back later 💙</p>`;
         return;
       }
 
       const data = snapshot.val();
       container.innerHTML = "";
 
+      let hasOpen = false;
+
       Object.entries(data).forEach(([code, vent]) => {
         if (vent.reply == null) {
+          hasOpen = true;
+
           const card = document.createElement("div");
           card.className = "vent-card";
 
@@ -126,7 +170,7 @@
             const reply = textarea.value.trim();
             if (!reply) return alert("Please write a reply.");
             await update(ref(db, `vents/${code}`), { reply });
-            card.remove(); // hide after reply
+            card.remove(); // remove card after reply
           };
           card.appendChild(btn);
 
@@ -134,8 +178,8 @@
         }
       });
 
-      if (container.innerHTML.trim() === "") {
-        container.innerText = "No new vents needing support.";
+      if (!hasOpen) {
+        container.innerHTML = `<p class="empty-message">No new vents needing support. You're all caught up! 🌿</p>`;
       }
     }
 
