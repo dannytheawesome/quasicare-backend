@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Talk | QuasiCare</title>
   <script src="https://cdn.jsdelivr.net/npm/leo-profanity@1.7.0/leo-profanity.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     * {
       box-sizing: border-box;
@@ -12,76 +13,99 @@
 
     body {
       margin: 0;
-      padding: 30px 20px;
-      background: radial-gradient(circle at center, #222 0%, #111 100%);
-      animation: pulse 12s ease-in-out infinite;
-      font-family: -apple-system, system-ui, sans-serif;
+      padding: 40px 20px;
+      font-family: 'Nunito', sans-serif;
+      background: linear-gradient(135deg, #2C3E50, #4CA1AF);
       color: #fff;
       text-align: center;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      animation: backgroundFade 30s ease infinite;
     }
 
-    @keyframes pulse {
-      0%, 100% { background-position: center; }
-      50% { background-position: bottom right; }
+    @keyframes backgroundFade {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
 
     h1 {
-      font-size: 1.6rem;
-      margin-bottom: 10px;
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
     }
 
     p {
-      font-size: 0.95rem;
-      color: #ccc;
-      margin-bottom: 25px;
+      font-size: 1rem;
+      color: #e0e0e0;
+      margin-bottom: 20px;
     }
 
     textarea {
       width: 100%;
-      max-width: 400px;
+      max-width: 480px;
       height: 120px;
-      padding: 10px;
-      font-size: 16px;
+      padding: 12px;
+      font-size: 1rem;
       border: none;
-      border-radius: 6px;
-      background-color: #1e1e1e;
-      color: white;
-      margin-bottom: 10px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+      margin-bottom: 14px;
       resize: none;
+      transition: background 0.3s;
+    }
+
+    textarea:focus {
+      background: rgba(255, 255, 255, 0.1);
+      outline: none;
     }
 
     button {
-      padding: 12px 24px;
-      font-size: 16px;
-      background-color: #3399ff;
-      color: white;
+      padding: 12px 28px;
+      font-size: 1rem;
+      background: #00ffc8;
+      color: #111;
+      font-weight: 600;
       border: none;
-      border-radius: 6px;
+      border-radius: 8px;
       cursor: pointer;
-      margin: 8px;
+      transition: background 0.3s ease;
     }
 
     button:hover {
-      background-color: #0077cc;
+      background: #00e2b0;
     }
 
     #feedback {
-      color: #ff7f7f;
-      margin: 10px 0;
+      color: #ff8c8c;
       font-size: 0.9rem;
+      margin-top: 10px;
     }
 
     .hidden {
       display: none;
     }
 
+    #successMessage {
+      margin-top: 20px;
+      animation: fadeIn 1s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     #footerLinks {
       margin-top: 40px;
       font-size: 0.85rem;
+      opacity: 0.7;
     }
 
     #footerLinks a {
-      color: #aaa;
+      color: #eee;
       text-decoration: underline;
       margin: 0 10px;
     }
@@ -92,7 +116,7 @@
   <p>You can write anonymously. Your voice matters.</p>
 
   <div id="ventForm">
-    <textarea id="ventInput" placeholder="Type your message..."></textarea><br>
+    <textarea id="ventInput" placeholder="What's on your mind?"></textarea><br>
     <button onclick="submitVent()">Submit</button>
     <p id="feedback"></p>
   </div>
@@ -152,10 +176,7 @@
           comment: { text: message },
           languages: ["en"],
           requestedAttributes: {
-            TOXICITY: {},
-            INSULT: {},
-            PROFANITY: {},
-            IDENTITY_ATTACK: {}
+            TOXICITY: {}, INSULT: {}, PROFANITY: {}, IDENTITY_ATTACK: {}
           }
         }),
         headers: { "Content-Type": "application/json" }
@@ -169,8 +190,7 @@
     async function tooSoonToPost(uid) {
       const snapshot = await get(ref(db, `users/${uid}/lastPostTime`));
       if (!snapshot.exists()) return false;
-      const lastTime = snapshot.val();
-      return Date.now() - lastTime < 60000;
+      return Date.now() - snapshot.val() < 60000;
     }
 
     async function generateUniqueCode() {
@@ -187,58 +207,27 @@
       const message = input.value.trim();
       const feedback = document.getElementById("feedback");
 
-      if (!message) {
-        feedback.innerText = "⚠️ Please write something.";
-        return;
-      }
-
-      if (!userUID) {
-        feedback.innerText = "⚠️ Not signed in.";
-        return;
-      }
-
-      if (await tooSoonToPost(userUID)) {
-        feedback.innerText = "⚠️ Please wait before submitting again.";
-        return;
-      }
-
-      if (window.leoProfanity && leoProfanity.check(message)) {
-        feedback.innerText = "⚠️ Inappropriate language detected.";
-        return;
-      }
+      if (!message) return feedback.innerText = "⚠️ Please write something.";
+      if (!userUID) return feedback.innerText = "⚠️ Not signed in.";
+      if (await tooSoonToPost(userUID)) return feedback.innerText = "⚠️ Please wait before submitting again.";
+      if (window.leoProfanity?.check(message)) return feedback.innerText = "⚠️ Inappropriate language detected.";
 
       const matched = checkForFlags(message);
       if (matched.length > 0) {
         feedback.innerText = "⚠️ Message contains sensitive keywords.";
-        await push(ref(db, "flagged"), {
-          message,
-          matched_keywords: matched,
-          timestamp: Date.now(),
-          uid: userUID
-        });
+        await push(ref(db, "flagged"), { message, matched_keywords: matched, timestamp: Date.now(), uid: userUID });
         return;
       }
 
       const isToxic = await checkWithPerspective(message);
       if (isToxic) {
         feedback.innerText = "⚠️ Message flagged as harmful.";
-        await push(ref(db, "flagged"), {
-          message,
-          source: "Perspective API",
-          timestamp: Date.now(),
-          uid: userUID
-        });
+        await push(ref(db, "flagged"), { message, source: "Perspective API", timestamp: Date.now(), uid: userUID });
         return;
       }
 
       const code = await generateUniqueCode();
-      await set(ref(db, `vents/${code}`), {
-        message,
-        reply: null,
-        timestamp: Date.now(),
-        uid: userUID
-      });
-
+      await set(ref(db, `vents/${code}`), { message, reply: null, timestamp: Date.now(), uid: userUID });
       await set(ref(db, `users/${userUID}/lastPostTime`), Date.now());
 
       document.getElementById("ventForm").classList.add("hidden");
@@ -252,7 +241,7 @@
       const code = btn.getAttribute("data-code");
       navigator.clipboard.writeText(code).then(() => {
         btn.innerText = "Copied!";
-        setTimeout(() => (btn.innerText = "Copy Code"), 1500);
+        setTimeout(() => btn.innerText = "Copy Code", 1500);
       });
     };
   </script>
