@@ -1,94 +1,143 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QuasiCare</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>QuasiCare | Home</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(135deg, #0f2027, #2c5364);
+      background: linear-gradient(-45deg, #1f1c2c, #0f2027, #2c5364, #1f1c2c);
+      background-size: 400% 400%;
+      animation: gradientBG 20s ease infinite;
       color: white;
-      text-align: center;
-      min-height: 100vh;
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      justify-content: space-between;
     }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    main {
+      text-align: center;
+      padding: 40px 20px 80px;
+    }
+
     h1 {
       font-size: 2rem;
       margin-bottom: 0.5rem;
     }
-    h1 .heart {
-      display: inline-block;
-      width: 1.2em;
-      height: 1.2em;
-      background: #00bfff;
-      clip-path: path('M 0.5 0.3 C 0.5 0.1 0.7 0 1 0.3 C 1.3 0 1.5 0.1 1.5 0.3 C 1.5 0.5 1.3 0.7 1 0.9 L 0.5 1.3 L 0 0.9 C -0.3 0.7 -0.5 0.5 -0.5 0.3 C -0.5 0.1 -0.3 0 0 0.3 C 0.3 0 0.5 0.1 0.5 0.3 Z');
-      animation: beat 1.5s infinite;
-      transform: scale(1.8);
+
+    .welcome-title {
+      font-weight: 700;
+      font-size: 2rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
     }
+
+    .heart-icon {
+      color: #00bfff;
+      font-size: 2.2rem;
+      animation: beat 2s infinite ease-in-out;
+    }
+
     @keyframes beat {
-      0%, 100% { transform: scale(1.8); }
-      50% { transform: scale(2.2); }
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.3); }
     }
-    p.subtext {
-      font-size: 0.9rem;
-      color: #ccc;
-      margin: 0.5rem 0 2rem;
-    }
-    .counter span {
-      color: #00ffc8;
-      font-weight: bold;
-    }
-    .affirmation {
-      margin-top: 2rem;
-      font-style: italic;
-      color: #ccc;
+
+    .subtitle {
       font-size: 1rem;
+      margin-bottom: 20px;
+      color: #ddd;
+    }
+
+    .counter p {
+      font-size: 1rem;
+      color: #ddd;
+      margin: 6px 0;
+    }
+
+    .counter span {
+      font-weight: bold;
+      color: #00ffc8;
+    }
+
+    .affirmation {
+      margin-top: 30px;
+      font-style: italic;
+      font-size: 1rem;
+      color: #bbb;
       opacity: 0;
       animation: fadeIn 1s ease forwards;
     }
+
     @keyframes fadeIn {
       to { opacity: 1; }
     }
-    .nav {
+
+    nav {
+      display: flex;
+      justify-content: space-around;
+      background: #0c0c0c;
+      padding: 12px 0;
       position: fixed;
       bottom: 0;
       width: 100%;
-      background: #111;
-      display: flex;
-      justify-content: space-around;
-      padding: 1rem 0;
+      border-top: 1px solid #222;
     }
-    .nav a {
+
+    nav a {
       color: white;
       text-decoration: none;
       font-weight: bold;
+      font-size: 1rem;
+    }
+
+    nav a:hover {
+      color: #00ffc8;
     }
   </style>
 </head>
 <body>
-  <h1>Welcome to <span class="heart"></span> QuasiCare</h1>
-  <p class="subtext">This is your personal space. Reflect. Reset. Restore.</p>
+  <main>
+    <h1 class="welcome-title">
+      Welcome to <span class="heart-icon">💙</span> QuasiCare
+    </h1>
+    <p class="subtitle">This is your personal space. Reflect. Reset. Restore.</p>
 
-  <div class="counter">
-    <p>Souls lost in the U.S. (2025): <span id="usCount">0</span></p>
-    <p>Souls lost globally (2025): <span id="globalCount">0</span></p>
-  </div>
+    <div class="counter">
+      <p>Souls lost in the U.S. (2025): <span id="usCount">0</span></p>
+      <p>Souls lost globally (2025): <span id="globalCount">0</span></p>
+    </div>
 
-  <div class="affirmation" id="affirmation">You are enough. You are doing your best.</div>
+    <div class="affirmation" id="affirmation">You deserve peace.</div>
+  </main>
 
-  <div class="nav">
+  <nav>
     <a href="#">Home</a>
     <a href="#">Talk</a>
     <a href="#">Listen</a>
-  </div>
+  </nav>
 
   <script type="module">
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-    import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+    // Firebase auth redirect
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCbrPC0NZDr8yZ4xTTBayBbOnESETg9xuw",
@@ -102,44 +151,61 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    onAuthStateChanged(auth, user => {
-      if (!user) window.location.href = 'login.html';
+    onAuthStateChanged(auth, (user) => {
+      if (!user) window.location.href = "login.html";
     });
 
-    const usEl = document.getElementById('usCount');
-    const globalEl = document.getElementById('globalCount');
+    // Soul counter logic
     const usRateSec = 11 * 60;
     const globalRateSec = 40;
-    const startOfYear = new Date('2025-01-01T00:00:00Z').getTime();
+    const startOfYear = new Date("2025-01-01T00:00:00Z").getTime();
+    const usEl = document.getElementById("usCount");
+    const globalEl = document.getElementById("globalCount");
 
-    function updateCounts() {
+    let { us, global } = (() => {
       const now = Date.now();
       const secondsPassed = Math.floor((now - startOfYear) / 1000);
-      usEl.innerText = Math.floor(secondsPassed / usRateSec).toLocaleString();
-      globalEl.innerText = Math.floor(secondsPassed / globalRateSec).toLocaleString();
-    }
+      return {
+        us: Math.floor(secondsPassed / usRateSec),
+        global: Math.floor(secondsPassed / globalRateSec)
+      };
+    })();
 
-    updateCounts();
-    setInterval(updateCounts, 10000);
+    const animateCount = (el, to) => {
+      let start = 0;
+      const duration = 1500, startTime = performance.now();
+      const update = time => {
+        const progress = Math.min((time - startTime) / duration, 1);
+        el.innerText = Math.floor(progress * to).toLocaleString();
+        if (progress < 1) requestAnimationFrame(update);
+      };
+      requestAnimationFrame(update);
+    };
 
+    animateCount(usEl, us);
+    animateCount(globalEl, global);
+    setInterval(() => usEl.innerText = (++us).toLocaleString(), usRateSec * 1000);
+    setInterval(() => globalEl.innerText = (++global).toLocaleString(), globalRateSec * 1000);
+
+    // Affirmation rotator
     const affirmations = [
-      "You are enough. You are doing your best.",
-      "Today is a fresh start.",
-      "Small steps still move you forward.",
       "You deserve peace.",
+      "You are enough. You are doing your best.",
+      "Small steps still move you forward.",
+      "Today is a fresh start.",
       "Breathe. Reset. Continue."
     ];
-
-    const affEl = document.getElementById("affirmation");
     let index = 0;
+    const el = document.getElementById("affirmation");
+
     setInterval(() => {
-      affEl.style.opacity = 0;
+      index = (index + 1) % affirmations.length;
+      el.style.opacity = 0;
       setTimeout(() => {
-        affEl.innerText = affirmations[index % affirmations.length];
-        affEl.style.opacity = 1;
-        index++;
-      }, 300);
-    }, 7000);
+        el.innerText = affirmations[index];
+        el.style.opacity = 1;
+      }, 500);
+    }, 6000);
   </script>
 </body>
 </html>
