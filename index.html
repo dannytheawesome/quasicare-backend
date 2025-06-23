@@ -2,10 +2,17 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>QuasiCare</title>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&display=swap');
+
+    :root {
+      --bg-gradient: linear-gradient(-45deg, #1e3c72, #2a5298, #1f4068, #16222a);
+      --text-light: #fff;
+      --primary: #00ffc8;
+    }
+
     * {
       box-sizing: border-box;
     }
@@ -14,14 +21,14 @@
       margin: 0;
       padding: 0;
       font-family: 'Nunito', sans-serif;
-      background: linear-gradient(-45deg, #6f86d6, #48c6ef, #fcb045, #ff3cac);
-      background-size: 600% 600%;
-      animation: gradientShift 25s ease infinite;
-      color: #fff;
+      background: var(--bg-gradient);
+      background-size: 400% 400%;
+      animation: gradientBG 25s ease infinite;
+      color: var(--text-light);
       overflow-x: hidden;
     }
 
-    @keyframes gradientShift {
+    @keyframes gradientBG {
       0% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
@@ -30,16 +37,15 @@
     #intro {
       position: fixed;
       top: 0; left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 9999;
+      width: 100%; height: 100%;
+      background: var(--bg-gradient);
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
-      transition: all 0.8s ease;
-      animation: zoomIn 2s ease-out;
-      background: transparent;
+      flex-direction: column;
+      text-align: center;
+      z-index: 1000;
+      transition: opacity 0.6s ease;
     }
 
     #intro h1 {
@@ -48,51 +54,46 @@
     }
 
     #intro p {
-      opacity: 0.9;
       margin-top: 1rem;
-    }
-
-    @keyframes zoomIn {
-      0% { transform: scale(1.2); opacity: 0; }
-      100% { transform: scale(1); opacity: 1; }
+      opacity: 0.8;
     }
 
     #app {
       display: none;
-      padding: 2rem;
       text-align: center;
+      padding: 2rem;
     }
 
     nav {
+      margin: 1.5rem 0;
       display: flex;
       justify-content: center;
-      gap: 10px;
-      margin-bottom: 1rem;
+      gap: 0.5rem;
       flex-wrap: wrap;
     }
 
     nav button {
-      padding: 10px 16px;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
       border: none;
+      padding: 10px 16px;
       border-radius: 6px;
       cursor: pointer;
       font-weight: 600;
-      background: rgba(255, 255, 255, 0.2);
-      color: #fff;
       transition: background 0.3s ease;
     }
 
     nav button.active {
-      background-color: #00ffc8;
+      background: var(--primary);
       color: black;
     }
 
     .panel {
       display: none;
       opacity: 0;
-      transition: opacity 0.5s ease;
       max-width: 700px;
       margin: auto;
+      transition: opacity 0.8s ease;
     }
 
     .panel.active {
@@ -100,31 +101,30 @@
       opacity: 1;
     }
 
-    .affirmation {
-      margin-top: 20px;
-      font-style: italic;
-      opacity: 0;
-      animation: fadeIn 1s ease forwards;
-    }
-
-    @keyframes fadeIn {
-      to { opacity: 1; }
-    }
-
-    .counter {
-      margin-top: 20px;
-    }
-
-    .counter p span {
-      color: #00ffc8;
+    .counter span {
+      color: var(--primary);
       font-weight: bold;
-      animation: pulse 2s ease-in-out infinite;
+      animation: pulse 2s infinite;
     }
 
     @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-      100% { transform: scale(1); }
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.1); opacity: 0.7; }
+    }
+
+    .affirmation {
+      margin-top: 1.5rem;
+      font-style: italic;
+    }
+
+    textarea {
+      width: 100%;
+      height: 200px;
+      padding: 1rem;
+      border-radius: 8px;
+      border: none;
+      resize: vertical;
+      font-family: inherit;
     }
 
     @media (max-width: 600px) {
@@ -155,7 +155,7 @@
         <p>Souls lost in the U.S. (2025): <span id="usCount">0</span></p>
         <p>Souls lost globally (2025): <span id="globalCount">0</span></p>
       </div>
-      <div class="affirmation" id="affirmation">You are enough. You are doing your best.</div>
+      <div class="affirmation" id="affirmation"></div>
     </div>
 
     <div id="talk" class="panel">
@@ -172,29 +172,37 @@
 
     <div id="journal" class="panel">
       <h3>Reflection Journal</h3>
-      <textarea id="journalEntry" rows="10" style="width:100%;border-radius:8px;padding:1rem;"></textarea>
-      <p style="font-size:0.9rem;opacity:0.8;margin-top:10px;">Auto-saved locally</p>
+      <textarea id="journalEntry" placeholder="Write your thoughts..."></textarea>
     </div>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  <audio id="tapSound" src="https://cdn.pixabay.com/download/audio/2022/10/31/audio_9880bb7031.mp3?filename=click-124467.mp3"></audio>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyCbrPC0NZDr8yZ4xTTBayBbOnESETg9xuw",
-      authDomain: "quasicare.firebaseapp.com",
-      projectId: "quasicare",
-      storageBucket: "quasicare.appspot.com",
-      messagingSenderId: "197366070004",
-      appId: "1:197366070004:web:2972eb9297102b6183bca1"
-    };
+  <script>
+    const intro = document.getElementById("intro");
+    const app = document.getElementById("app");
+    const tapSound = document.getElementById("tapSound");
+    const panels = document.querySelectorAll(".panel");
+    const tabs = document.querySelectorAll(".tab-btn");
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
+    intro.addEventListener("click", () => {
+      tapSound.play();
+      intro.style.opacity = "0";
+      intro.style.pointerEvents = "none";
+      setTimeout(() => {
+        intro.style.display = "none";
+        app.style.display = "block";
+      }, 600);
+    });
 
-    onAuthStateChanged(auth, user => {
-      if (!user) window.location.href = "login.html";
+    tabs.forEach(btn => {
+      btn.addEventListener("click", () => {
+        tapSound.play();
+        tabs.forEach(b => b.classList.remove("active"));
+        panels.forEach(p => p.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById(btn.dataset.tab).classList.add("active");
+      });
     });
 
     const usRateSec = 11 * 60;
@@ -202,13 +210,13 @@
     const startOfYear = new Date("2025-01-01T00:00:00Z").getTime();
     const usEl = document.getElementById("usCount");
     const globalEl = document.getElementById("globalCount");
-    let us, global;
 
-    const updateInitialCounts = () => {
+    let us, global;
+    const updateCounts = () => {
       const now = Date.now();
-      const secondsPassed = Math.floor((now - startOfYear) / 1000);
-      us = Math.floor(secondsPassed / usRateSec);
-      global = Math.floor(secondsPassed / globalRateSec);
+      const seconds = Math.floor((now - startOfYear) / 1000);
+      us = Math.floor(seconds / usRateSec);
+      global = Math.floor(seconds / globalRateSec);
     };
 
     const animateCount = (el, to) => {
@@ -223,23 +231,11 @@
       requestAnimationFrame(update);
     };
 
-    updateInitialCounts();
+    updateCounts();
     animateCount(usEl, us);
     animateCount(globalEl, global);
     setInterval(() => usEl.innerText = (++us).toLocaleString(), usRateSec * 1000);
     setInterval(() => globalEl.innerText = (++global).toLocaleString(), globalRateSec * 1000);
-
-    const tabBtns = document.querySelectorAll(".tab-btn");
-    const panels = document.querySelectorAll(".panel");
-
-    tabBtns.forEach(btn => {
-      btn.addEventListener("click", () => {
-        tabBtns.forEach(b => b.classList.remove("active"));
-        panels.forEach(p => p.classList.remove("active"));
-        btn.classList.add("active");
-        document.getElementById(btn.dataset.tab).classList.add("active");
-      });
-    });
 
     const affirmations = [
       "You are enough. You are doing your best.",
@@ -250,36 +246,20 @@
     ];
 
     let index = 0;
-    setInterval(() => {
+    const showAffirmation = () => {
       const el = document.getElementById("affirmation");
-      index = (index + 1) % affirmations.length;
-      el.style.opacity = 0;
-      setTimeout(() => {
-        el.innerText = affirmations[index];
-        el.style.opacity = 1;
-      }, 300);
-    }, 6000);
+      const lastShown = localStorage.getItem("affirmationIndex") || 0;
+      index = (parseInt(lastShown) + 1) % affirmations.length;
+      el.innerText = affirmations[index];
+      localStorage.setItem("affirmationIndex", index);
+    };
+    showAffirmation();
 
-    // Journal autosave
+    // Journal persistence
     const journal = document.getElementById("journalEntry");
     journal.value = localStorage.getItem("journal") || "";
     journal.addEventListener("input", () => {
       localStorage.setItem("journal", journal.value);
-    });
-  </script>
-
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const intro = document.getElementById("intro");
-      const app = document.getElementById("app");
-      intro.addEventListener("click", () => {
-        intro.style.opacity = "0";
-        intro.style.pointerEvents = "none";
-        setTimeout(() => {
-          intro.style.display = "none";
-          app.style.display = "block";
-        }, 500);
-      });
     });
   </script>
 </body>
