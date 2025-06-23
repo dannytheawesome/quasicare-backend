@@ -5,35 +5,30 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>QuasiCare | Home</title>
   <style>
+    :root {
+      --bg-color: linear-gradient(-45deg, #1f1c2c, #928dab, #0f2027, #2c5364);
+      --text-color: white;
+      --accent-color: #00ffc8;
+    }
     * {
       box-sizing: border-box;
     }
     html, body {
       margin: 0;
       padding: 0;
-      overflow: hidden;
       height: 100%;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    }
-    body {
-      background: linear-gradient(-45deg, #1f1c2c, #928dab, #0f2027, #2c5364);
+      color: var(--text-color);
+      background: var(--bg-color);
       background-size: 400% 400%;
       animation: gradientBG 20s ease infinite;
-      color: white;
     }
     @keyframes gradientBG {
       0% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
     }
-    .container {
-      display: flex;
-      width: 300vw;
-      height: 100%;
-      transition: transform 0.4s ease;
-    }
     .panel {
-      flex: 0 0 100vw;
       height: 100%;
       padding: 60px 20px;
       display: flex;
@@ -41,6 +36,13 @@
       justify-content: flex-start;
       align-items: center;
       text-align: center;
+      max-width: 600px;
+      margin: auto;
+    }
+    .logo {
+      font-size: 1.6rem;
+      font-weight: bold;
+      margin-bottom: 8px;
     }
     h1 {
       font-size: 2rem;
@@ -70,7 +72,7 @@
       box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
     }
     .counter p span {
-      color: #00ffc8;
+      color: var(--accent-color);
       font-weight: bold;
     }
     .mood-buttons {
@@ -88,39 +90,8 @@
       font-size: 0.9rem;
     }
     .mood-buttons button.active {
-      border-color: #00ffc8;
+      border-color: var(--accent-color);
       background-color: rgba(0, 255, 200, 0.2);
-    }
-    .mood-timeline {
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-      margin: 10px auto;
-      flex-wrap: wrap;
-    }
-    .mood-dot {
-      width: 26px;
-      height: 26px;
-      border-radius: 50%;
-      position: relative;
-      animation: fadeIn 0.6s ease;
-    }
-    .mood-dot::after {
-      content: attr(data-mood);
-      position: absolute;
-      bottom: -24px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 0.65rem;
-      color: #ccc;
-    }
-    .mood-dot[data-mood="Terrible"] { background-color: #ff4e4e; }
-    .mood-dot[data-mood="Okay"] { background-color: #ffb347; }
-    .mood-dot[data-mood="Good"] { background-color: #7ed957; }
-    .mood-dot[data-mood="Great"] { background-color: #00ffc8; }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: scale(0.7); }
-      to   { opacity: 1; transform: scale(1); }
     }
     .breathe-circle {
       width: 100px;
@@ -142,15 +113,10 @@
     }
     .copy-btn {
       margin: 10px auto;
-      background-color: #00ffe1;
+      background-color: var(--accent-color);
       border: none;
       color: #000;
       font-weight: 600;
-    }
-    .swipe-hint {
-      font-size: 0.85rem;
-      color: #aaa;
-      margin-top: auto;
     }
     @media (max-width: 600px) {
       h1 { font-size: 1.5rem; }
@@ -160,29 +126,26 @@
   </style>
 </head>
 <body>
-  <div class="container" id="carousel">
-    <div class="panel">
-      <h2>QuasiCare – Helping you heal</h2>
-      <h1>Welcome Back</h1>
-      <p>This is your profile space. Reflect. Breathe.</p>
-      <div class="counter">
-        <p>Souls lost in the U.S. (2025): <span id="usCount">0</span></p>
-        <p>Souls lost globally (2025): <span id="globalCount">0</span></p>
-      </div>
-      <h2>How are you feeling today?</h2>
-      <div class="mood-buttons" id="moodButtons">
-        <button>Terrible</button>
-        <button>Okay</button>
-        <button>Good</button>
-        <button>Great</button>
-      </div>
-      <h2>Tap to Breathe</h2>
-      <div class="breathe-circle"></div>
-      <h2>Affirmation</h2>
-      <div class="affirmation" id="affirmation">You are enough. You are doing your best.</div>
-      <button class="copy-btn" onclick="copyQuote()">Copy Quote</button>
-      <p class="swipe-hint">Swipe left/right to navigate</p>
+  <div class="panel">
+    <div class="logo">QuasiCare – Helping you heal</div>
+    <h1>Welcome Back</h1>
+    <p>This is your profile space. Reflect. Breathe.</p>
+    <div class="counter">
+      <p>Souls lost in the U.S. (2025): <span id="usCount">0</span></p>
+      <p>Souls lost globally (2025): <span id="globalCount">0</span></p>
     </div>
+    <h2>How are you feeling today?</h2>
+    <div class="mood-buttons" id="moodButtons">
+      <button>Terrible</button>
+      <button>Okay</button>
+      <button>Good</button>
+      <button>Great</button>
+    </div>
+    <h2>Tap to Breathe</h2>
+    <div class="breathe-circle"></div>
+    <h2>Affirmation</h2>
+    <div class="affirmation" id="affirmation">You are enough. You are doing your best.</div>
+    <button class="copy-btn" onclick="copyQuote()">Copy Quote</button>
   </div>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -234,19 +197,6 @@
     animateCount(globalEl, global);
     setInterval(() => usEl.innerText = (++us).toLocaleString(), usRateSec * 1000);
     setInterval(() => globalEl.innerText = (++global).toLocaleString(), globalRateSec * 1000);
-
-    let currentIndex = 0;
-    const container = document.getElementById("carousel");
-    container.style.transform = `translateX(-${currentIndex * 100}vw)`;
-
-    let startX = 0;
-    document.addEventListener("touchstart", e => startX = e.touches[0].clientX);
-    document.addEventListener("touchend", e => {
-      const delta = e.changedTouches[0].clientX - startX;
-      if (delta > 50 && currentIndex > 0) currentIndex--;
-      else if (delta < -50 && currentIndex < 2) currentIndex++;
-      container.style.transform = `translateX(-${currentIndex * 100}vw)`;
-    });
 
     const moodButtons = document.getElementById("moodButtons");
     moodButtons.addEventListener("click", e => {
