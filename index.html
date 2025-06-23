@@ -110,7 +110,7 @@
       transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 1.2s ease;
     }
 
-    #app.show {
+    #app.reveal {
       display: block;
       opacity: 1;
       transform: scale(1);
@@ -187,7 +187,6 @@
 </head>
 <body>
   <div class="particles fade-in"></div>
-
   <div id="intro">
     <h1>Welcome to<br>QuasiCare</h1>
     <p>Tap anywhere to continue</p>
@@ -248,9 +247,12 @@
 
       setTimeout(() => {
         intro.style.display = "none";
-        app.classList.add("show");
-        particles.classList.remove("fade-out");
-        particles.classList.add("fade-in");
+        app.style.display = "block";
+        requestAnimationFrame(() => {
+          app.classList.add("reveal");
+          particles.classList.remove("fade-out");
+          particles.classList.add("fade-in");
+        });
       }, 1200);
     });
 
