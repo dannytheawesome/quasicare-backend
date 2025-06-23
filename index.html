@@ -17,14 +17,20 @@
       box-sizing: border-box;
     }
 
-    body {
+    html, body {
       margin: 0;
       padding: 0;
       font-family: 'Segoe UI', sans-serif;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
       background: var(--bg-light);
+      background-size: 400% 400%;
       color: var(--text-light);
       animation: gradientBG 20s ease infinite;
-      background-size: 400% 400%;
+      transition: background 0.5s ease, color 0.5s ease;
     }
 
     body.dark {
@@ -38,11 +44,55 @@
       100% { background-position: 0% 50%; }
     }
 
+    #intro {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      background: inherit;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      animation: zoomIn 3s ease forwards;
+      text-align: center;
+    }
+
+    @keyframes zoomIn {
+      0% { transform: scale(1.4); opacity: 0; }
+      50% { transform: scale(1.1); opacity: 1; }
+      100% { transform: scale(1); }
+    }
+
+    #intro h1 {
+      font-size: 2.4rem;
+      animation: floatText 4s ease infinite;
+      margin: 0;
+    }
+
+    @keyframes floatText {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+      100% { transform: translateY(0); }
+    }
+
+    #continueTap {
+      margin-top: 20px;
+      font-size: 1rem;
+      opacity: 0.7;
+    }
+
+    #app {
+      display: none;
+      height: 100%;
+      padding: 20px;
+    }
+
     header {
       text-align: center;
-      padding: 1rem;
-      font-size: 1.6rem;
+      font-size: 1.5rem;
       font-weight: bold;
+      margin-bottom: 10px;
     }
 
     nav {
@@ -56,93 +106,56 @@
       padding: 10px 16px;
       border: none;
       border-radius: 6px;
-      cursor: pointer;
-      font-weight: 600;
       background: rgba(255, 255, 255, 0.2);
       color: inherit;
+      font-weight: bold;
+      cursor: pointer;
     }
 
     nav button.active {
-      background-color: var(--primary);
-      color: black;
+      background: var(--primary);
+      color: #000;
+    }
+
+    .tab-wrapper {
+      position: relative;
+      overflow: hidden;
+      height: calc(100% - 160px); /* subtract header/nav height */
     }
 
     .panel {
-      display: none;
-      padding: 20px;
+      position: absolute;
+      top: 0;
+      width: 100%;
+      left: 100%;
+      opacity: 0;
+      transition: all 0.5s ease;
+      padding: 10px;
       max-width: 700px;
       margin: auto;
-      text-align: center;
     }
 
     .panel.active {
-      display: block;
-    }
-
-    .breathe-heart {
-      width: 100px;
-      height: 90px;
-      margin: 20px auto;
-      background: #00bcd4;
-      transform: rotate(-45deg);
-      animation: beat 6s ease-in-out infinite;
-      position: relative;
-    }
-
-    .breathe-heart::before,
-    .breathe-heart::after {
-      content: "";
-      width: 100px;
-      height: 90px;
-      background: #00bcd4;
-      border-radius: 50%;
-      position: absolute;
-    }
-
-    .breathe-heart::before {
-      top: -50px;
       left: 0;
-    }
-
-    .breathe-heart::after {
-      left: 50px;
-      top: 0;
-    }
-
-    @keyframes beat {
-      0%, 100% { transform: scale(1) rotate(-45deg); }
-      50% { transform: scale(1.4) rotate(-45deg); }
-    }
-
-    .affirmation {
-      margin-top: 20px;
-      font-style: italic;
-      opacity: 0;
-      animation: fadeIn 1s ease forwards;
-    }
-
-    @keyframes fadeIn {
-      to { opacity: 1; }
+      opacity: 1;
+      z-index: 1;
     }
 
     #themeToggle {
       position: absolute;
       top: 10px;
       right: 10px;
-      padding: 6px 12px;
-      background: #fff;
+      padding: 8px 12px;
       border: none;
-      border-radius: 6px;
+      background: #fff;
+      border-radius: 5px;
+      font-weight: bold;
       cursor: pointer;
     }
 
     body.dark #themeToggle {
       background: #333;
-      color: #fff;
-    }
-
-    .counter {
-      margin-top: 20px;
+      color: white;
     }
 
     .counter p span {
@@ -150,48 +163,63 @@
       font-weight: bold;
     }
 
+    .affirmation {
+      font-style: italic;
+      margin-top: 20px;
+      opacity: 0;
+      animation: fadeIn 1.5s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+
     @media (max-width: 600px) {
-      header { font-size: 1.3rem; }
+      header { font-size: 1.2rem; }
       nav { flex-direction: column; }
       nav button { width: 100%; }
     }
   </style>
 </head>
 <body>
-  <button id="themeToggle">Toggle Theme</button>
+  <div id="intro" onclick="enterApp()">
+    <h1>Welcome to QuasiCare</h1>
+    <div id="continueTap">Tap anywhere to continue</div>
+  </div>
 
-  <header>Welcome to QuasiCare</header>
+  <div id="app">
+    <button id="themeToggle">Toggle Theme</button>
+    <header>QuasiCare Dashboard</header>
 
-  <nav>
-    <button class="tab-btn active" data-tab="profile">Profile</button>
-    <button class="tab-btn" data-tab="talk">Talk</button>
-    <button class="tab-btn" data-tab="listen">Listen</button>
-  </nav>
+    <nav>
+      <button class="tab-btn active" data-tab="profile">Profile</button>
+      <button class="tab-btn" data-tab="talk">Talk</button>
+      <button class="tab-btn" data-tab="listen">Listen</button>
+    </nav>
 
-  <div id="profile" class="panel active">
-    <h2>This is your space</h2>
-    <p>Reflect. Breathe. Reset.</p>
+    <div class="tab-wrapper">
+      <div id="profile" class="panel active">
+        <h2>This is your space</h2>
+        <p>Reflect. Reset. You're safe here.</p>
+        <div class="counter">
+          <p>Souls lost in the U.S. (2025): <span id="usCount">0</span></p>
+          <p>Souls lost globally (2025): <span id="globalCount">0</span></p>
+        </div>
+        <div class="affirmation" id="affirmation">You are enough. You are doing your best.</div>
+      </div>
 
-    <div class="counter">
-      <p>Souls lost in the U.S. (2025): <span id="usCount">0</span></p>
-      <p>Souls lost globally (2025): <span id="globalCount">0</span></p>
+      <div id="talk" class="panel">
+        <h2>Talk</h2>
+        <p>Express what’s on your mind.</p>
+        <a href="talk.html"><button>Go to Talk</button></a>
+      </div>
+
+      <div id="listen" class="panel">
+        <h2>Listen</h2>
+        <p>Support others with care and compassion.</p>
+        <a href="listen.html"><button>Go to Listen</button></a>
+      </div>
     </div>
-
-    <div class="breathe-heart"></div>
-
-    <div class="affirmation" id="affirmation">You are enough. You are doing your best.</div>
-  </div>
-
-  <div id="talk" class="panel">
-    <h2>Talk</h2>
-    <p>Express what’s on your mind. Your voice matters.</p>
-    <a href="talk.html"><button>Go to Talk</button></a>
-  </div>
-
-  <div id="listen" class="panel">
-    <h2>Listen</h2>
-    <p>Support others who need a hand or a kind word.</p>
-    <a href="listen.html"><button>Go to Listen</button></a>
   </div>
 
   <script type="module">
@@ -210,45 +238,31 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    onAuthStateChanged(auth, user => {
+    onAuthStateChanged(auth, (user) => {
       if (!user) window.location.href = "login.html";
     });
 
-    // Suicide Counter
     const usRateSec = 11 * 60;
     const globalRateSec = 40;
     const startOfYear = new Date("2025-01-01T00:00:00Z").getTime();
     const usEl = document.getElementById("usCount");
     const globalEl = document.getElementById("globalCount");
 
-    const { us, global } = (() => {
+    let us = 0, global = 0;
+
+    function updateCounters() {
       const now = Date.now();
       const secondsPassed = Math.floor((now - startOfYear) / 1000);
-      return {
-        us: Math.floor(secondsPassed / usRateSec),
-        global: Math.floor(secondsPassed / globalRateSec)
-      };
-    })();
+      us = Math.floor(secondsPassed / usRateSec);
+      global = Math.floor(secondsPassed / globalRateSec);
+      usEl.innerText = us.toLocaleString();
+      globalEl.innerText = global.toLocaleString();
+    }
 
-    const animateCount = (el, to) => {
-      let start = 0;
-      const duration = 1500;
-      const startTime = performance.now();
-      const update = (time) => {
-        const progress = Math.min((time - startTime) / duration, 1);
-        el.innerText = Math.floor(progress * to).toLocaleString();
-        if (progress < 1) requestAnimationFrame(update);
-      };
-      requestAnimationFrame(update);
-    };
-
-    animateCount(usEl, us);
-    animateCount(globalEl, global);
-
+    updateCounters();
     setInterval(() => usEl.innerText = (++us).toLocaleString(), usRateSec * 1000);
     setInterval(() => globalEl.innerText = (++global).toLocaleString(), globalRateSec * 1000);
 
-    // Tabs
     const tabBtns = document.querySelectorAll(".tab-btn");
     const panels = document.querySelectorAll(".panel");
 
@@ -261,13 +275,15 @@
       });
     });
 
-    // Theme Toggle
-    const toggleBtn = document.getElementById("themeToggle");
-    toggleBtn.addEventListener("click", () => {
+    document.getElementById("themeToggle").addEventListener("click", () => {
       document.body.classList.toggle("dark");
     });
 
-    // Affirmation Rotation
+    function enterApp() {
+      document.getElementById("intro").style.display = "none";
+      document.getElementById("app").style.display = "block";
+    }
+
     const affirmations = [
       "You are enough. You are doing your best.",
       "Today is a fresh start.",
@@ -275,7 +291,6 @@
       "You deserve peace.",
       "Breathe. Reset. Continue."
     ];
-
     let index = 0;
     setInterval(() => {
       const el = document.getElementById("affirmation");
