@@ -38,17 +38,20 @@
       text-align: center;
     }
 
-    h1 {
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
       font-size: 2rem;
-      margin-bottom: 0.2em;
+      font-weight: bold;
+      margin-bottom: 0.5em;
     }
 
-    .heart {
-      font-size: 60px;
-      color: #00bfff;
+    .blue-heart {
+      width: 40px;
+      height: 40px;
       animation: beat 2s infinite;
-      display: inline-block;
-      vertical-align: middle;
     }
 
     @keyframes beat {
@@ -99,21 +102,24 @@
     }
 
     @media (max-width: 600px) {
-      h1 {
-        font-size: 1.5rem;
-      }
-      .heart {
-        font-size: 48px;
-      }
-      .navbar {
-        font-size: 0.9rem;
-      }
+      .header { font-size: 1.5rem; }
+      .blue-heart { width: 32px; height: 32px; }
+      .navbar { font-size: 0.9rem; }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Welcome to <span class="heart">❤️</span> QuasiCare</h1>
+    <div class="header">
+      <span>Welcome to</span>
+      <svg class="blue-heart" viewBox="0 0 24 24" fill="#00bfff" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 
+          6 4 4 6.5 4c1.74 0 3.41 1.01 4.13 2.44h1.74C14.09 
+          5.01 15.76 4 17.5 4 20 4 22 6 22 8.5c0 3.78-3.4 
+          6.86-8.55 11.54L12 21.35z"/>
+      </svg>
+      <span>QuasiCare</span>
+    </div>
     <p>This is your personal space. Reflect. Reset. Restore.</p>
 
     <div class="counter">
