@@ -6,35 +6,30 @@
   <title>QuasiCare | Home</title>
   <style>
     :root {
-      --bg-gradient-light: linear-gradient(-45deg, #1f1c2c, #928dab, #0f2027, #2c5364);
-      --bg-gradient-dark: linear-gradient(-45deg, #0d0d0d, #1a1a1a, #101010, #050505);
-      --text-color-light: white;
-      --text-color-dark: #ccc;
-      --accent-color: #00ffc8;
+      --bg-light: linear-gradient(-45deg, #e0eafc, #cfdef3, #dee4ff, #c3cfe2);
+      --bg-dark: linear-gradient(-45deg, #1f1c2c, #928dab, #0f2027, #2c5364);
+      --text-light: #222;
+      --text-dark: #fff;
+      --primary: #00ffc8;
     }
 
     * {
       box-sizing: border-box;
     }
 
-    html, body {
+    body {
       margin: 0;
       padding: 0;
-      height: 100%;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      transition: background 0.5s ease, color 0.5s ease;
-    }
-
-    body {
-      background: var(--bg-gradient-light);
-      background-size: 400% 400%;
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--bg-light);
+      color: var(--text-light);
       animation: gradientBG 20s ease infinite;
-      color: var(--text-color-light);
+      background-size: 400% 400%;
     }
 
-    body.dark-mode {
-      background: var(--bg-gradient-dark);
-      color: var(--text-color-dark);
+    body.dark {
+      background: var(--bg-dark);
+      color: var(--text-dark);
     }
 
     @keyframes gradientBG {
@@ -44,60 +39,84 @@
     }
 
     header {
-      padding: 20px;
       text-align: center;
+      padding: 1rem;
+      font-size: 1.6rem;
+      font-weight: bold;
     }
 
-    h1 {
-      font-size: 2rem;
-      margin: 0;
+    nav {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 1rem;
     }
 
-    .subheading {
-      font-size: 1.1rem;
-      margin-top: 6px;
-      color: #aaa;
+    nav button {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.2);
+      color: inherit;
     }
 
-    .container {
+    nav button.active {
+      background-color: var(--primary);
+      color: black;
+    }
+
+    .panel {
+      display: none;
       padding: 20px;
-      max-width: 800px;
+      max-width: 700px;
       margin: auto;
       text-align: center;
     }
 
-    .counter p span {
-      color: var(--accent-color);
-      font-weight: bold;
+    .panel.active {
+      display: block;
     }
 
     .breathe-heart {
       width: 100px;
       height: 90px;
-      background-color: var(--accent-color);
-      mask: url('https://upload.wikimedia.org/wikipedia/commons/e/e7/Heart_corazón.svg') no-repeat center;
-      -webkit-mask: url('https://upload.wikimedia.org/wikipedia/commons/e/e7/Heart_corazón.svg') no-repeat center;
-      mask-size: contain;
-      -webkit-mask-size: contain;
-      animation: beat 3s ease-in-out infinite;
-      margin: 30px auto;
+      margin: 20px auto;
+      background: #00bcd4;
+      transform: rotate(-45deg);
+      animation: beat 6s ease-in-out infinite;
+      position: relative;
+    }
+
+    .breathe-heart::before,
+    .breathe-heart::after {
+      content: "";
+      width: 100px;
+      height: 90px;
+      background: #00bcd4;
+      border-radius: 50%;
+      position: absolute;
+    }
+
+    .breathe-heart::before {
+      top: -50px;
+      left: 0;
+    }
+
+    .breathe-heart::after {
+      left: 50px;
+      top: 0;
     }
 
     @keyframes beat {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.3); }
-    }
-
-    .microtext {
-      font-size: 0.9rem;
-      color: #aaa;
-      margin-top: -10px;
+      0%, 100% { transform: scale(1) rotate(-45deg); }
+      50% { transform: scale(1.4) rotate(-45deg); }
     }
 
     .affirmation {
-      margin-top: 30px;
+      margin-top: 20px;
       font-style: italic;
-      font-size: 1.1rem;
       opacity: 0;
       animation: fadeIn 1s ease forwards;
     }
@@ -106,46 +125,73 @@
       to { opacity: 1; }
     }
 
-    .theme-toggle {
-      margin-top: 30px;
-      padding: 10px 16px;
-      font-size: 14px;
+    #themeToggle {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 6px 12px;
+      background: #fff;
       border: none;
       border-radius: 6px;
-      background-color: #fff;
-      color: #333;
       cursor: pointer;
-      transition: background 0.3s ease;
     }
 
-    .theme-toggle:hover {
-      background-color: #eee;
+    body.dark #themeToggle {
+      background: #333;
+      color: #fff;
+    }
+
+    .counter {
+      margin-top: 20px;
+    }
+
+    .counter p span {
+      color: var(--primary);
+      font-weight: bold;
     }
 
     @media (max-width: 600px) {
-      h1 { font-size: 1.5rem; }
-      .breathe-heart { width: 80px; height: 70px; }
+      header { font-size: 1.3rem; }
+      nav { flex-direction: column; }
+      nav button { width: 100%; }
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Welcome to <span class="logo">QuasiCare</span></h1>
-    <p class="subheading">Helping you heal, one breath at a time</p>
-  </header>
+  <button id="themeToggle">Toggle Theme</button>
 
-  <div class="container">
+  <header>Welcome to QuasiCare</header>
+
+  <nav>
+    <button class="tab-btn active" data-tab="profile">Profile</button>
+    <button class="tab-btn" data-tab="talk">Talk</button>
+    <button class="tab-btn" data-tab="listen">Listen</button>
+  </nav>
+
+  <div id="profile" class="panel active">
+    <h2>This is your space</h2>
+    <p>Reflect. Breathe. Reset.</p>
+
     <div class="counter">
       <p>Souls lost in the U.S. (2025): <span id="usCount">0</span></p>
       <p>Souls lost globally (2025): <span id="globalCount">0</span></p>
     </div>
 
     <div class="breathe-heart"></div>
-    <p class="microtext">Each beat reminds us of those lost, and those still here. Breathe with compassion.</p>
 
     <div class="affirmation" id="affirmation">You are enough. You are doing your best.</div>
+  </div>
 
-    <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
+  <div id="talk" class="panel">
+    <h2>Talk</h2>
+    <p>Express what’s on your mind. Your voice matters.</p>
+    <a href="talk.html"><button>Go to Talk</button></a>
+  </div>
+
+  <div id="listen" class="panel">
+    <h2>Listen</h2>
+    <p>Support others who need a hand or a kind word.</p>
+    <a href="listen.html"><button>Go to Listen</button></a>
   </div>
 
   <script type="module">
@@ -175,18 +221,20 @@
     const usEl = document.getElementById("usCount");
     const globalEl = document.getElementById("globalCount");
 
-    const getCounts = () => {
+    const { us, global } = (() => {
       const now = Date.now();
-      const seconds = Math.floor((now - startOfYear) / 1000);
+      const secondsPassed = Math.floor((now - startOfYear) / 1000);
       return {
-        us: Math.floor(seconds / usRateSec),
-        global: Math.floor(seconds / globalRateSec)
+        us: Math.floor(secondsPassed / usRateSec),
+        global: Math.floor(secondsPassed / globalRateSec)
       };
-    };
+    })();
 
     const animateCount = (el, to) => {
-      let start = 0, duration = 1500, startTime = performance.now();
-      const update = time => {
+      let start = 0;
+      const duration = 1500;
+      const startTime = performance.now();
+      const update = (time) => {
         const progress = Math.min((time - startTime) / duration, 1);
         el.innerText = Math.floor(progress * to).toLocaleString();
         if (progress < 1) requestAnimationFrame(update);
@@ -194,36 +242,50 @@
       requestAnimationFrame(update);
     };
 
-    const { us, global } = getCounts();
     animateCount(usEl, us);
     animateCount(globalEl, global);
 
-    setInterval(() => { usEl.innerText = (++us).toLocaleString(); }, usRateSec * 1000);
-    setInterval(() => { globalEl.innerText = (++global).toLocaleString(); }, globalRateSec * 1000);
+    setInterval(() => usEl.innerText = (++us).toLocaleString(), usRateSec * 1000);
+    setInterval(() => globalEl.innerText = (++global).toLocaleString(), globalRateSec * 1000);
 
-    // Affirmations
+    // Tabs
+    const tabBtns = document.querySelectorAll(".tab-btn");
+    const panels = document.querySelectorAll(".panel");
+
+    tabBtns.forEach(btn => {
+      btn.addEventListener("click", () => {
+        tabBtns.forEach(b => b.classList.remove("active"));
+        panels.forEach(p => p.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById(btn.dataset.tab).classList.add("active");
+      });
+    });
+
+    // Theme Toggle
+    const toggleBtn = document.getElementById("themeToggle");
+    toggleBtn.addEventListener("click", () => {
+      document.body.classList.toggle("dark");
+    });
+
+    // Affirmation Rotation
     const affirmations = [
       "You are enough. You are doing your best.",
-      "You made it here. That matters.",
-      "Even your smallest efforts count.",
-      "You're allowed to rest and heal.",
-      "Keep going. You are not alone."
+      "Today is a fresh start.",
+      "Small steps still move you forward.",
+      "You deserve peace.",
+      "Breathe. Reset. Continue."
     ];
+
     let index = 0;
-    const el = document.getElementById("affirmation");
     setInterval(() => {
+      const el = document.getElementById("affirmation");
       index = (index + 1) % affirmations.length;
       el.style.opacity = 0;
       setTimeout(() => {
         el.innerText = affirmations[index];
         el.style.opacity = 1;
       }, 300);
-    }, 7000);
-
-    // Theme toggle
-    function toggleTheme() {
-      document.body.classList.toggle("dark-mode");
-    }
+    }, 6000);
   </script>
 </body>
 </html>
