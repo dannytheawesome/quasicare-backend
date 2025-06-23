@@ -34,6 +34,11 @@
       100% { background-position: 0% 50%; }
     }
 
+    #intro,
+    #app {
+      transition: transform 1s ease, opacity 1s ease;
+    }
+
     #intro {
       position: fixed;
       top: 0; left: 0;
@@ -45,13 +50,11 @@
       flex-direction: column;
       text-align: center;
       z-index: 1000;
-      transition: opacity 0.8s ease, transform 1s ease;
-      transform: scale(1);
     }
 
-    #intro.float-away {
-      opacity: 0;
+    #intro.zoom-out {
       transform: scale(3);
+      opacity: 0;
       pointer-events: none;
     }
 
@@ -72,30 +75,22 @@
       50% { transform: translateY(-6px); }
     }
 
-    .particles {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 0;
-      pointer-events: none;
-      background-image: radial-gradient(white 1px, transparent 1px);
-      background-size: 20px 20px;
-      opacity: 0.05;
-      animation: drift 60s linear infinite;
-    }
-
-    @keyframes drift {
-      from { background-position: 0 0; }
-      to { background-position: 1000px 1000px; }
-    }
-
     #app {
       display: none;
       text-align: center;
       padding: 2rem;
       z-index: 10;
       position: relative;
+    }
+
+    #app.zoom-in {
+      transform: scale(0.8);
+      opacity: 0;
+    }
+
+    #app.visible {
+      transform: scale(1);
+      opacity: 1;
     }
 
     nav {
@@ -168,7 +163,6 @@
   </style>
 </head>
 <body>
-  <div class="particles"></div>
   <div id="intro">
     <h1>Welcome to<br>QuasiCare</h1>
     <p>Tap anywhere to continue</p>
@@ -222,10 +216,14 @@
 
     intro.addEventListener("click", () => {
       tapSound.play();
-      intro.classList.add("float-away");
+      intro.classList.add("zoom-out");
+      app.classList.add("zoom-in");
+      app.style.display = "block";
+
       setTimeout(() => {
         intro.style.display = "none";
-        app.style.display = "block";
+        app.classList.remove("zoom-in");
+        app.classList.add("visible");
       }, 1000);
     });
 
