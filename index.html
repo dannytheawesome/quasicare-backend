@@ -161,28 +161,6 @@
       font-family: inherit;
     }
 
-    .cat-illustration {
-      width: 120px;
-      margin-top: 1.5rem;
-      opacity: 0;
-      transform: translateY(-50px);
-      animation: catDrop 1.5s ease-out 1.2s forwards;
-    }
-
-    @keyframes catDrop {
-      0% {
-        transform: translateY(-50px);
-        opacity: 0;
-      }
-      80% {
-        transform: translateY(10px);
-        opacity: 1;
-      }
-      100% {
-        transform: translateY(0);
-      }
-    }
-
     @media (max-width: 600px) {
       nav { flex-direction: column; }
       nav button { width: 100%; }
@@ -213,7 +191,6 @@
         <p>Souls lost globally (2025): <span id="globalCount">0</span></p>
       </div>
       <div class="affirmation" id="affirmation"></div>
-      <img src="cat.png" alt="Cute Cat" class="cat-illustration" />
     </div>
 
     <div id="talk" class="panel">
