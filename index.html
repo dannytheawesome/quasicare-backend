@@ -2,26 +2,39 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>QuasiCare | Home</title>
   <style>
     :root {
-      --bg-gradient: linear-gradient(-45deg, #1f1c2c, #928dab, #0f2027, #2c5364);
-      --light-bg: #f0f0f0;
-      --dark-bg: #0e0e0e;
-      --light-text: #111;
-      --dark-text: #f5f5f5;
+      --bg-gradient-light: linear-gradient(-45deg, #1f1c2c, #928dab, #0f2027, #2c5364);
+      --bg-gradient-dark: linear-gradient(-45deg, #0d0d0d, #1a1a1a, #101010, #050505);
+      --text-color-light: white;
+      --text-color-dark: #ccc;
+      --accent-color: #00ffc8;
+    }
+
+    * {
+      box-sizing: border-box;
     }
 
     html, body {
       margin: 0;
       padding: 0;
+      height: 100%;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: var(--bg-gradient);
+      transition: background 0.5s ease, color 0.5s ease;
+    }
+
+    body {
+      background: var(--bg-gradient-light);
       background-size: 400% 400%;
       animation: gradientBG 20s ease infinite;
-      color: white;
-      overflow-x: hidden;
+      color: var(--text-color-light);
+    }
+
+    body.dark-mode {
+      background: var(--bg-gradient-dark);
+      color: var(--text-color-dark);
     }
 
     @keyframes gradientBG {
@@ -31,145 +44,109 @@
     }
 
     header {
-      padding: 1.5rem;
+      padding: 20px;
       text-align: center;
-      font-size: 1.8rem;
-      font-weight: 600;
     }
 
-    .tabs {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      margin-bottom: 2rem;
+    h1 {
+      font-size: 2rem;
+      margin: 0;
     }
 
-    .tab-button {
-      background: rgba(255,255,255,0.1);
-      border: none;
-      color: white;
-      padding: 10px 20px;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background 0.3s;
+    .subheading {
+      font-size: 1.1rem;
+      margin-top: 6px;
+      color: #aaa;
     }
 
-    .tab-button.active, .tab-button:hover {
-      background: rgba(255,255,255,0.3);
-    }
-
-    .tab-content {
-      display: none;
-      padding: 0 1.5rem 2rem;
-      max-width: 700px;
+    .container {
+      padding: 20px;
+      max-width: 800px;
       margin: auto;
-      animation: fadeIn 0.5s ease;
-    }
-
-    .tab-content.active {
-      display: block;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .counter {
-      margin: 1rem 0;
       text-align: center;
     }
 
-    .counter span {
-      color: #00ffc8;
+    .counter p span {
+      color: var(--accent-color);
       font-weight: bold;
     }
 
-    .breathe-box {
-      width: 140px;
-      height: 140px;
-      border-radius: 50%;
-      margin: 2rem auto;
-      background-color: rgba(255, 255, 255, 0.15);
-      animation: breathePulse 6s ease-in-out infinite;
+    .breathe-heart {
+      width: 100px;
+      height: 90px;
+      background-color: var(--accent-color);
+      mask: url('https://upload.wikimedia.org/wikipedia/commons/e/e7/Heart_corazón.svg') no-repeat center;
+      -webkit-mask: url('https://upload.wikimedia.org/wikipedia/commons/e/e7/Heart_corazón.svg') no-repeat center;
+      mask-size: contain;
+      -webkit-mask-size: contain;
+      animation: beat 3s ease-in-out infinite;
+      margin: 30px auto;
     }
 
-    @keyframes breathePulse {
+    @keyframes beat {
       0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.4); }
+      50% { transform: scale(1.3); }
+    }
+
+    .microtext {
+      font-size: 0.9rem;
+      color: #aaa;
+      margin-top: -10px;
     }
 
     .affirmation {
-      text-align: center;
+      margin-top: 30px;
       font-style: italic;
-      font-size: 1rem;
-      color: #ddd;
+      font-size: 1.1rem;
       opacity: 0;
-      animation: fadeInAffirm 1.5s ease-in-out forwards;
+      animation: fadeIn 1s ease forwards;
     }
 
-    @keyframes fadeInAffirm {
+    @keyframes fadeIn {
       to { opacity: 1; }
     }
 
     .theme-toggle {
-      margin-top: 2rem;
-      text-align: center;
-    }
-
-    .theme-toggle button {
-      background: #00ffc8;
+      margin-top: 30px;
+      padding: 10px 16px;
+      font-size: 14px;
       border: none;
-      padding: 10px 20px;
-      border-radius: 20px;
+      border-radius: 6px;
+      background-color: #fff;
+      color: #333;
       cursor: pointer;
-      font-weight: bold;
-      color: black;
+      transition: background 0.3s ease;
     }
 
-    footer {
-      margin-top: 4rem;
-      text-align: center;
-      font-size: 0.85rem;
-      color: #aaa;
+    .theme-toggle:hover {
+      background-color: #eee;
+    }
+
+    @media (max-width: 600px) {
+      h1 { font-size: 1.5rem; }
+      .breathe-heart { width: 80px; height: 70px; }
     }
   </style>
 </head>
 <body>
-  <header>Welcome to QuasiCare</header>
+  <header>
+    <h1>Welcome to <span class="logo">QuasiCare</span></h1>
+    <p class="subheading">Helping you heal, one breath at a time</p>
+  </header>
 
-  <div class="tabs">
-    <button class="tab-button active" data-tab="profile">Profile</button>
-    <button class="tab-button" data-tab="talk">Talk</button>
-    <button class="tab-button" data-tab="listen">Listen</button>
-  </div>
-
-  <div id="profile" class="tab-content active">
+  <div class="container">
     <div class="counter">
       <p>Souls lost in the U.S. (2025): <span id="usCount">0</span></p>
       <p>Souls lost globally (2025): <span id="globalCount">0</span></p>
     </div>
 
-    <div class="breathe-box"></div>
+    <div class="breathe-heart"></div>
+    <p class="microtext">Each beat reminds us of those lost, and those still here. Breathe with compassion.</p>
 
     <div class="affirmation" id="affirmation">You are enough. You are doing your best.</div>
-  </div>
 
-  <div id="talk" class="tab-content">
-    <p>Express what's on your mind. Share anonymously or with a name.</p>
-    <a href="talk.html"><button>Go to Talk</button></a>
+    <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
   </div>
-
-  <div id="listen" class="tab-content">
-    <p>Support others by reading and replying to messages.</p>
-    <a href="listen.html"><button>Go to Listen</button></a>
-  </div>
-
-  <div class="theme-toggle">
-    <button id="themeToggle">Toggle Theme</button>
-  </div>
-
-  <footer>&copy; 2025 QuasiCare. All rights reserved.</footer>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -187,74 +164,66 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, user => {
       if (!user) window.location.href = "login.html";
     });
 
-    // Soul counter
-    const startOfYear = new Date("2025-01-01T00:00:00Z").getTime();
+    // Suicide Counter
     const usRateSec = 11 * 60;
     const globalRateSec = 40;
+    const startOfYear = new Date("2025-01-01T00:00:00Z").getTime();
+    const usEl = document.getElementById("usCount");
+    const globalEl = document.getElementById("globalCount");
 
     const getCounts = () => {
       const now = Date.now();
-      const elapsed = Math.floor((now - startOfYear) / 1000);
+      const seconds = Math.floor((now - startOfYear) / 1000);
       return {
-        us: Math.floor(elapsed / usRateSec),
-        global: Math.floor(elapsed / globalRateSec)
+        us: Math.floor(seconds / usRateSec),
+        global: Math.floor(seconds / globalRateSec)
       };
     };
 
-    const usEl = document.getElementById("usCount");
-    const globalEl = document.getElementById("globalCount");
-    const { us, global } = getCounts();
-    usEl.innerText = us.toLocaleString();
-    globalEl.innerText = global.toLocaleString();
+    const animateCount = (el, to) => {
+      let start = 0, duration = 1500, startTime = performance.now();
+      const update = time => {
+        const progress = Math.min((time - startTime) / duration, 1);
+        el.innerText = Math.floor(progress * to).toLocaleString();
+        if (progress < 1) requestAnimationFrame(update);
+      };
+      requestAnimationFrame(update);
+    };
 
-    setInterval(() => usEl.innerText = (++us).toLocaleString(), usRateSec * 1000);
-    setInterval(() => globalEl.innerText = (++global).toLocaleString(), globalRateSec * 1000);
+    const { us, global } = getCounts();
+    animateCount(usEl, us);
+    animateCount(globalEl, global);
+
+    setInterval(() => { usEl.innerText = (++us).toLocaleString(); }, usRateSec * 1000);
+    setInterval(() => { globalEl.innerText = (++global).toLocaleString(); }, globalRateSec * 1000);
 
     // Affirmations
     const affirmations = [
       "You are enough. You are doing your best.",
-      "Today is a fresh start.",
-      "You deserve peace.",
-      "Breathe. Reset. Continue.",
-      "Small steps still move you forward."
+      "You made it here. That matters.",
+      "Even your smallest efforts count.",
+      "You're allowed to rest and heal.",
+      "Keep going. You are not alone."
     ];
     let index = 0;
+    const el = document.getElementById("affirmation");
     setInterval(() => {
       index = (index + 1) % affirmations.length;
-      const el = document.getElementById("affirmation");
       el.style.opacity = 0;
       setTimeout(() => {
         el.innerText = affirmations[index];
         el.style.opacity = 1;
       }, 300);
-    }, 8000);
+    }, 7000);
 
-    // Tab switching
-    document.querySelectorAll('.tab-button').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        btn.classList.add('active');
-        document.getElementById(btn.dataset.tab).classList.add('active');
-      });
-    });
-
-    // Theme switcher
-    const toggleBtn = document.getElementById("themeToggle");
-    toggleBtn.addEventListener("click", () => {
-      const isDark = document.body.style.background.includes("linear-gradient");
-      if (isDark) {
-        document.body.style.background = "var(--light-bg)";
-        document.body.style.color = "var(--light-text)";
-      } else {
-        document.body.style.background = "var(--bg-gradient)";
-        document.body.style.color = "white";
-      }
-    });
+    // Theme toggle
+    function toggleTheme() {
+      document.body.classList.toggle("dark-mode");
+    }
   </script>
 </body>
 </html>
