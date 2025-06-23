@@ -10,8 +10,8 @@
     :root {
       --bg-gradient: linear-gradient(-45deg, #0d1a2d, #142d4c, #0f2a3b, #0a1c28);
       --text-light: #fff;
-      --primary: #00c2a8;
-      --primary-dark: #007f6f;
+      --primary: #009f8a;
+      --primary-dark: #00695f;
     }
 
     * {
@@ -51,7 +51,7 @@
     }
 
     #intro.zoom-out {
-      transform: scale(2.8);
+      transform: scale(2.5);
       opacity: 0;
       pointer-events: none;
     }
@@ -65,7 +65,7 @@
 
     #intro p {
       margin-top: 1rem;
-      opacity: 0.8;
+      opacity: 0.85;
       animation: floatText 4s ease-in-out infinite;
       text-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
     }
@@ -103,20 +103,19 @@
     }
 
     #app {
-      display: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       text-align: center;
       padding: 2rem 1rem;
-      z-index: 10;
-      position: relative;
       opacity: 0;
-      transform: scale(1.1);
-      transition: transform 0.8s ease-out, opacity 0.8s ease-out;
+      transform: scale(1.2);
+      transition: opacity 1.5s ease, transform 1.5s ease;
       max-width: 600px;
       margin: auto;
     }
 
     #app.show {
-      display: block;
       opacity: 1;
       transform: scale(1);
     }
@@ -124,23 +123,22 @@
     nav {
       margin: 1.5rem 0;
       display: flex;
-      flex-direction: column;
-      align-items: center;
+      justify-content: center;
       gap: 0.75rem;
+      flex-wrap: wrap;
     }
 
     nav button {
       background: var(--primary);
       color: #fff;
       border: none;
-      padding: 12px 18px;
-      border-radius: 25px;
+      padding: 10px 16px;
+      border-radius: 24px;
       cursor: pointer;
       font-weight: 700;
       font-size: 0.95rem;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
       box-shadow: 0 3px 8px rgba(0, 255, 200, 0.1);
-      width: 180px;
     }
 
     nav button:hover {
@@ -173,19 +171,15 @@
       font-size: 1rem;
     }
 
-    .pulse-beat {
-      display: inline-block;
-      animation: heartbeat 0.6s ease-in-out 1;
-    }
-
-    @keyframes heartbeat {
-      0%, 100% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(1.2); opacity: 0.7; }
-    }
-
     .counter span {
       color: var(--primary);
       font-weight: bold;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.1); opacity: 0.7; }
     }
 
     .affirmation {
@@ -204,46 +198,60 @@
       font-family: inherit;
       font-size: 1rem;
     }
+
+    @media (max-width: 480px) {
+      nav { flex-direction: column; gap: 1rem; }
+      nav button { width: 100%; font-size: 1.05rem; }
+    }
   </style>
 </head>
 <body>
   <div class="particles fade-in"></div>
+
   <div id="intro">
     <h1>Welcome to<br>QuasiCare</h1>
     <p>Tap anywhere to continue</p>
   </div>
+
   <div id="app">
     <h2>This is your space</h2>
     <p>Reflect. Breathe. Reset.</p>
+
     <nav>
       <button class="tab-btn active" data-tab="profile">Profile</button>
       <button class="tab-btn" data-tab="talk">Talk</button>
       <button class="tab-btn" data-tab="listen">Listen</button>
       <button class="tab-btn" data-tab="journal">Journal</button>
     </nav>
+
     <div id="profile" class="panel active">
       <div class="counter">
-        <p>Souls lost in the U.S. (2025): <span id="usCount" class="pulse-target">0</span></p>
+        <p>Souls lost in the U.S. (2025): <span id="usCount">0</span></p>
         <p>Souls lost globally (2025): <span id="globalCount">0</span></p>
       </div>
       <div class="affirmation" id="affirmation"></div>
     </div>
+
     <div id="talk" class="panel">
       <h3>Talk</h3>
       <p>Express what’s on your mind. Your voice matters.</p>
       <a href="talk.html"><button>Go to Talk</button></a>
     </div>
+
     <div id="listen" class="panel">
       <h3>Listen</h3>
       <p>Support others who need a hand or a kind word.</p>
       <a href="listen.html"><button>Go to Listen</button></a>
     </div>
+
     <div id="journal" class="panel">
       <h3>Reflection Journal</h3>
       <textarea id="journalEntry" placeholder="Write your thoughts..."></textarea>
     </div>
   </div>
+
   <audio id="tapSound" src="https://cdn.pixabay.com/download/audio/2022/10/31/audio_9880bb7031.mp3?filename=click-124467.mp3"></audio>
+
   <script>
     const intro = document.getElementById("intro");
     const app = document.getElementById("app");
@@ -251,14 +259,13 @@
     const panels = document.querySelectorAll(".panel");
     const tabs = document.querySelectorAll(".tab-btn");
     const particles = document.querySelector(".particles");
-    const usEl = document.getElementById("usCount");
-    const globalEl = document.getElementById("globalCount");
 
     intro.addEventListener("click", () => {
       tapSound.play();
       intro.classList.add("zoom-out");
       particles.classList.remove("fade-in");
       particles.classList.add("fade-out");
+
       setTimeout(() => {
         intro.style.display = "none";
         app.classList.add("show");
@@ -280,8 +287,10 @@
     const usRateSec = 11 * 60;
     const globalRateSec = 40;
     const startOfYear = new Date("2025-01-01T00:00:00Z").getTime();
-    let us, global;
+    const usEl = document.getElementById("usCount");
+    const globalEl = document.getElementById("globalCount");
 
+    let us, global;
     const updateCounts = () => {
       const now = Date.now();
       const seconds = Math.floor((now - startOfYear) / 1000);
@@ -304,14 +313,7 @@
     updateCounts();
     animateCount(usEl, us);
     animateCount(globalEl, global);
-
-    setInterval(() => {
-      us++;
-      usEl.innerText = us.toLocaleString();
-      usEl.classList.add("pulse-beat");
-      setTimeout(() => usEl.classList.remove("pulse-beat"), 600);
-    }, usRateSec * 1000);
-
+    setInterval(() => usEl.innerText = (++us).toLocaleString(), usRateSec * 1000);
     setInterval(() => globalEl.innerText = (++global).toLocaleString(), globalRateSec * 1000);
 
     const affirmations = [
