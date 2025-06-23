@@ -51,6 +51,7 @@
     #intro h1 {
       font-size: 2.5rem;
       margin: 0;
+      animation: floatText 4s ease-in-out infinite;
     }
 
     #intro p {
@@ -58,10 +59,38 @@
       opacity: 0.8;
     }
 
+    @keyframes floatText {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .particles {
+      position: absolute;
+      width: 100%; height: 100%;
+      overflow: hidden;
+      top: 0; left: 0;
+      z-index: 0;
+    }
+
+    .particle {
+      position: absolute;
+      width: 6px; height: 6px;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      animation: rise 20s linear infinite;
+    }
+
+    @keyframes rise {
+      from { transform: translateY(100vh); opacity: 0; }
+      to { transform: translateY(-10vh); opacity: 1; }
+    }
+
     #app {
       display: none;
       text-align: center;
       padding: 2rem;
+      position: relative;
+      z-index: 1;
     }
 
     nav {
@@ -135,6 +164,7 @@
 </head>
 <body>
   <div id="intro">
+    <div class="particles"></div>
     <h1>Welcome to<br>QuasiCare</h1>
     <p>Tap anywhere to continue</p>
   </div>
@@ -184,6 +214,16 @@
     const tapSound = document.getElementById("tapSound");
     const panels = document.querySelectorAll(".panel");
     const tabs = document.querySelectorAll(".tab-btn");
+
+    // Particle generator
+    for (let i = 0; i < 40; i++) {
+      const p = document.createElement("div");
+      p.className = "particle";
+      p.style.left = Math.random() * 100 + "%";
+      p.style.animationDuration = (10 + Math.random() * 20) + "s";
+      p.style.opacity = Math.random();
+      document.querySelector(".particles").appendChild(p);
+    }
 
     intro.addEventListener("click", () => {
       tapSound.play();
@@ -255,7 +295,6 @@
     };
     showAffirmation();
 
-    // Journal persistence
     const journal = document.getElementById("journalEntry");
     journal.value = localStorage.getItem("journal") || "";
     journal.addEventListener("input", () => {
