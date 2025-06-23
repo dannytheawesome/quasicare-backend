@@ -13,7 +13,9 @@
       --primary: #00ffc8;
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
 
     body {
       margin: 0;
@@ -43,7 +45,7 @@
       flex-direction: column;
       text-align: center;
       z-index: 1000;
-      transition: opacity 0.8s ease, transform 1.4s ease-in-out;
+      transition: opacity 0.8s ease, transform 1s ease;
       transform: scale(1);
     }
 
@@ -94,19 +96,6 @@
       padding: 2rem;
       z-index: 10;
       position: relative;
-      animation: fadeInUp 1.2s ease-out forwards;
-      opacity: 0;
-    }
-
-    @keyframes fadeInUp {
-      0% {
-        transform: translateY(40px);
-        opacity: 0;
-      }
-      100% {
-        transform: translateY(0);
-        opacity: 1;
-      }
     }
 
     nav {
@@ -172,6 +161,28 @@
       font-family: inherit;
     }
 
+    .cat-illustration {
+      width: 120px;
+      margin-top: 1.5rem;
+      opacity: 0;
+      transform: translateY(-50px);
+      animation: catDrop 1.5s ease-out 1.2s forwards;
+    }
+
+    @keyframes catDrop {
+      0% {
+        transform: translateY(-50px);
+        opacity: 0;
+      }
+      80% {
+        transform: translateY(10px);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(0);
+      }
+    }
+
     @media (max-width: 600px) {
       nav { flex-direction: column; }
       nav button { width: 100%; }
@@ -180,7 +191,6 @@
 </head>
 <body>
   <div class="particles"></div>
-
   <div id="intro">
     <h1>Welcome to<br>QuasiCare</h1>
     <p>Tap anywhere to continue</p>
@@ -203,6 +213,7 @@
         <p>Souls lost globally (2025): <span id="globalCount">0</span></p>
       </div>
       <div class="affirmation" id="affirmation"></div>
+      <img src="cat.png" alt="Cute Cat" class="cat-illustration" />
     </div>
 
     <div id="talk" class="panel">
@@ -238,8 +249,7 @@
       setTimeout(() => {
         intro.style.display = "none";
         app.style.display = "block";
-        app.scrollIntoView({ behavior: 'smooth' });
-      }, 1300);
+      }, 1000);
     });
 
     tabs.forEach(btn => {
@@ -302,7 +312,6 @@
     };
     showAffirmation();
 
-    // Journal persistence
     const journal = document.getElementById("journalEntry");
     journal.value = localStorage.getItem("journal") || "";
     journal.addEventListener("input", () => {
