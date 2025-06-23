@@ -5,17 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>QuasiCare | Home</title>
   <style>
-    * { box-sizing: border-box; }
-
-    body {
+    * {
+      box-sizing: border-box;
+    }
+    html, body {
       margin: 0;
-      padding: 20px;
+      padding: 0;
+      height: 100%;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: linear-gradient(-45deg, #1f1c2c, #928dab, #0f2027, #2c5364);
       background-size: 400% 400%;
       animation: gradientBG 20s ease infinite;
       color: white;
-      text-align: center;
     }
 
     @keyframes gradientBG {
@@ -24,79 +25,124 @@
       100% { background-position: 0% 50%; }
     }
 
-    h1 { font-size: 2rem; margin-bottom: 10px; }
-    h2 { font-size: 1.2rem; margin-top: 30px; }
-
-    button {
-      padding: 10px 20px;
-      font-size: 1rem;
-      border-radius: 8px;
-      border: none;
-      background-color: #00ffc8;
-      color: #000;
-      font-weight: bold;
-      margin: 10px;
-      cursor: pointer;
-    }
-
-    .counter span { color: #00ffc8; font-weight: bold; }
-
-    .breathe-wrapper {
-      margin: 30px auto;
-      position: relative;
-    }
-
-    .breathe-circle {
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
+    .container {
+      padding: 40px 20px;
+      text-align: center;
+      max-width: 600px;
       margin: 0 auto;
-      background: rgba(255,255,255,0.15);
-      transition: transform 2.5s ease-in-out;
     }
 
-    .guidance-text {
-      margin-top: 15px;
-      font-size: 1.1rem;
-      color: #ccc;
-      height: 1.5rem;
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+
+    h2 {
+      font-size: 1.4rem;
+      margin-bottom: 8px;
+    }
+
+    p {
+      font-size: 1rem;
+      margin: 6px 0;
+      color: #ddd;
+    }
+
+    .counter p span {
+      color: #00ffc8;
+      font-weight: bold;
+    }
+
+    .heart {
+      width: 100px;
+      height: 90px;
+      background-color: #ff4e4e;
+      position: relative;
+      margin: 30px auto;
+      animation: beat 1.5s infinite;
+      transform: rotate(-45deg);
+    }
+
+    .heart::before,
+    .heart::after {
+      content: "";
+      width: 100px;
+      height: 90px;
+      background-color: #ff4e4e;
+      border-radius: 50%;
+      position: absolute;
+    }
+
+    .heart::before {
+      top: -50px;
+      left: 0;
+    }
+
+    .heart::after {
+      left: 50px;
+      top: 0;
+    }
+
+    @keyframes beat {
+      0%, 100% { transform: scale(1) rotate(-45deg); }
+      50% { transform: scale(1.2) rotate(-45deg); }
+    }
+
+    .microtext {
+      font-size: 0.85rem;
+      color: #aaa;
+      margin-top: 8px;
     }
 
     .affirmation {
-      margin-top: 30px;
+      margin: 20px 0 10px;
       font-style: italic;
       font-size: 1rem;
-      color: #ccc;
+      opacity: 1;
+    }
+
+    .copy-btn {
+      background-color: #00ffe1;
+      border: none;
+      color: #000;
+      font-weight: bold;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .copy-btn:hover {
+      background-color: #00ddcc;
     }
 
     @media (max-width: 600px) {
-      .breathe-circle { width: 90px; height: 90px; }
       h1 { font-size: 1.6rem; }
+      h2 { font-size: 1.2rem; }
+      .heart { width: 80px; height: 70px; }
+      .heart::before, .heart::after { width: 80px; height: 70px; }
     }
   </style>
 </head>
 <body>
-  <h1>QuasiCare</h1>
-  <p>Your space to reflect, breathe, and feel better.</p>
+  <div class="container">
+    <h2>QuasiCare – Helping You Heal</h2>
+    <h1>Welcome Back</h1>
+    <p>This is your personal space. Reflect. Reset. Restore.</p>
 
-  <div class="counter">
-    <p>Souls lost in the U.S. (2025): <span id="usCount">0</span></p>
-    <p>Souls lost globally (2025): <span id="globalCount">0</span></p>
+    <div class="counter">
+      <p>Souls lost in the U.S. (2025): <span id="usCount">0</span></p>
+      <p>Souls lost globally (2025): <span id="globalCount">0</span></p>
+    </div>
+
+    <h2>Heartbeat of the World</h2>
+    <div class="heart"></div>
+    <div class="microtext">Each beat reminds us why this matters.</div>
+
+    <h2>Affirmation</h2>
+    <div class="affirmation" id="affirmation">You are enough. You are doing your best.</div>
+    <button class="copy-btn" onclick="copyQuote()">Copy Quote</button>
   </div>
-
-  <h2>Tap to Breathe</h2>
-  <div class="breathe-wrapper">
-    <div id="breatheCircle" class="breathe-circle"></div>
-    <div id="guidanceText" class="guidance-text"></div>
-  </div>
-  <button onclick="toggleBreathing()">Start / Pause</button>
-
-  <h2>Affirmation</h2>
-  <div id="affirmation" class="affirmation">You are enough. You are doing your best.</div>
-
-  <audio id="breathAudio" loop>
-    <source src="calm.mp3" type="audio/mpeg">
-  </audio>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -113,35 +159,37 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+
     onAuthStateChanged(auth, (user) => {
       if (!user) window.location.href = "login.html";
     });
 
-    // Suicide Counter
     const usRateSec = 11 * 60;
     const globalRateSec = 40;
     const startOfYear = new Date("2025-01-01T00:00:00Z").getTime();
-    const usEl = document.getElementById("usCount");
-    const globalEl = document.getElementById("globalCount");
 
     function getCounts() {
       const now = Date.now();
-      const seconds = Math.floor((now - startOfYear) / 1000);
+      const secondsPassed = Math.floor((now - startOfYear) / 1000);
       return {
-        us: Math.floor(seconds / usRateSec),
-        global: Math.floor(seconds / globalRateSec)
+        us: Math.floor(secondsPassed / usRateSec),
+        global: Math.floor(secondsPassed / globalRateSec)
       };
     }
 
-    const { us, global } = getCounts();
+    const usEl = document.getElementById("usCount");
+    const globalEl = document.getElementById("globalCount");
+    let { us, global } = getCounts();
+
     function animateCount(el, to) {
       let start = 0;
       const duration = 1500;
       const startTime = performance.now();
+
       function update(time) {
-        const elapsed = time - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        el.innerText = Math.floor(progress * to).toLocaleString();
+        const progress = Math.min((time - startTime) / duration, 1);
+        const current = Math.floor(progress * to);
+        el.innerText = current.toLocaleString();
         if (progress < 1) requestAnimationFrame(update);
       }
       requestAnimationFrame(update);
@@ -149,64 +197,38 @@
 
     animateCount(usEl, us);
     animateCount(globalEl, global);
-    setInterval(() => usEl.innerText = (++us).toLocaleString(), usRateSec * 1000);
-    setInterval(() => globalEl.innerText = (++global).toLocaleString(), globalRateSec * 1000);
 
-    // Affirmation
+    setInterval(() => {
+      usEl.innerText = (++us).toLocaleString();
+    }, usRateSec * 1000);
+
+    setInterval(() => {
+      globalEl.innerText = (++global).toLocaleString();
+    }, globalRateSec * 1000);
+
+    // Affirmations
     const affirmations = [
       "You are enough. You are doing your best.",
       "Today is a fresh start.",
-      "Small steps still move you forward.",
       "You deserve peace.",
-      "Breathe. Reset. Continue."
+      "Breathe. Reset. Continue.",
+      "Even small steps count."
     ];
-    let affIndex = 0;
+
+    let i = 0;
     setInterval(() => {
-      affIndex = (affIndex + 1) % affirmations.length;
       const el = document.getElementById("affirmation");
+      i = (i + 1) % affirmations.length;
       el.style.opacity = 0;
       setTimeout(() => {
-        el.innerText = affirmations[affIndex];
+        el.innerText = affirmations[i];
         el.style.opacity = 1;
       }, 300);
-    }, 6000);
+    }, 7000);
 
-    // Breathe Animation
-    let breatheInterval = null;
-    let phaseIndex = 0;
-    const circle = document.getElementById("breatheCircle");
-    const guide = document.getElementById("guidanceText");
-    const audio = document.getElementById("breathAudio");
-
-    function toggleBreathing() {
-      if (breatheInterval) {
-        clearInterval(breatheInterval);
-        breatheInterval = null;
-        guide.innerText = "";
-        circle.style.transform = "scale(1)";
-        audio.pause();
-        return;
-      }
-
-      const phases = [
-        { label: "Inhale", scale: 1.4 },
-        { label: "Hold", scale: 1.4 },
-        { label: "Exhale", scale: 1.0 },
-        { label: "Hold", scale: 1.0 }
-      ];
-
-      audio.play().catch(() => {});
-      phaseIndex = 0;
-
-      function step() {
-        const { label, scale } = phases[phaseIndex];
-        guide.innerText = label;
-        circle.style.transform = `scale(${scale})`;
-        phaseIndex = (phaseIndex + 1) % phases.length;
-      }
-
-      step();
-      breatheInterval = setInterval(step, 3000);
+    function copyQuote() {
+      const quote = document.getElementById("affirmation").innerText;
+      navigator.clipboard.writeText(quote);
     }
   </script>
 </body>
