@@ -2,140 +2,146 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>QuasiCare | Home</title>
   <style>
-    * {
-      box-sizing: border-box;
+    :root {
+      --bg-gradient-dark: linear-gradient(-45deg, #1f1c2c, #928dab, #0f2027, #2c5364);
+      --bg-gradient-light: linear-gradient(-45deg, #f0f0f0, #c2e9fb, #e2ebf0, #d4fc79);
+      --text-color-dark: white;
+      --text-color-light: #222;
     }
 
+    * { box-sizing: border-box; }
     html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
+      margin: 0; padding: 0;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(-45deg, #1f1c2c, #0f2027, #2c5364, #1f1c2c);
+      transition: background 0.4s ease, color 0.4s ease;
+    }
+    body.dark {
+      background: var(--bg-gradient-dark);
       background-size: 400% 400%;
       animation: gradientBG 20s ease infinite;
-      color: white;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
+      color: var(--text-color-dark);
     }
-
+    body.light {
+      background: var(--bg-gradient-light);
+      background-size: 400% 400%;
+      animation: gradientBG 20s ease infinite;
+      color: var(--text-color-light);
+    }
     @keyframes gradientBG {
       0% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
     }
 
-    main {
+    header {
+      padding: 20px;
       text-align: center;
-      padding: 40px 20px 80px;
+      font-size: 1.6rem;
+      font-weight: bold;
     }
 
-    h1 {
-      font-size: 2rem;
-      margin-bottom: 0.5rem;
-    }
-
-    .welcome-title {
-      font-weight: 700;
-      font-size: 2rem;
+    .tabs {
       display: flex;
       justify-content: center;
-      align-items: center;
       gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .heart-icon {
-      color: #00bfff;
-      font-size: 2.2rem;
-      animation: beat 2s infinite ease-in-out;
-    }
-
-    @keyframes beat {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.3); }
-    }
-
-    .subtitle {
-      font-size: 1rem;
       margin-bottom: 20px;
-      color: #ddd;
+    }
+    .tabs button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.3s, transform 0.2s;
+    }
+    .tabs button:hover {
+      transform: translateY(-2px);
+    }
+    .tab-content {
+      display: none;
+      max-width: 600px;
+      margin: auto;
+      padding: 20px;
+      animation: fadeIn 0.5s ease forwards;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
-    .counter p {
-      font-size: 1rem;
-      color: #ddd;
-      margin: 6px 0;
-    }
-
-    .counter span {
-      font-weight: bold;
+    .counter p span {
       color: #00ffc8;
+      font-weight: bold;
+    }
+
+    .breathe-circle {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      margin: 20px auto;
+      background-color: rgba(0, 255, 200, 0.2);
+      animation: heartbeat 6s ease-in-out infinite;
+    }
+    @keyframes heartbeat {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.4); }
     }
 
     .affirmation {
       margin-top: 30px;
       font-style: italic;
-      font-size: 1rem;
-      color: #bbb;
+      text-align: center;
       opacity: 0;
-      animation: fadeIn 1s ease forwards;
+      animation: fadeInAffirm 1s ease forwards;
     }
-
-    @keyframes fadeIn {
+    @keyframes fadeInAffirm {
       to { opacity: 1; }
     }
 
-    nav {
-      display: flex;
-      justify-content: space-around;
-      background: #0c0c0c;
-      padding: 12px 0;
+    .theme-toggle {
       position: fixed;
-      bottom: 0;
-      width: 100%;
-      border-top: 1px solid #222;
-    }
-
-    nav a {
-      color: white;
-      text-decoration: none;
-      font-weight: bold;
-      font-size: 1rem;
-    }
-
-    nav a:hover {
-      color: #00ffc8;
+      top: 10px;
+      right: 10px;
+      padding: 8px 14px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      z-index: 1000;
     }
   </style>
 </head>
-<body>
-  <main>
-    <h1 class="welcome-title">
-      Welcome to <span class="heart-icon">💙</span> QuasiCare
-    </h1>
-    <p class="subtitle">This is your personal space. Reflect. Reset. Restore.</p>
+<body class="dark">
+  <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
+
+  <header>Welcome to QuasiCare</header>
+
+  <div class="tabs">
+    <button onclick="switchTab('profile')">Profile</button>
+    <button onclick="window.location.href='talk.html'">Talk</button>
+    <button onclick="window.location.href='listen.html'">Listen</button>
+  </div>
+
+  <div id="profile" class="tab-content active">
+    <p>This is your space to reflect, breathe, and ground yourself.</p>
 
     <div class="counter">
       <p>Souls lost in the U.S. (2025): <span id="usCount">0</span></p>
       <p>Souls lost globally (2025): <span id="globalCount">0</span></p>
     </div>
 
-    <div class="affirmation" id="affirmation">You deserve peace.</div>
-  </main>
+    <h3>Tap to Breathe</h3>
+    <div class="breathe-circle"></div>
 
-  <nav>
-    <a href="#">Home</a>
-    <a href="#">Talk</a>
-    <a href="#">Listen</a>
-  </nav>
+    <div class="affirmation" id="affirmation">You are enough. You are doing your best.</div>
+  </div>
 
   <script type="module">
-    // Firebase auth redirect
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
@@ -150,62 +156,62 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-
     onAuthStateChanged(auth, (user) => {
       if (!user) window.location.href = "login.html";
     });
 
-    // Soul counter logic
+    const usEl = document.getElementById("usCount");
+    const globalEl = document.getElementById("globalCount");
     const usRateSec = 11 * 60;
     const globalRateSec = 40;
     const startOfYear = new Date("2025-01-01T00:00:00Z").getTime();
-    const usEl = document.getElementById("usCount");
-    const globalEl = document.getElementById("globalCount");
-
-    let { us, global } = (() => {
-      const now = Date.now();
-      const secondsPassed = Math.floor((now - startOfYear) / 1000);
-      return {
-        us: Math.floor(secondsPassed / usRateSec),
-        global: Math.floor(secondsPassed / globalRateSec)
-      };
-    })();
+    const now = Date.now();
+    const secondsPassed = Math.floor((now - startOfYear) / 1000);
+    let us = Math.floor(secondsPassed / usRateSec);
+    let global = Math.floor(secondsPassed / globalRateSec);
 
     const animateCount = (el, to) => {
-      let start = 0;
-      const duration = 1500, startTime = performance.now();
+      let start = 0, startTime = performance.now();
       const update = time => {
-        const progress = Math.min((time - startTime) / duration, 1);
+        const progress = Math.min((time - startTime) / 1500, 1);
         el.innerText = Math.floor(progress * to).toLocaleString();
         if (progress < 1) requestAnimationFrame(update);
       };
       requestAnimationFrame(update);
     };
-
     animateCount(usEl, us);
     animateCount(globalEl, global);
     setInterval(() => usEl.innerText = (++us).toLocaleString(), usRateSec * 1000);
     setInterval(() => globalEl.innerText = (++global).toLocaleString(), globalRateSec * 1000);
 
-    // Affirmation rotator
+    // Affirmations
     const affirmations = [
-      "You deserve peace.",
       "You are enough. You are doing your best.",
-      "Small steps still move you forward.",
       "Today is a fresh start.",
-      "Breathe. Reset. Continue."
+      "You deserve peace.",
+      "One step at a time is progress.",
+      "You're not alone."
     ];
-    let index = 0;
-    const el = document.getElementById("affirmation");
-
+    let i = 0;
     setInterval(() => {
-      index = (index + 1) % affirmations.length;
+      const el = document.getElementById("affirmation");
       el.style.opacity = 0;
       setTimeout(() => {
-        el.innerText = affirmations[index];
+        i = (i + 1) % affirmations.length;
+        el.innerText = affirmations[i];
         el.style.opacity = 1;
-      }, 500);
+      }, 300);
     }, 6000);
+
+    window.switchTab = function(tabId) {
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+    }
+
+    window.toggleTheme = function() {
+      document.body.classList.toggle('dark');
+      document.body.classList.toggle('light');
+    }
   </script>
 </body>
 </html>
