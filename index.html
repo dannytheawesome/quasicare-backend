@@ -3,15 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>QuasiCare | Home</title>
+  <title>QuasiCare</title>
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
     html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
+      margin: 0; padding: 0; height: 100%;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: linear-gradient(-45deg, #1f1c2c, #928dab, #0f2027, #2c5364);
       background-size: 400% 400%;
@@ -23,81 +19,126 @@
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
     }
-    .container {
-      max-width: 600px;
-      margin: auto;
-      padding: 40px 20px;
-      text-align: center;
+    nav {
+      display: flex;
+      justify-content: space-around;
+      background: rgba(0,0,0,0.4);
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      padding: 10px 0;
+      z-index: 100;
     }
-    h1 {
-      font-size: 2rem;
-      margin-bottom: 10px;
-    }
-    h2 {
-      font-size: 1.3rem;
-      margin-top: 30px;
-      margin-bottom: 10px;
-    }
-    p {
+    nav button {
+      background: none;
+      border: none;
+      color: white;
       font-size: 1rem;
-      color: #ddd;
+      cursor: pointer;
+      transition: color 0.3s ease;
     }
-    .counter p span {
-      color: #00cfff;
-      font-weight: bold;
+    nav button:hover {
+      color: #00bfff;
     }
-    .heart-beat {
-      width: 80px;
-      height: 72px;
-      background: url('https://upload.wikimedia.org/wikipedia/commons/3/35/Emoji_u2764.svg') no-repeat center;
-      background-size: contain;
+    .panel {
+      display: none;
+      padding: 80px 20px 100px;
+      text-align: center;
+      min-height: 100vh;
+    }
+    .active-panel { display: block; }
+
+    .heart-wrapper {
+      width: 90px;
+      height: 90px;
       margin: 20px auto;
       animation: heartbeat 1.2s infinite;
-      filter: hue-rotate(190deg) brightness(1.3);
+    }
+    .heart-svg {
+      width: 100%;
+      height: 100%;
+      fill: #00bfff;
     }
     @keyframes heartbeat {
       0%, 100% { transform: scale(1); }
       50% { transform: scale(1.3); }
     }
+
+    .counter p span {
+      color: #00ffc8;
+      font-weight: bold;
+    }
+
     .affirmation {
+      margin-top: 30px;
       font-style: italic;
       color: #ccc;
-      font-size: 1.1rem;
-      margin-top: 20px;
-      min-height: 24px;
       opacity: 0;
       transform: translateY(10px);
-      animation: fadeSlideIn 1s ease forwards;
+      transition: opacity 0.6s ease, transform 0.6s ease;
     }
-    @keyframes fadeSlideIn {
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+    .affirmation.show {
+      opacity: 1;
+      transform: translateY(0);
     }
+
+    a.button-link {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 12px 20px;
+      background: white;
+      color: #222;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: background 0.3s ease;
+    }
+    a.button-link:hover {
+      background: #eee;
+    }
+
     @media (max-width: 600px) {
-      h1 { font-size: 1.5rem; }
-      .heart-beat { width: 60px; height: 54px; }
+      nav button { font-size: 0.9rem; }
     }
   </style>
 </head>
 <body>
-  <div class="container">
+
+  <!-- Panels -->
+  <div id="home" class="panel active-panel">
     <h1>Welcome to QuasiCare</h1>
-    <p>A gentle space to reflect and feel safe.</p>
+    <div class="heart-wrapper" title="Beating for awareness">
+      <svg class="heart-svg" viewBox="0 0 32 29.6">
+        <path d="M23.6,0c-3.4,0-6.4,2.1-7.6,5.1C14.8,2.1,11.8,0,8.4,0C3.8,0,0,3.8,0,8.4c0,9.5,16,21.2,16,21.2S32,17.9,32,8.4 C32,3.8,28.2,0,23.6,0z"/>
+      </svg>
+    </div>
 
     <div class="counter">
       <p>Souls lost in the U.S. (2025): <span id="usCount">0</span></p>
       <p>Souls lost globally (2025): <span id="globalCount">0</span></p>
     </div>
 
-    <h2>Tap to Breathe</h2>
-    <div class="heart-beat" title="Heartbeat synced with global awareness"></div>
-
-    <h2>Affirmation</h2>
     <div class="affirmation" id="affirmation">You are enough. You are doing your best.</div>
   </div>
 
+  <div id="talk" class="panel">
+    <h1>Talk</h1>
+    <p>Express what’s on your mind. Let it out safely.</p>
+    <a href="talk.html" class="button-link">Open Talk</a>
+  </div>
+
+  <div id="listen" class="panel">
+    <h1>Listen</h1>
+    <p>Support others anonymously by replying with care.</p>
+    <a href="listen.html" class="button-link">Go to Listen</a>
+  </div>
+
+  <!-- Navigation -->
+  <nav>
+    <button onclick="showPanel('home')">Home</button>
+    <button onclick="showPanel('talk')">Talk</button>
+    <button onclick="showPanel('listen')">Listen</button>
+  </nav>
+
+  <!-- Firebase + Logic -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -115,73 +156,69 @@
     const auth = getAuth(app);
 
     onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        window.location.href = "login.html";
-      }
+      if (!user) window.location.href = "login.html";
     });
 
-    // Suicide stats animation
+    // Tabs
+    function showPanel(id) {
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active-panel'));
+      document.getElementById(id).classList.add('active-panel');
+    }
+
+    // Counter Logic
     const usRateSec = 11 * 60;
     const globalRateSec = 40;
     const startOfYear = new Date("2025-01-01T00:00:00Z").getTime();
 
-    const usEl = document.getElementById("usCount");
-    const globalEl = document.getElementById("globalCount");
-
-    const getCounts = () => {
+    function getCounts() {
       const now = Date.now();
       const seconds = Math.floor((now - startOfYear) / 1000);
       return {
         us: Math.floor(seconds / usRateSec),
         global: Math.floor(seconds / globalRateSec)
       };
-    };
+    }
 
-    const animateCount = (el, to) => {
+    function animateCount(el, to) {
       let start = 0;
-      const duration = 1000;
-      const startTime = performance.now();
-      const update = (now) => {
-        const elapsed = now - startTime;
-        const progress = Math.min(elapsed / duration, 1);
+      const duration = 1200, startTime = performance.now();
+      function update(time) {
+        const progress = Math.min((time - startTime) / duration, 1);
         el.innerText = Math.floor(progress * to).toLocaleString();
         if (progress < 1) requestAnimationFrame(update);
-      };
+      }
       requestAnimationFrame(update);
-    };
+    }
 
-    const { us, global } = getCounts();
+    const usEl = document.getElementById("usCount");
+    const globalEl = document.getElementById("globalCount");
+    let { us, global } = getCounts();
     animateCount(usEl, us);
     animateCount(globalEl, global);
-
     setInterval(() => usEl.innerText = (++us).toLocaleString(), usRateSec * 1000);
     setInterval(() => globalEl.innerText = (++global).toLocaleString(), globalRateSec * 1000);
 
-    // Affirmation animation
+    // Affirmation Rotation
     const affirmations = [
       "You are enough. You are doing your best.",
-      "Breathe. Reset. Continue.",
+      "Today is a fresh start.",
+      "Small steps still move you forward.",
       "You deserve peace.",
-      "Your presence matters.",
-      "Small steps still count."
+      "Breathe. Reset. Continue.",
+      "You're not alone in this moment."
     ];
-
-    let i = 0;
+    let affIndex = 0;
     const affEl = document.getElementById("affirmation");
-
     function rotateAffirmation() {
-      affEl.style.opacity = 0;
-      affEl.style.transform = "translateY(10px)";
+      affEl.classList.remove("show");
       setTimeout(() => {
-        i = (i + 1) % affirmations.length;
-        affEl.innerText = affirmations[i];
-        affEl.style.animation = "none";
-        void affEl.offsetWidth; // trigger reflow
-        affEl.style.animation = "fadeSlideIn 1s ease forwards";
-      }, 400);
+        affIndex = (affIndex + 1) % affirmations.length;
+        affEl.innerText = affirmations[affIndex];
+        affEl.classList.add("show");
+      }, 300);
     }
-
-    setInterval(rotateAffirmation, 7000);
+    setInterval(rotateAffirmation, 6000);
+    affEl.classList.add("show");
   </script>
 </body>
 </html>
