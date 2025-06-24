@@ -25,6 +25,7 @@
       animation: gradientBG 25s ease infinite;
       color: var(--text-light);
       overflow-x: hidden;
+      overflow-y: auto;
     }
 
     @keyframes gradientBG {
@@ -112,30 +113,19 @@
       transform: scale(1);
     }
 
-    .floating-header {
-      padding: 1rem 2rem;
-      border-radius: 20px;
-      background-color: rgba(255, 255, 255, 0.03);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
-      backdrop-filter: blur(6px);
-      animation: floatHeader 6s ease-in-out infinite;
-      transition: all 0.3s ease;
-      margin-bottom: 1rem;
+    .floating-panel {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 24px;
+      padding: 1.2rem;
+      margin-bottom: 1.5rem;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 6px 30px rgba(0, 255, 200, 0.08);
+      animation: pulseGlow 6s ease-in-out infinite;
     }
 
-    .floating-header:hover {
-      animation: pulse 1.5s infinite;
-    }
-
-    @keyframes floatHeader {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-5px); }
-    }
-
-    @keyframes pulse {
-      0% { box-shadow: 0 0 0 0 rgba(0, 255, 200, 0.4); }
-      70% { box-shadow: 0 0 12px 15px rgba(0, 255, 200, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(0, 255, 200, 0); }
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 6px 30px rgba(0, 255, 200, 0.08); }
+      50% { box-shadow: 0 6px 40px rgba(0, 255, 200, 0.15); }
     }
 
     .nav-buttons {
@@ -147,7 +137,7 @@
       margin: 1.5rem auto;
     }
 
-    .nav-buttons button {
+    .tab-btn {
       background: var(--primary);
       color: #fff;
       border: none;
@@ -159,12 +149,26 @@
       transition: transform 0.2s ease, box-shadow 0.2s ease;
       box-shadow: 0 3px 8px rgba(0, 255, 200, 0.1);
       width: 100%;
+      position: relative;
     }
 
-    .nav-buttons button:hover { transform: translateY(-3px); }
-    .nav-buttons button.active {
+    .tab-btn:hover { transform: translateY(-3px); }
+    .tab-btn.active {
       background: #fff;
       color: var(--primary-dark);
+    }
+
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: -6px;
+      width: 6px;
+      height: 6px;
+      background: var(--primary);
+      border-radius: 50%;
+      animation: fadeIn 0.3s ease-in;
     }
 
     .panel {
@@ -177,6 +181,19 @@
 
     .panel.active {
       display: block;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .panel h3, .panel p, .panel a {
+      opacity: 0;
+      transform: translateY(12px);
+      transition: all 0.4s ease;
+    }
+
+    .panel.active h3,
+    .panel.active p,
+    .panel.active a {
       opacity: 1;
       transform: translateY(0);
     }
@@ -246,18 +263,16 @@
     <p>Tap anywhere to continue</p>
   </div>
   <div id="app">
-    <div class="floating-header">
+    <div class="floating-panel">
       <h2>This is your space</h2>
       <p>Reflect. Breathe. Reset.</p>
     </div>
-
     <div class="nav-buttons">
       <button class="tab-btn active" data-tab="profile">Profile</button>
       <button class="tab-btn" data-tab="talk">Talk</button>
       <button class="tab-btn" data-tab="listen">Listen</button>
       <button class="tab-btn" data-tab="journal">Journal</button>
     </div>
-
     <div id="profile" class="panel active">
       <div class="counter">
         <p>Souls lost in the U.S. (2025): <span id="usCount">0</span></p>
@@ -265,25 +280,21 @@
       </div>
       <div class="affirmation" id="affirmation"></div>
     </div>
-
     <div id="talk" class="panel">
       <h3>Talk</h3>
       <p>Express what’s on your mind. Your voice matters.</p>
       <a href="talk.html"><button>Go to Talk</button></a>
     </div>
-
     <div id="listen" class="panel">
       <h3>Listen</h3>
       <p>Support others who need a hand or a kind word.</p>
       <a href="listen.html"><button>Go to Listen</button></a>
     </div>
-
     <div id="journal" class="panel">
       <h3>Reflection Journal</h3>
       <textarea id="journalEntry" placeholder="Write your thoughts..."></textarea>
     </div>
   </div>
-
   <audio id="tapSound" src="https://cdn.pixabay.com/download/audio/2022/10/31/audio_9880bb7031.mp3?filename=click-124467.mp3"></audio>
   <script>
     const intro = document.getElementById("intro");
