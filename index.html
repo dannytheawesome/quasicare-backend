@@ -112,6 +112,32 @@
       transform: scale(1);
     }
 
+    .floating-header {
+      padding: 1rem 2rem;
+      border-radius: 20px;
+      background-color: rgba(255, 255, 255, 0.03);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+      backdrop-filter: blur(6px);
+      animation: floatHeader 6s ease-in-out infinite;
+      transition: all 0.3s ease;
+      margin-bottom: 1rem;
+    }
+
+    .floating-header:hover {
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes floatHeader {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(0, 255, 200, 0.4); }
+      70% { box-shadow: 0 0 12px 15px rgba(0, 255, 200, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(0, 255, 200, 0); }
+    }
+
     .nav-buttons {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -220,14 +246,18 @@
     <p>Tap anywhere to continue</p>
   </div>
   <div id="app">
-    <h2>This is your space</h2>
-    <p>Reflect. Breathe. Reset.</p>
+    <div class="floating-header">
+      <h2>This is your space</h2>
+      <p>Reflect. Breathe. Reset.</p>
+    </div>
+
     <div class="nav-buttons">
       <button class="tab-btn active" data-tab="profile">Profile</button>
       <button class="tab-btn" data-tab="talk">Talk</button>
       <button class="tab-btn" data-tab="listen">Listen</button>
       <button class="tab-btn" data-tab="journal">Journal</button>
     </div>
+
     <div id="profile" class="panel active">
       <div class="counter">
         <p>Souls lost in the U.S. (2025): <span id="usCount">0</span></p>
@@ -235,21 +265,25 @@
       </div>
       <div class="affirmation" id="affirmation"></div>
     </div>
+
     <div id="talk" class="panel">
       <h3>Talk</h3>
       <p>Express what’s on your mind. Your voice matters.</p>
       <a href="talk.html"><button>Go to Talk</button></a>
     </div>
+
     <div id="listen" class="panel">
       <h3>Listen</h3>
       <p>Support others who need a hand or a kind word.</p>
       <a href="listen.html"><button>Go to Listen</button></a>
     </div>
+
     <div id="journal" class="panel">
       <h3>Reflection Journal</h3>
       <textarea id="journalEntry" placeholder="Write your thoughts..."></textarea>
     </div>
   </div>
+
   <audio id="tapSound" src="https://cdn.pixabay.com/download/audio/2022/10/31/audio_9880bb7031.mp3?filename=click-124467.mp3"></audio>
   <script>
     const intro = document.getElementById("intro");
