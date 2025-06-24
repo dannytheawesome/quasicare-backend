@@ -8,7 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-gradient: linear-gradient(-45deg, #1e3c72, #2a5298, #1f4068, #16222a);
+      --bg-gradient: linear-gradient(-45deg, #0d1a2d, #142d4c, #0f2a3b, #0a1c28);
       --primary: #00ffc8;
       --text-light: #ffffff;
     }
@@ -19,18 +19,17 @@
 
     body {
       margin: 0;
-      padding: 40px 20px;
+      padding: 2rem 1rem;
       font-family: 'Nunito', sans-serif;
       background: var(--bg-gradient);
       background-size: 400% 400%;
       animation: gradientFlow 25s ease infinite;
       color: var(--text-light);
-      text-align: center;
-      min-height: 100vh;
       display: flex;
       flex-direction: column;
-      justify-content: center;
       align-items: center;
+      min-height: 100vh;
+      text-align: center;
     }
 
     @keyframes gradientFlow {
@@ -40,26 +39,30 @@
     }
 
     h1 {
-      font-size: 2.2rem;
+      font-size: 2rem;
       margin-bottom: 0.5rem;
       animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
     }
 
     p {
       font-size: 1rem;
       color: #e0e0e0;
-      margin-bottom: 20px;
+      margin-bottom: 1.2rem;
       opacity: 0.9;
     }
 
-    @keyframes float {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-6px); }
+    #ventForm {
+      width: 100%;
+      max-width: 480px;
     }
 
     textarea {
       width: 100%;
-      max-width: 480px;
       height: 120px;
       padding: 14px;
       font-size: 1rem;
@@ -67,10 +70,11 @@
       border-radius: 10px;
       background: rgba(255, 255, 255, 0.05);
       color: #fff;
-      margin-bottom: 14px;
       resize: none;
       backdrop-filter: blur(4px);
       transition: background 0.3s;
+      font-family: inherit;
+      margin-bottom: 12px;
     }
 
     textarea:focus {
@@ -79,19 +83,21 @@
     }
 
     button {
-      padding: 12px 28px;
+      width: 100%;
+      padding: 12px;
       font-size: 1rem;
       background: var(--primary);
       color: #111;
       font-weight: 600;
       border: none;
-      border-radius: 8px;
+      border-radius: 24px;
       cursor: pointer;
-      transition: background 0.3s ease;
+      transition: background 0.3s ease, transform 0.2s ease;
     }
 
     button:hover {
       background: #00e2b0;
+      transform: scale(1.03);
     }
 
     #feedback {
@@ -125,6 +131,14 @@
       text-decoration: underline;
       margin: 0 10px;
     }
+
+    @media (min-width: 500px) {
+      button {
+        max-width: 280px;
+        margin: auto;
+        display: block;
+      }
+    }
   </style>
 </head>
 <body>
@@ -132,7 +146,7 @@
   <p>You can write anonymously. Your voice matters.</p>
 
   <div id="ventForm">
-    <textarea id="ventInput" placeholder="What's on your mind?"></textarea><br>
+    <textarea id="ventInput" placeholder="What's on your mind?"></textarea>
     <button onclick="submitVent()">Submit</button>
     <p id="feedback"></p>
   </div>
