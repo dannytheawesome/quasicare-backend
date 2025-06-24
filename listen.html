@@ -13,9 +13,7 @@
       --text-light: #ffffff;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -40,8 +38,12 @@
     h1 {
       font-size: 2rem;
       text-align: center;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.2rem;
       animation: float 3s ease-in-out infinite;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 0.8rem 1.2rem;
+      border-radius: 16px;
+      box-shadow: 0 6px 20px rgba(0, 255, 200, 0.05);
     }
 
     @keyframes float {
@@ -52,15 +54,21 @@
     #ventContainer {
       width: 100%;
       max-width: 600px;
+      margin-top: 1rem;
     }
 
     .vent-card {
-      background-color: rgba(255, 255, 255, 0.05);
+      background: rgba(255, 255, 255, 0.05);
       padding: 1rem;
       border-radius: 12px;
       margin-bottom: 1.5rem;
       animation: fadeIn 0.4s ease-in;
-      box-shadow: 0 2px 10px rgba(0, 255, 200, 0.05);
+      box-shadow: 0 4px 12px rgba(0, 255, 200, 0.06);
+      transition: transform 0.2s ease;
+    }
+
+    .vent-card:hover {
+      transform: translateY(-3px);
     }
 
     @keyframes fadeIn {
@@ -85,12 +93,12 @@
       resize: vertical;
       margin-bottom: 0.8rem;
       font-family: inherit;
-      backdrop-filter: blur(3px);
+      backdrop-filter: blur(4px);
     }
 
     textarea:focus {
       outline: none;
-      background-color: rgba(255, 255, 255, 0.1);
+      background-color: rgba(255, 255, 255, 0.12);
     }
 
     button {
@@ -113,10 +121,11 @@
 
     .empty-message {
       text-align: center;
-      font-size: 1rem;
+      font-size: 1.1rem;
       margin-top: 4rem;
-      color: #ccc;
+      color: #ddd;
       opacity: 0.85;
+      font-style: italic;
     }
 
     .footer-links {
@@ -146,7 +155,7 @@
   <div id="ventContainer">Loading...</div>
 
   <div class="footer-links">
-    <a href="index.html">⬅ Back</a>
+    <a href="index.html">Back</a>
     <a href="terms.html" target="_blank">Terms</a>
     <a href="privacy.html" target="_blank">Privacy</a>
   </div>
@@ -174,13 +183,12 @@
     async function loadVents() {
       const snapshot = await get(ref(db, "vents"));
       if (!snapshot.exists()) {
-        container.innerHTML = `<p class="empty-message">No messages need support at the moment. Check back later 💙</p>`;
+        container.innerHTML = `<p class="empty-message">There are no open messages right now. Come back soon — your kindness is needed. 💚</p>`;
         return;
       }
 
       const data = snapshot.val();
       container.innerHTML = "";
-
       let hasOpen = false;
 
       Object.entries(data).forEach(([code, vent]) => {
@@ -213,7 +221,7 @@
       });
 
       if (!hasOpen) {
-        container.innerHTML = `<p class="empty-message">No new vents needing support. You're all caught up! 🌿</p>`;
+        container.innerHTML = `<p class="empty-message">You’ve supported everyone for now. Thank you for your heart. 🌿</p>`;
       }
     }
 
