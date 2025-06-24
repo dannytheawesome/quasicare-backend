@@ -95,8 +95,10 @@
     }
 
     #app {
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
+      justify-content: center;
       align-items: center;
       text-align: center;
       padding: 2rem 1rem;
@@ -116,19 +118,19 @@
       margin: 1.5rem 0;
       display: flex;
       justify-content: center;
-      gap: 0.75rem;
       flex-wrap: wrap;
+      gap: 1rem;
     }
 
     nav button {
       background: var(--primary);
       color: #fff;
       border: none;
-      padding: 10px 16px;
-      border-radius: 24px;
+      padding: 12px 24px;
+      border-radius: 28px;
       cursor: pointer;
       font-weight: 700;
-      font-size: 0.95rem;
+      font-size: 1rem;
       transition: transform 0.2s ease, box-shadow 0.2s ease;
       box-shadow: 0 3px 8px rgba(0, 255, 200, 0.1);
     }
@@ -204,18 +206,18 @@
       box-shadow: 0 3px 6px rgba(0, 255, 200, 0.2);
       transition: transform 0.2s ease;
     }
-
-    a button:hover { transform: scale(1.05); }
+    a button:hover {
+      transform: scale(1.05);
+    }
 
     @media (max-width: 480px) {
       nav {
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 0.5rem;
+        flex-direction: column;
+        gap: 1rem;
       }
       nav button {
-        flex: 1 1 auto;
-        min-width: 40%;
+        width: 100%;
+        font-size: 1.05rem;
       }
     }
   </style>
@@ -267,7 +269,6 @@
     const particles = document.querySelector(".particles");
     const usEl = document.getElementById("usCount");
     const globalEl = document.getElementById("globalCount");
-
     intro.addEventListener("click", () => {
       tapSound.play();
       intro.classList.add("zoom-out");
@@ -280,7 +281,6 @@
         particles.classList.add("fade-in");
       }, 1200);
     });
-
     tabs.forEach(btn => {
       btn.addEventListener("click", () => {
         tapSound.play();
@@ -290,19 +290,16 @@
         document.getElementById(btn.dataset.tab).classList.add("active");
       });
     });
-
     const usRateSec = 11 * 60;
     const globalRateSec = 40;
     const startOfYear = new Date("2025-01-01T00:00:00Z").getTime();
     let us, global;
-
     const updateCounts = () => {
       const now = Date.now();
       const seconds = Math.floor((now - startOfYear) / 1000);
       us = Math.floor(seconds / usRateSec);
       global = Math.floor(seconds / globalRateSec);
     };
-
     const animateCount = (el, to) => {
       let start = 0;
       const duration = 1500;
@@ -314,7 +311,6 @@
       };
       requestAnimationFrame(update);
     };
-
     updateCounts();
     animateCount(usEl, us);
     animateCount(globalEl, global);
@@ -324,7 +320,6 @@
       setTimeout(() => usEl.classList.remove("pulse"), 1200);
     }, usRateSec * 1000);
     setInterval(() => globalEl.innerText = (++global).toLocaleString(), globalRateSec * 1000);
-
     const affirmations = [
       "You are enough. You are doing your best.",
       "Today is a fresh start.",
@@ -340,7 +335,6 @@
       localStorage.setItem("affirmationIndex", index);
     };
     showAffirmation();
-
     const journal = document.getElementById("journalEntry");
     journal.value = localStorage.getItem("journal") || "";
     journal.addEventListener("input", () => {
