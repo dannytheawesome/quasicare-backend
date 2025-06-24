@@ -14,9 +14,7 @@
       --primary-dark: #00695f;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -78,8 +76,7 @@
     .particles {
       position: absolute;
       top: 0; left: 0;
-      width: 100%;
-      height: 100%;
+      width: 100%; height: 100%;
       z-index: 0;
       pointer-events: none;
       background-image: radial-gradient(white 1px, transparent 1px);
@@ -89,13 +86,8 @@
       transition: opacity 1.2s ease;
     }
 
-    .particles.fade-out {
-      opacity: 0;
-    }
-
-    .particles.fade-in {
-      opacity: 0.05;
-    }
+    .particles.fade-out { opacity: 0; }
+    .particles.fade-in { opacity: 0.05; }
 
     @keyframes drift {
       from { background-position: 0 0; }
@@ -137,14 +129,11 @@
       cursor: pointer;
       font-weight: 700;
       font-size: 0.95rem;
-      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
       box-shadow: 0 3px 8px rgba(0, 255, 200, 0.1);
     }
 
-    nav button:hover {
-      transform: translateY(-3px);
-    }
-
+    nav button:hover { transform: translateY(-3px); }
     nav button.active {
       background: #fff;
       color: var(--primary-dark);
@@ -153,33 +142,37 @@
     .panel {
       display: none;
       opacity: 0;
-      transition: opacity 0.8s ease;
+      transform: translateY(20px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
       margin-top: 1rem;
     }
-
     .panel.active {
       display: block;
       opacity: 1;
-    }
-
-    .counter {
-      margin-bottom: 1.5rem;
+      transform: translateY(0);
     }
 
     .counter p {
-      margin: 0.5rem 0;
+      margin: 1rem 0;
       font-size: 1rem;
+      line-height: 1.5;
+      padding: 0 1rem;
     }
 
     .counter span {
       color: var(--primary);
       font-weight: bold;
-      animation: pulse 2s infinite;
     }
 
-    @keyframes pulse {
+    #usCount.pulse {
+      animation: heartbeat 1.2s ease;
+    }
+
+    @keyframes heartbeat {
       0%, 100% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(1.1); opacity: 0.7; }
+      25% { transform: scale(1.1); opacity: 0.85; }
+      50% { transform: scale(1.2); opacity: 1; }
+      75% { transform: scale(1.1); opacity: 0.9; }
     }
 
     .affirmation {
@@ -199,6 +192,22 @@
       font-size: 1rem;
     }
 
+    a button {
+      background: var(--primary);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 20px;
+      border: none;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 1rem;
+      box-shadow: 0 3px 6px rgba(0, 255, 200, 0.2);
+      transition: transform 0.2s ease;
+    }
+    a button:hover {
+      transform: scale(1.05);
+    }
+
     @media (max-width: 480px) {
       nav { flex-direction: column; gap: 1rem; }
       nav button { width: 100%; font-size: 1.05rem; }
@@ -207,23 +216,19 @@
 </head>
 <body>
   <div class="particles fade-in"></div>
-
   <div id="intro">
     <h1>Welcome to<br>QuasiCare</h1>
     <p>Tap anywhere to continue</p>
   </div>
-
   <div id="app">
     <h2>This is your space</h2>
     <p>Reflect. Breathe. Reset.</p>
-
     <nav>
       <button class="tab-btn active" data-tab="profile">Profile</button>
       <button class="tab-btn" data-tab="talk">Talk</button>
       <button class="tab-btn" data-tab="listen">Listen</button>
       <button class="tab-btn" data-tab="journal">Journal</button>
     </nav>
-
     <div id="profile" class="panel active">
       <div class="counter">
         <p>Souls lost in the U.S. (2025): <span id="usCount">0</span></p>
@@ -231,27 +236,22 @@
       </div>
       <div class="affirmation" id="affirmation"></div>
     </div>
-
     <div id="talk" class="panel">
       <h3>Talk</h3>
       <p>Express what’s on your mind. Your voice matters.</p>
       <a href="talk.html"><button>Go to Talk</button></a>
     </div>
-
     <div id="listen" class="panel">
       <h3>Listen</h3>
       <p>Support others who need a hand or a kind word.</p>
       <a href="listen.html"><button>Go to Listen</button></a>
     </div>
-
     <div id="journal" class="panel">
       <h3>Reflection Journal</h3>
       <textarea id="journalEntry" placeholder="Write your thoughts..."></textarea>
     </div>
   </div>
-
   <audio id="tapSound" src="https://cdn.pixabay.com/download/audio/2022/10/31/audio_9880bb7031.mp3?filename=click-124467.mp3"></audio>
-
   <script>
     const intro = document.getElementById("intro");
     const app = document.getElementById("app");
@@ -259,13 +259,13 @@
     const panels = document.querySelectorAll(".panel");
     const tabs = document.querySelectorAll(".tab-btn");
     const particles = document.querySelector(".particles");
-
+    const usEl = document.getElementById("usCount");
+    const globalEl = document.getElementById("globalCount");
     intro.addEventListener("click", () => {
       tapSound.play();
       intro.classList.add("zoom-out");
       particles.classList.remove("fade-in");
       particles.classList.add("fade-out");
-
       setTimeout(() => {
         intro.style.display = "none";
         app.classList.add("show");
@@ -273,7 +273,6 @@
         particles.classList.add("fade-in");
       }, 1200);
     });
-
     tabs.forEach(btn => {
       btn.addEventListener("click", () => {
         tapSound.play();
@@ -283,13 +282,9 @@
         document.getElementById(btn.dataset.tab).classList.add("active");
       });
     });
-
     const usRateSec = 11 * 60;
     const globalRateSec = 40;
     const startOfYear = new Date("2025-01-01T00:00:00Z").getTime();
-    const usEl = document.getElementById("usCount");
-    const globalEl = document.getElementById("globalCount");
-
     let us, global;
     const updateCounts = () => {
       const now = Date.now();
@@ -297,7 +292,6 @@
       us = Math.floor(seconds / usRateSec);
       global = Math.floor(seconds / globalRateSec);
     };
-
     const animateCount = (el, to) => {
       let start = 0;
       const duration = 1500;
@@ -309,13 +303,15 @@
       };
       requestAnimationFrame(update);
     };
-
     updateCounts();
     animateCount(usEl, us);
     animateCount(globalEl, global);
-    setInterval(() => usEl.innerText = (++us).toLocaleString(), usRateSec * 1000);
+    setInterval(() => {
+      usEl.innerText = (++us).toLocaleString();
+      usEl.classList.add("pulse");
+      setTimeout(() => usEl.classList.remove("pulse"), 1200);
+    }, usRateSec * 1000);
     setInterval(() => globalEl.innerText = (++global).toLocaleString(), globalRateSec * 1000);
-
     const affirmations = [
       "You are enough. You are doing your best.",
       "Today is a fresh start.",
@@ -323,7 +319,6 @@
       "You deserve peace.",
       "Breathe. Reset. Continue."
     ];
-
     const showAffirmation = () => {
       const el = document.getElementById("affirmation");
       const lastShown = localStorage.getItem("affirmationIndex") || 0;
@@ -332,7 +327,6 @@
       localStorage.setItem("affirmationIndex", index);
     };
     showAffirmation();
-
     const journal = document.getElementById("journalEntry");
     journal.value = localStorage.getItem("journal") || "";
     journal.addEventListener("input", () => {
