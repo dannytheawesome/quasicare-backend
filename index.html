@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>QuasiCare</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&display=swap');
@@ -112,33 +112,31 @@
       transform: scale(1);
     }
 
-    nav {
-      margin: 1.5rem 0;
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
+    .nav-buttons {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
       gap: 0.75rem;
-      flex-direction: row;
+      width: 100%;
+      max-width: 340px;
+      margin: 1.5rem auto;
     }
 
-    nav button {
+    .nav-buttons button {
       background: var(--primary);
       color: #fff;
       border: none;
-      padding: 10px 24px;
+      padding: 12px 16px;
       border-radius: 24px;
       cursor: pointer;
       font-weight: 700;
       font-size: 0.95rem;
       transition: transform 0.2s ease, box-shadow 0.2s ease;
       box-shadow: 0 3px 8px rgba(0, 255, 200, 0.1);
-      flex: 1 1 40%;
-      min-width: 130px;
-      max-width: 160px;
+      width: 100%;
     }
 
-    nav button:hover { transform: translateY(-3px); }
-    nav button.active {
+    .nav-buttons button:hover { transform: translateY(-3px); }
+    .nav-buttons button.active {
       background: #fff;
       color: var(--primary-dark);
     }
@@ -150,6 +148,7 @@
       transition: opacity 0.8s ease, transform 0.8s ease;
       margin-top: 1rem;
     }
+
     .panel.active {
       display: block;
       opacity: 1;
@@ -208,6 +207,7 @@
       box-shadow: 0 3px 6px rgba(0, 255, 200, 0.2);
       transition: transform 0.2s ease;
     }
+
     a button:hover {
       transform: scale(1.05);
     }
@@ -222,12 +222,12 @@
   <div id="app">
     <h2>This is your space</h2>
     <p>Reflect. Breathe. Reset.</p>
-    <nav>
+    <div class="nav-buttons">
       <button class="tab-btn active" data-tab="profile">Profile</button>
       <button class="tab-btn" data-tab="talk">Talk</button>
       <button class="tab-btn" data-tab="listen">Listen</button>
       <button class="tab-btn" data-tab="journal">Journal</button>
-    </nav>
+    </div>
     <div id="profile" class="panel active">
       <div class="counter">
         <p>Souls lost in the U.S. (2025): <span id="usCount">0</span></p>
@@ -264,11 +264,13 @@
     intro.addEventListener("click", () => {
       tapSound.play();
       intro.classList.add("zoom-out");
-      particles.classList.replace("fade-in", "fade-out");
+      particles.classList.remove("fade-in");
+      particles.classList.add("fade-out");
       setTimeout(() => {
         intro.style.display = "none";
         app.classList.add("show");
-        particles.classList.replace("fade-out", "fade-in");
+        particles.classList.remove("fade-out");
+        particles.classList.add("fade-in");
       }, 1200);
     });
 
@@ -295,6 +297,7 @@
     };
 
     const animateCount = (el, to) => {
+      let start = 0;
       const duration = 1500;
       const startTime = performance.now();
       const update = (time) => {
@@ -315,9 +318,7 @@
       setTimeout(() => usEl.classList.remove("pulse"), 1200);
     }, usRateSec * 1000);
 
-    setInterval(() => {
-      globalEl.innerText = (++global).toLocaleString();
-    }, globalRateSec * 1000);
+    setInterval(() => globalEl.innerText = (++global).toLocaleString(), globalRateSec * 1000);
 
     const affirmations = [
       "You are enough. You are doing your best.",
